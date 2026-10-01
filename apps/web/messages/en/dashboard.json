@@ -1,0 +1,24 @@
+{
+  "Dashboard": {
+    "brand": "NASA Space Apps Giza",
+    "logout": "Logout",
+    "titles": {
+      "organizer": "Organizer Dashboard",
+      "judge": "Judge Dashboard",
+      "mentor": "Mentor Dashboard",
+      "participant": "Participant Dashboard"
+    },
+    "organizer": {
+      "welcome": "Welcome to Organizer Dashboard"
+    },
+    "judge": {
+      "welcome": "Welcome to Judge Dashboard"
+    },
+    "mentor": {
+      "welcome": "Welcome to Mentor Dashboard"
+    },
+    "participant": {
+      "welcome": "Welcome to Participant Dashboard"
+    }
+  }
+}

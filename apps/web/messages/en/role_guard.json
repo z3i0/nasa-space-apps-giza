@@ -1,0 +1,15 @@
+{
+  "RoleGuard": {
+    "verifying": "Verifying access...",
+    "accessDeniedTitle": "Access Denied (403)",
+    "accessDeniedDescription": "You are signed in as a {currentRole}. This page is restricted to {allowedRoles}.",
+    "goToDashboard": "Go to Your Role Dashboard",
+    "switchAccount": "Switch Account",
+    "roles": {
+      "organizer": "Organizer",
+      "judge": "Judge",
+      "mentor": "Mentor",
+      "participant": "Participant"
+    }
+  }
+}

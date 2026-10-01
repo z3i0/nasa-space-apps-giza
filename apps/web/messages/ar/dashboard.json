@@ -1,0 +1,24 @@
+{
+  "Dashboard": {
+    "brand": "NASA Space Apps Giza",
+    "logout": "تسجيل الخروج",
+    "titles": {
+      "organizer": "لوحة تحكم المنظم",
+      "judge": "لوحة تحكم المحكّم",
+      "mentor": "لوحة تحكم المرشد",
+      "participant": "لوحة تحكم المتسابق"
+    },
+    "organizer": {
+      "welcome": "أهلاً بك في لوحة تحكم المنظم"
+    },
+    "judge": {
+      "welcome": "أهلاً بك في لوحة تحكم المحكّم"
+    },
+    "mentor": {
+      "welcome": "أهلاً بك في لوحة تحكم المرشد"
+    },
+    "participant": {
+      "welcome": "أهلاً بك في لوحة تحكم المتسابق"
+    }
+  }
+}

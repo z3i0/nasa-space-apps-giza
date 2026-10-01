@@ -1,0 +1,15 @@
+{
+  "RoleGuard": {
+    "verifying": "جاري التحقق من الوصول...",
+    "accessDeniedTitle": "غير مصرح لك بالدخول (403)",
+    "accessDeniedDescription": "أنت مسجل حالياً كـ {currentRole}. هذه الصفحة مخصصة فقط لـ {allowedRoles}.",
+    "goToDashboard": "الذهاب إلى لوحة التحكم الخاصة بك",
+    "switchAccount": "تسجيل الدخول بحساب آخر",
+    "roles": {
+      "organizer": "منظم",
+      "judge": "محكم",
+      "mentor": "مرشد",
+      "participant": "متسابق"
+    }
+  }
+}
