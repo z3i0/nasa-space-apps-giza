@@ -8,17 +8,6 @@ datasource db {
 }
 
 // -------------------------------------------------------------
-// Enums
-// -------------------------------------------------------------
-
-enum TeamRole {
-  LEADER
-  MEMBER
-
-  @@map("team_role")
-}
-
-// -------------------------------------------------------------
 // Core Authentication & User Tables
 // -------------------------------------------------------------
 
@@ -43,8 +32,6 @@ model User {
   sessions            Session[]
   accounts            Account[]
   roles               UserRole[]
-  teamMemberships     TeamMember[]
-  createdTeams        Team[]               @relation("TeamCreatedBy")
   passwordResetTokens PasswordResetToken[]
 
   @@index([email])
@@ -142,39 +129,3 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
-// -------------------------------------------------------------
-// Minimal Teams & Team Members (Contextual Role Checking)
-// -------------------------------------------------------------
-
-model Team {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  createdBy String?   @map("created_by")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-
-  creator User?        @relation("TeamCreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
-  members TeamMember[]
-
-  @@index([createdBy])
-  @@index([deletedAt])
-  @@map("teams")
-}
-
-model TeamMember {
-  id       String   @id @default(uuid())
-  teamId   String   @map("team_id")
-  userId   String   @map("user_id")
-  teamRole TeamRole @default(MEMBER) @map("team_role")
-  joinedAt DateTime @default(now()) @map("joined_at")
-
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([teamId, userId])
-  @@index([teamId])
-  @@index([userId])
-  @@index([teamRole])
-  @@map("team_members")
-}

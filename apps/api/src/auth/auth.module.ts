@@ -6,8 +6,6 @@ import { AuthController } from './auth.controller.js';
 import { AdminUsersController } from './admin-users.controller.js';
 import { AuthGuard } from './guards/auth.guard.js';
 import { RolesGuard } from './guards/roles.guard.js';
-import { TeamLeaderGuard } from './guards/team-leader.guard.js';
-import { TeamMemberGuard } from './guards/team-member.guard.js';
 import { LastSeenMiddleware } from './middleware/last-seen.middleware.js';
 
 @Global()
@@ -26,16 +24,12 @@ import { LastSeenMiddleware } from './middleware/last-seen.middleware.js';
     AuthService,
     AuthGuard,
     RolesGuard,
-    TeamLeaderGuard,
-    TeamMemberGuard,
     LastSeenMiddleware,
   ],
   exports: [
     AuthService,
     AuthGuard,
     RolesGuard,
-    TeamLeaderGuard,
-    TeamMemberGuard,
     LastSeenMiddleware,
   ],
 })

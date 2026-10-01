@@ -1,8 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AuthGuard } from './auth.guard.js';
 import { RolesGuard } from './roles.guard.js';
-import { TeamLeaderGuard } from './team-leader.guard.js';
-import { TeamMemberGuard } from './team-member.guard.js';
 import { getScoresFilter } from '../helpers/score-query.helper.js';
 import { UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -141,125 +139,7 @@ describe('Auth & Authorization Guards & Policies', () => {
     });
   });
 
-  describe('TeamLeaderGuard (Contextual Team Leader Check)', () => {
-    let leaderGuard: TeamLeaderGuard;
-    let mockPrisma: any;
 
-    beforeEach(() => {
-      mockPrisma = { teamMember: { findUnique: vi.fn() } };
-      leaderGuard = new TeamLeaderGuard(reflector, mockPrisma);
-    });
-
-    it('blocks regular member from leader-only route', async () => {
-      vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
-      mockPrisma.teamMember.findUnique.mockResolvedValue({
-        teamId: 'team-1',
-        userId: 'member-1',
-        teamRole: 'MEMBER', // Not leader
-      });
-
-      const ctx: any = {
-        getHandler: vi.fn(),
-        getClass: vi.fn(),
-        switchToHttp: () => ({
-          getRequest: () => ({
-            user: { id: 'member-1', roles: ['participant'] },
-            params: { teamId: 'team-1' },
-          }),
-        }),
-      };
-
-      await expect(leaderGuard.canActivate(ctx)).rejects.toThrow(ForbiddenException);
-    });
-
-    it('allows designated team leader on leader-only route', async () => {
-      vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
-      mockPrisma.teamMember.findUnique.mockResolvedValue({
-        teamId: 'team-1',
-        userId: 'leader-1',
-        teamRole: 'LEADER',
-      });
-
-      const ctx: any = {
-        getHandler: vi.fn(),
-        getClass: vi.fn(),
-        switchToHttp: () => ({
-          getRequest: () => ({
-            user: { id: 'leader-1', roles: ['participant'] },
-            params: { teamId: 'team-1' },
-          }),
-        }),
-      };
-
-      expect(await leaderGuard.canActivate(ctx)).toBe(true);
-    });
-
-    it('allows organizer to bypass leader requirement', async () => {
-      vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
-
-      const ctx: any = {
-        getHandler: vi.fn(),
-        getClass: vi.fn(),
-        switchToHttp: () => ({
-          getRequest: () => ({
-            user: { id: 'org-1', roles: ['organizer'] },
-            params: { teamId: 'team-1' },
-          }),
-        }),
-      };
-
-      expect(await leaderGuard.canActivate(ctx)).toBe(true);
-    });
-  });
-
-  describe('TeamMemberGuard (Team Membership Check)', () => {
-    let memberGuard: TeamMemberGuard;
-    let mockPrisma: any;
-
-    beforeEach(() => {
-      mockPrisma = { teamMember: { findUnique: vi.fn() } };
-      memberGuard = new TeamMemberGuard(reflector, mockPrisma);
-    });
-
-    it('blocks user who is not a member of the team', async () => {
-      vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
-      mockPrisma.teamMember.findUnique.mockResolvedValue(null);
-
-      const ctx: any = {
-        getHandler: vi.fn(),
-        getClass: vi.fn(),
-        switchToHttp: () => ({
-          getRequest: () => ({
-            user: { id: 'outsider-1', roles: ['participant'] },
-            params: { teamId: 'team-99' },
-          }),
-        }),
-      };
-
-      await expect(memberGuard.canActivate(ctx)).rejects.toThrow(ForbiddenException);
-    });
-
-    it('allows team member to access team resource', async () => {
-      vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
-      mockPrisma.teamMember.findUnique.mockResolvedValue({
-        teamId: 'team-1',
-        userId: 'user-1',
-      });
-
-      const ctx: any = {
-        getHandler: vi.fn(),
-        getClass: vi.fn(),
-        switchToHttp: () => ({
-          getRequest: () => ({
-            user: { id: 'user-1', roles: ['participant'] },
-            params: { teamId: 'team-1' },
-          }),
-        }),
-      };
-
-      expect(await memberGuard.canActivate(ctx)).toBe(true);
-    });
-  });
 
   describe('Scores Isolation Helper Policy (getScoresFilter)', () => {
     it('CRITICAL: judge is strictly filtered by judgeId = user.id (cannot see other judges)', () => {

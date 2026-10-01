@@ -3,14 +3,12 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { AuthModule } from './auth/auth.module.js';
-import { TeamsModule } from './teams/teams.module.js';
 import { LastSeenMiddleware } from './auth/middleware/last-seen.middleware.js';
 
 @Module({
   imports: [
     PrismaModule,
     AuthModule,
-    TeamsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
