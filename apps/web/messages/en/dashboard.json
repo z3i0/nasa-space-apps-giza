@@ -1,24 +1,356 @@
 {
   "Dashboard": {
     "brand": "NASA Space Apps Giza",
+    "brandSubtitle": "Hackathon Platform",
+    "welcomeTitle": "Welcome, {name}",
+    "welcomeFallback": "Welcome",
     "logout": "Logout",
+    "profile": "Profile",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "switchRole": "Switch View",
+    "currentRole": "Current Role",
+    "breadcrumb": {
+      "home": "Home",
+      "dashboard": "Dashboard"
+    },
+    "header": {
+      "searchPlaceholder": "Type to search...",
+      "search": "Search",
+      "commandTitle": "Command Palette",
+      "commandDescription": "Search for a page or action to run...",
+      "commandEmpty": "No results found.",
+      "quickNavigation": "Quick Navigation",
+      "notifications": "Notifications & Alerts",
+      "noNotifications": "No new notifications right now",
+      "viewAllNotifications": "View all notifications",
+      "toggleTheme": "Toggle theme",
+      "userMenu": "User Menu",
+      "online": "Online",
+      "notif1Title": "Earth Science Track Update",
+      "notif1Desc": "New Landsat data sources have been added",
+      "notif1Time": "10m ago",
+      "notif2Title": "Reminder: Midterm Review",
+      "notif2Desc": "Midterm review sessions start at 02:00 PM",
+      "notif2Time": "35m ago",
+      "notif3Title": "Draft Submission",
+      "notif3Desc": "Make sure your GitHub repository link is linked before 06:00 PM",
+      "notif3Time": "1h ago"
+    },
     "titles": {
       "organizer": "Organizer Dashboard",
       "judge": "Judge Dashboard",
       "mentor": "Mentor Dashboard",
       "participant": "Participant Dashboard"
     },
+    "sections": {
+      "main": "Overview",
+      "management": "Management & Operations",
+      "ops": "Events & Communication",
+      "system": "System Settings",
+      "workspace": "Team & Project Workspace",
+      "guidance": "Guidance & Mentorship",
+      "hackathonInfo": "Hackathon Information",
+      "judging": "Judging Operations",
+      "results": "Results & Criteria"
+    },
+    "nav": {
+      "overview": "Overview",
+      "analytics": "Analytics & Insights",
+      "teams": "Teams",
+      "participants": "Participants",
+      "mentors": "Mentors",
+      "judges": "Judging Panels",
+      "challenges": "Challenges & Tracks",
+      "submissions": "Project Submissions",
+      "announcements": "Announcements",
+      "schedule": "Event Schedule",
+      "logistics": "Logistics & Support",
+      "settings": "Event Settings",
+      "myTeam": "My Team",
+      "findTeam": "Find Teammates",
+      "myProject": "Project Workspace",
+      "submitProject": "Submit Project",
+      "requestMentor": "Request Mentorship",
+      "mySessions": "Booked Sessions",
+      "nasaChallenges": "NASA Challenges",
+      "resources": "Resources & Datasets",
+      "evaluationRubric": "Evaluation Rubric",
+      "assignedTeams": "Assigned Teams",
+      "mentorshipRequests": "Mentorship Requests",
+      "mentorSessions": "My Sessions & Calendar",
+      "mentorNotes": "Notes & Reports",
+      "mentorGuidelines": "Mentorship Guidelines",
+      "assignedProjects": "Assigned Projects",
+      "scoringForm": "Scoring Form",
+      "judgingProgress": "Judging Progress",
+      "leaderboard": "Leaderboard",
+      "nasaCriteria": "Official NASA Criteria"
+    },
+    "badges": {
+      "new": "New",
+      "active": "Active",
+      "urgent": "Urgent",
+      "teamsCount": "{count} teams",
+      "projectsCount": "{count} projects"
+    },
     "organizer": {
-      "welcome": "Welcome to Organizer Dashboard"
-    },
-    "judge": {
-      "welcome": "Welcome to Judge Dashboard"
-    },
-    "mentor": {
-      "welcome": "Welcome to Mentor Dashboard"
+      "welcome": "Welcome to Organizer Dashboard",
+      "description": "Manage teams, judges, mentors, and track event progress in real-time.",
+      "newAnnouncement": "New Announcement",
+      "stats": {
+        "teams": "Total Teams",
+        "teamsSub": "+12 this week",
+        "mentors": "Available Mentors",
+        "mentorsSub": "8 online now",
+        "judges": "Judging Panels",
+        "judgesSub": "Ready for scoring",
+        "submissions": "Submitted Projects",
+        "submissionsSub": "out of 48"
+      },
+      "activityFeed": {
+        "title": "Live Activity Feed",
+        "liveBadge": "Live Now",
+        "item1Text": "Team Nebula submitted their first draft project",
+        "item1Time": "5m ago",
+        "item2Text": "New mentorship request from Team AstroCode",
+        "item2Time": "15m ago",
+        "item3Text": "New judge joined the Earth Science review panel",
+        "item3Time": "40m ago",
+        "item4Text": "Landsat satellite imaging workshop announcement posted",
+        "item4Time": "1h ago"
+      },
+      "milestones": {
+        "title": "Event Milestones",
+        "m1Title": "Hackathon Kickoff",
+        "m1Date": "Friday Oct 4 - 09:00 AM",
+        "m1Status": "Completed",
+        "m2Title": "Midterm Review",
+        "m2Date": "Saturday Oct 5 - 02:00 PM",
+        "m2Status": "In Progress",
+        "m3Title": "Final Project Deadline",
+        "m3Date": "Sunday Oct 6 - 11:59 PM",
+        "m3Status": "Upcoming"
+      },
+      "usersTable": {
+        "title": "Participants Management",
+        "subtitle": "View and manage all registered individual participants in the hackathon",
+        "stats": {
+          "session": "Participants",
+          "totalUsers": "Total Participants",
+          "paidUsers": "Confirmed",
+          "activeUsers": "Active Now",
+          "pendingUsers": "Pending Team",
+          "analyticsSub": "Live participant metrics"
+        },
+        "filters": {
+          "role": "Select Role",
+          "plan": "Select Plan",
+          "status": "Select Status",
+          "all": "All",
+          "admin": "Admin",
+          "maintainer": "Maintainer",
+          "editor": "Editor",
+          "enterprise": "Enterprise",
+          "basic": "Basic",
+          "autoDebit": "Auto debit",
+          "active": "Active",
+          "pending": "Pending"
+        },
+        "searchPlaceholder": "Search participant...",
+        "show": "Show",
+        "export": "Export",
+        "import": "Import",
+        "addNewUser": "Add New Participant",
+        "columns": {
+          "selectAll": "Select all",
+          "selectRow": "Select row",
+          "user": "Participant",
+          "role": "Role",
+          "plan": "Plan",
+          "billing": "Billing",
+          "status": "Status",
+          "joinedDate": "Joined Date",
+          "actions": "Actions"
+        },
+        "actions": {
+          "view": "View Participant",
+          "delete": "Delete Participant",
+          "more": "Open actions"
+        },
+        "pagination": {
+          "showing": "Showing {start} to {end} of {total} participants",
+          "previous": "Previous",
+          "next": "Next",
+          "morePages": "More pages"
+        }
+      },
+      "teamsTable": {
+        "title": "Teams Management",
+        "subtitle": "Track team formation, challenge tracks, and project submission statuses",
+        "stats": {
+          "totalTeams": "Total Teams",
+          "fullTeams": "Full Teams (5/5)",
+          "submissions": "Submissions",
+          "mentoredTeams": "Mentored Teams",
+          "analyticsSub": "Live team analytics"
+        },
+        "filters": {
+          "track": "Select Track",
+          "status": "Team Status",
+          "submission": "Submission Status",
+          "all": "All",
+          "earthScience": "Earth Science",
+          "spaceDebris": "Space Debris",
+          "astrophysics": "Astrophysics",
+          "solarPhysics": "Solar Physics",
+          "full": "Full (5/5)",
+          "open": "Open for Members",
+          "submitted": "Submitted",
+          "draft": "Draft",
+          "notStarted": "Not Started"
+        },
+        "searchPlaceholder": "Search team by name or leader...",
+        "addNewTeam": "Create New Team",
+        "export": "Export Teams",
+        "columns": {
+          "team": "Team",
+          "leader": "Team Leader",
+          "members": "Members",
+          "track": "Track / Challenge",
+          "mentor": "Assigned Mentor",
+          "submission": "Project Status",
+          "actions": "Actions"
+        },
+        "actions": {
+          "view": "View Team",
+          "assignMentor": "Assign Mentor",
+          "delete": "Delete Team"
+        },
+        "pagination": {
+          "showing": "Showing {start} to {end} of {total} teams",
+          "previous": "Previous",
+          "next": "Next"
+        }
+      },
+      "tabs": {
+        "participants": "Participants",
+        "teams": "Teams",
+        "participantsBadge": "240 participants",
+        "teamsBadge": "48 teams",
+        "participantsDesc": "Manage and filter individual participants and team statuses",
+        "teamsDesc": "Monitor competing teams, roster size, and project deliveries"
+      }
     },
     "participant": {
-      "welcome": "Welcome to Participant Dashboard"
+      "welcome": "Welcome to Participant Dashboard",
+      "description": "Build your space project, coordinate your team, and book mentor sessions.",
+      "submitFinal": "Submit Final Project",
+      "requestMentorship": "Request Mentorship",
+      "stats": {
+        "teamMembers": "Team Members",
+        "teamMembersSub": "Full team ready",
+        "challenge": "Selected Challenge",
+        "challengeSub": "NASA Open Data Track",
+        "mentorSessions": "Mentor Sessions",
+        "mentorSessionsSub": "Next session at 04:30 PM",
+        "timeRemaining": "Submission Time Left",
+        "timeRemainingSub": "Hours : Minutes : Seconds"
+      },
+      "checklist": {
+        "title": "Project Submission Checklist",
+        "progress": "2 of 4 completed",
+        "required": "Required",
+        "item1": "Team name and member roster finalized (5/5)",
+        "item2": "Official NASA challenge selected",
+        "item3": "Link project code repository (GitHub)",
+        "item4": "3-minute presentation video and pitch deck"
+      },
+      "resources": {
+        "title": "NASA Resources & Datasets",
+        "r1Title": "NASA Open Data Portal",
+        "r1Desc": "Official repository of open datasets",
+        "r2Title": "NASA Earthdata",
+        "r2Desc": "Satellite imagery and climate science data"
+      }
+    },
+    "mentor": {
+      "welcome": "Welcome to Mentor Dashboard",
+      "description": "Provide technical and scientific guidance to participating teams.",
+      "viewRequests": "View Mentorship Requests ({count})",
+      "stats": {
+        "assignedTeams": "Assigned Teams",
+        "assignedTeamsSub": "Teams under your guidance",
+        "requests": "Mentorship Requests",
+        "requestsSub": "Pending responses",
+        "completedSessions": "Completed Sessions",
+        "completedSessionsSub": "During today's sessions",
+        "rating": "Average Team Rating",
+        "ratingSub": "From 12 reviews"
+      },
+      "queue": {
+        "title": "Incoming Consultation Requests",
+        "badge": "3 New Requests",
+        "accept": "Accept Session",
+        "req1Team": "Team Cosmos AI",
+        "req1Topic": "Consultation on AI model training with satellite imagery",
+        "req1Time": "10m ago",
+        "req2Team": "Team SolarPulse",
+        "req2Topic": "Power consumption review for virtual space rover",
+        "req2Time": "25m ago",
+        "req3Team": "Team TerraScan",
+        "req3Topic": "Radar data analysis and NASA API integration",
+        "req3Time": "45m ago"
+      },
+      "upcoming": {
+        "title": "My Upcoming Sessions",
+        "session1Team": "Team AstroVanguard",
+        "session1Time": "Today 04:00 PM - 04:30 PM (Virtual)",
+        "session2Team": "Team LunarRover",
+        "session2Time": "Today 05:15 PM - 05:45 PM (Lab A)"
+      }
+    },
+    "judge": {
+      "welcome": "Welcome to Judge Dashboard",
+      "description": "Evaluate competing projects according to official NASA criteria.",
+      "startEvaluation": "Start Project Evaluations ({count} remaining)",
+      "stats": {
+        "assigned": "Assigned Projects",
+        "assignedSub": "Projects for review",
+        "evaluated": "Evaluated Projects",
+        "evaluatedSub": "Scores submitted",
+        "remaining": "Remaining Projects",
+        "remainingSub": "Awaiting scoring",
+        "progress": "Evaluation Progress",
+        "progressSub": "Stage 1"
+      },
+      "queue": {
+        "title": "Assigned Projects List",
+        "badge": "6 Awaiting Scoring",
+        "evaluateNow": "Evaluate Now",
+        "scored": "Scored: {score}",
+        "p1Name": "OrbitClean: AI Space Debris Removal",
+        "p1Track": "Space Debris Challenge",
+        "p2Name": "AeroCrop: Crop Yield Forecasting via Landsat",
+        "p2Track": "Earth Science",
+        "p3Name": "ExoFinder: Exoplanet Discovery with Webb Telescope",
+        "p3Track": "Astrophysics",
+        "p4Name": "SolarShield: Solar Storm & Space Weather Modeling",
+        "p4Track": "Heliophysics"
+      },
+      "criteria": {
+        "title": "Official Evaluation Criteria",
+        "c1": "Impact & Significance (Impact)",
+        "c2": "Creativity & Innovation (Creativity)",
+        "c3": "Validity of NASA Data Use (Data Use)",
+        "c4": "Feasibility & Technical Execution (Feasibility)",
+        "c5": "Presentation & Storytelling (Presentation)"
+      }
+    },
+    "placeholder": {
+      "title": "This section is under active preparation",
+      "description": "This module is being prepared as part of the NASA Space Apps Giza platform.",
+      "backToOverview": "Back to Overview"
     }
   }
 }

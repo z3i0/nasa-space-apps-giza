@@ -1,24 +1,356 @@
 {
   "Dashboard": {
     "brand": "NASA Space Apps Giza",
+    "brandSubtitle": "منصة الهاكاثون",
+    "welcomeTitle": "أهلاً، {name}",
+    "welcomeFallback": "أهلاً بك",
     "logout": "تسجيل الخروج",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "notifications": "الإشعارات",
+    "switchRole": "تبديل العرض",
+    "currentRole": "الدور الحالي",
+    "breadcrumb": {
+      "home": "الرئيسية",
+      "dashboard": "لوحة التحكم"
+    },
+    "header": {
+      "searchPlaceholder": "اكتب للبحث...",
+      "search": "بحث",
+      "commandTitle": "لوحة الأوامر والتنقل السريع",
+      "commandDescription": "ابحث عن الصفحات والأدوات للانتقال المباشر...",
+      "commandEmpty": "لم يتم العثور على نتائج.",
+      "quickNavigation": "التنقل السريع",
+      "notifications": "الإشعارات والتنبيهات",
+      "noNotifications": "لا توجد إشعارات جديدة حالياً",
+      "viewAllNotifications": "عرض كل الإشعارات",
+      "toggleTheme": "تبديل المظهر",
+      "userMenu": "قائمة الحساب",
+      "online": "متصل الآن",
+      "notif1Title": "تحديث مسار تحدي علوم الأرض",
+      "notif1Desc": "تمت إضافة مصادر بيانات أقمار لاندسات الجديدة",
+      "notif1Time": "منذ 10 دقائق",
+      "notif2Title": "تذكير: المراجعة النصفية",
+      "notif2Desc": "تبدأ جلسات المراجعة النصفية الساعة 02:00 م",
+      "notif2Time": "منذ 35 دقيقة",
+      "notif3Title": "تسليم المسودة الأولى",
+      "notif3Desc": "تأكد من ربط مستودع GitHub قبل الساعة 06:00 م",
+      "notif3Time": "منذ ساعة"
+    },
     "titles": {
       "organizer": "لوحة تحكم المنظم",
       "judge": "لوحة تحكم المحكّم",
       "mentor": "لوحة تحكم المرشد",
       "participant": "لوحة تحكم المتسابق"
     },
+    "sections": {
+      "main": "الرئيسية",
+      "management": "الإدارة والعمليات",
+      "ops": "التواصل والفعالية",
+      "system": "إعدادات النظام",
+      "workspace": "مساحة الفريق والمشروع",
+      "guidance": "الإرشاد والدعم",
+      "hackathonInfo": "معلومات الهاكاثون",
+      "judging": "أعمال التحكيم",
+      "results": "النتائج والمعايير"
+    },
+    "nav": {
+      "overview": "نظرة عامة",
+      "analytics": "الإحصائيات والتحليلات",
+      "teams": "الفرق",
+      "participants": "المتسابقون",
+      "mentors": "المرشدون",
+      "judges": "لجان التحكيم",
+      "challenges": "المسارات والتحديات",
+      "submissions": "المشاريع والتسليمات",
+      "announcements": "التعميمات والإعلانات",
+      "schedule": "الجدول الزمني",
+      "logistics": "اللوجستيات والدعم",
+      "settings": "إعدادات الفعالية",
+      "myTeam": "فريقي",
+      "findTeam": "البحث عن فريق",
+      "myProject": "مشروع الفريق",
+      "submitProject": "تسليم المشروع",
+      "requestMentor": "طلب جلسة إرشاد",
+      "mySessions": "جلساتي المحجوزة",
+      "nasaChallenges": "تحديات ناسا",
+      "resources": "الموارد ومصادر البيانات",
+      "evaluationRubric": "معايير التقييم",
+      "assignedTeams": "الفرق المتابعة",
+      "mentorshipRequests": "طلبات الإرشاد",
+      "mentorSessions": "مواعيدي وجلساتي",
+      "mentorNotes": "الملاحظات والتقارير",
+      "mentorGuidelines": "دليل التوجيه",
+      "assignedProjects": "المشاريع المسندة",
+      "scoringForm": "استمارة التقييم",
+      "judgingProgress": "حالة التقييم",
+      "leaderboard": "قائمة الترتيب",
+      "nasaCriteria": "معايير ناسا الرسمية"
+    },
+    "badges": {
+      "new": "جديد",
+      "active": "نشط",
+      "urgent": "هام",
+      "teamsCount": "{count} فرق",
+      "projectsCount": "{count} مشروع"
+    },
     "organizer": {
-      "welcome": "أهلاً بك في لوحة تحكم المنظم"
-    },
-    "judge": {
-      "welcome": "أهلاً بك في لوحة تحكم المحكّم"
-    },
-    "mentor": {
-      "welcome": "أهلاً بك في لوحة تحكم المرشد"
+      "welcome": "أهلاً بك في لوحة تحكم المنظم",
+      "description": "إدارة الفرق، لجان التحكيم، المرشدين، ومتابعة سير الفعالية في بث مباشر.",
+      "newAnnouncement": "إعلان جديد",
+      "stats": {
+        "teams": "إجمالي الفرق",
+        "teamsSub": "+12 هذا الأسبوع",
+        "mentors": "المرشدون المتاحون",
+        "mentorsSub": "8 متصل الآن",
+        "judges": "لجان التحكيم",
+        "judgesSub": "جاهزون للتقييم",
+        "submissions": "المشاريع المسلمة",
+        "submissionsSub": "من أصل 48"
+      },
+      "activityFeed": {
+        "title": "البث المباشر للأنشطة",
+        "liveBadge": "مباشر الآن",
+        "item1Text": "قام فريق Nebula بتسليم المسودة الأولى للمشروع",
+        "item1Time": "منذ 5 دقائق",
+        "item2Text": "طلب استشارة جديد من فريق AstroCode للمرشد التقني",
+        "item2Time": "منذ 15 دقيقة",
+        "item3Text": "انضم محكّم جديد للجنة تحكيم مسار علوم الأرض",
+        "item3Time": "منذ 40 دقيقة",
+        "item4Text": "تم نشر إعلان ورشة عمل معالجة صور أقمار لاندسات",
+        "item4Time": "منذ ساعة"
+      },
+      "milestones": {
+        "title": "المحطات الزمنية",
+        "m1Title": "بدء الهاكاثون",
+        "m1Date": "الجمعة 4 أكتوبر - 09:00 ص",
+        "m1Status": "مكتمل",
+        "m2Title": "المراجعة النصفية",
+        "m2Date": "السبت 5 أكتوبر - 02:00 م",
+        "m2Status": "جارية الآن",
+        "m3Title": "الموعد النهائي للتسليم",
+        "m3Date": "الأحد 6 أكتوبر - 11:59 م",
+        "m3Status": "قادم"
+      },
+      "usersTable": {
+        "title": "إدارة المتسابقين",
+        "subtitle": "عرض وتصفية جميع المتسابقين المسجلين في الهاكاثون",
+        "stats": {
+          "session": "المتسابقون",
+          "totalUsers": "إجمالي المتسابقين",
+          "paidUsers": "المؤكدون",
+          "activeUsers": "النشطون الآن",
+          "pendingUsers": "بانتظار الانضمام",
+          "analyticsSub": "تحليلات المتسابقين"
+        },
+        "filters": {
+          "role": "اختر الدور",
+          "plan": "اختر الخطة",
+          "status": "اختر الحالة",
+          "all": "الكل",
+          "admin": "مسؤول",
+          "maintainer": "مشرف",
+          "editor": "محرر",
+          "enterprise": "مؤسسي",
+          "basic": "أساسي",
+          "autoDebit": "خصم تلقائي",
+          "active": "نشط",
+          "pending": "معلق"
+        },
+        "searchPlaceholder": "بحث عن متسابق...",
+        "show": "عرض",
+        "export": "تصدير",
+        "import": "استيراد",
+        "addNewUser": "إضافة متسابق جديد",
+        "columns": {
+          "selectAll": "تحديد الكل",
+          "selectRow": "تحديد الصف",
+          "user": "المتسابق",
+          "role": "الدور",
+          "plan": "الخطة",
+          "billing": "الفوترة",
+          "status": "الحالة",
+          "joinedDate": "تاريخ الانضمام",
+          "actions": "الإجراءات"
+        },
+        "actions": {
+          "view": "عرض المتسابق",
+          "delete": "حذف المتسابق",
+          "more": "إجراءات إضافية"
+        },
+        "pagination": {
+          "showing": "عرض {start} إلى {end} من أصل {total} متسابق",
+          "previous": "السابق",
+          "next": "التالي",
+          "morePages": "صفحات إضافية"
+        }
+      },
+      "teamsTable": {
+        "title": "إدارة الفرق",
+        "subtitle": "متابعة تشكيل الفرق، المسارات، وحالة المشاريع والتسليمات",
+        "stats": {
+          "totalTeams": "إجمالي الفرق",
+          "fullTeams": "فرق مكتملة (5/5)",
+          "submissions": "المشاريع المسلمة",
+          "mentoredTeams": "فرق بإشراف مرشد",
+          "analyticsSub": "إحصائيات الفرق الحالية"
+        },
+        "filters": {
+          "track": "اختر المسار",
+          "status": "حالة الفريق",
+          "submission": "حالة التسليم",
+          "all": "الكل",
+          "earthScience": "علوم الأرض",
+          "spaceDebris": "الحطام الفضائي",
+          "astrophysics": "الفيزياء الفلكية",
+          "solarPhysics": "فيزياء الشمس",
+          "full": "مكتمل (5/5)",
+          "open": "مفتوح للانضمام",
+          "submitted": "تم التسليم",
+          "draft": "مسودة",
+          "notStarted": "لم يبدأ"
+        },
+        "searchPlaceholder": "بحث عن فريق بالاسم أو القائد...",
+        "addNewTeam": "إنشاء فريق جديد",
+        "export": "تصدير الفرق",
+        "columns": {
+          "team": "الفريق",
+          "leader": "قائد الفريق",
+          "members": "الأعضاء",
+          "track": "المسار / التحدي",
+          "mentor": "المرشد المشرف",
+          "submission": "حالة المشروع",
+          "actions": "الإجراءات"
+        },
+        "actions": {
+          "view": "عرض الفريق",
+          "assignMentor": "تعيين مرشد",
+          "delete": "حذف الفريق"
+        },
+        "pagination": {
+          "showing": "عرض {start} إلى {end} من أصل {total} فريق",
+          "previous": "السابق",
+          "next": "التالي"
+        }
+      },
+      "tabs": {
+        "participants": "المتسابقون",
+        "teams": "الفرق",
+        "participantsBadge": "240 متسابق",
+        "teamsBadge": "48 فريق",
+        "participantsDesc": "إدارة وتصفية بيانات جميع المتسابقين المسجلين بشكل فردي",
+        "teamsDesc": "متابعة الفرق المتنافسة وتشكيلها وحالة تسليم المشاريع"
+      }
     },
     "participant": {
-      "welcome": "أهلاً بك في لوحة تحكم المتسابق"
+      "welcome": "أهلاً بك في لوحة تحكم المتسابق",
+      "description": "بناء مشروعك الفضائي، تنسيق عمل فريقك، وحجز جلسات الإرشاد.",
+      "submitFinal": "تسليم المشروع النهائي",
+      "requestMentorship": "طلب جلسة إرشاد",
+      "stats": {
+        "teamMembers": "أعضاء الفريق",
+        "teamMembersSub": "فريق مكتمل وجاهز",
+        "challenge": "التحدي المختار",
+        "challengeSub": "مسار بيانات ناسا المفتوحة",
+        "mentorSessions": "جلسات الإرشاد",
+        "mentorSessionsSub": "الجلسة القادمة 04:30 م",
+        "timeRemaining": "الوقت المتبقي للتسليم",
+        "timeRemainingSub": "ساعة : دقيقة : ثانية"
+      },
+      "checklist": {
+        "title": "قائمة متطلبات تسليم المشروع",
+        "progress": "2 من 4 مكتمل",
+        "required": "مطلوب",
+        "item1": "تحديد اسم الفريق واكتمال الأعضاء (5/5)",
+        "item2": "اختيار التحدي الرسمي من وكالة ناسا",
+        "item3": "ربط مستودع الكود البرمجي (GitHub Repository)",
+        "item4": "فيديو العرض التقديمي (3 دقائق) وملف الـ Slides"
+      },
+      "resources": {
+        "title": "موارد وبيانات ناسا",
+        "r1Title": "بوابة بيانات ناسا المفتوحة",
+        "r1Desc": "مستودع بيانات وكالة ناسا المفتوحة",
+        "r2Title": "بيانات ناسا لعلوم الأرض",
+        "r2Desc": "بيانات الأقمار الصناعية وعلوم المناخ"
+      }
+    },
+    "mentor": {
+      "welcome": "أهلاً بك في لوحة تحكم المرشد",
+      "description": "تقديم الاستشارات العلمية والتقنية وتوجيه الفرق خلال مراحل الهاكاثون.",
+      "viewRequests": "عرض طلبات الإرشاد ({count})",
+      "stats": {
+        "assignedTeams": "الفرق المتابعة",
+        "assignedTeamsSub": "فرق تحت إشرافك",
+        "requests": "طلبات الاستشارة",
+        "requestsSub": "طلبات بانتظار الرد",
+        "completedSessions": "جلسات مكتملة",
+        "completedSessionsSub": "خلال فعاليات اليوم",
+        "rating": "متوسط تقييم الفرق",
+        "ratingSub": "من 12 تقييم"
+      },
+      "queue": {
+        "title": "طلبات الاستشارة الواردة",
+        "badge": "3 طلبات جديدة",
+        "accept": "قبول الجلسة",
+        "req1Team": "فريق Cosmos AI",
+        "req1Topic": "استشارة حول تدريب نموذج الذكاء الاصطناعي على صور الأقمار",
+        "req1Time": "منذ 10 دقائق",
+        "req2Team": "فريق SolarPulse",
+        "req2Topic": "مراجعة استهلاك الطاقة للروبوت الفضائي الافتراضي",
+        "req2Time": "منذ 25 دقيقة",
+        "req3Team": "فريق TerraScan",
+        "req3Topic": "تحليل بيانات الرادار وربط واجهة NASA API",
+        "req3Time": "منذ 45 دقيقة"
+      },
+      "upcoming": {
+        "title": "جدول جلساتي القادمة",
+        "session1Team": "فريق AstroVanguard",
+        "session1Time": "اليوم 04:00 م - 04:30 م (جلسة افتراضية)",
+        "session2Team": "فريق LunarRover",
+        "session2Time": "اليوم 05:15 م - 05:45 م (قاعة المعمل A)"
+      }
+    },
+    "judge": {
+      "welcome": "أهلاً بك في لوحة تحكم المحكّم",
+      "description": "تقييم مشاريع الفرق المتنافسة وفق معايير وكالة ناسا الرسمية.",
+      "startEvaluation": "بدء تقييم المشاريع ({count} متبقية)",
+      "stats": {
+        "assigned": "المشاريع المسندة",
+        "assignedSub": "مشاريع للتقييم",
+        "evaluated": "المشاريع المقيمة",
+        "evaluatedSub": "تم إرسال الدرجات",
+        "remaining": "مشاريع متبقية",
+        "remainingSub": "بانتظار التحكيم",
+        "progress": "نسبة الإنجاز",
+        "progressSub": "المرحلة الأولى"
+      },
+      "queue": {
+        "title": "قائمة المشاريع المخصصة للتحكيم",
+        "badge": "6 بحاجة لتقييم",
+        "evaluateNow": "تقييم الآن",
+        "scored": "تم التقييم: {score}",
+        "p1Name": "OrbitClean: تنظيف المدارات الفضائية بالذكاء الاصطناعي",
+        "p1Track": "مسار الحطام الفضائي",
+        "p2Name": "AeroCrop: التنبؤ بالمحاصيل الزراعية عبر أقمار لاندسات",
+        "p2Track": "مسار علوم الأرض",
+        "p3Name": "ExoFinder: اكتشاف الكواكب الخارجية باستخدام تلسكوب ويب",
+        "p3Track": "مسار الفيزياء الفلكية",
+        "p4Name": "SolarShield: نمذجة العواصف الشمسية والرياح الفضائية",
+        "p4Track": "مسار فيزياء الشمس"
+      },
+      "criteria": {
+        "title": "معايير التقييم الرسمية",
+        "c1": "التأثير والأهمية (Impact)",
+        "c2": "الإبداع والابتكار (Creativity)",
+        "c3": "صحة استخدام بيانات ناسا (Data Use)",
+        "c4": "الجدوى والتنفيذ التقني (Feasibility)",
+        "c5": "العرض التقديمي (Presentation)"
+      }
+    },
+    "placeholder": {
+      "title": "هذا القسم قيد التطوير والتجهيز",
+      "description": "يتم تجهيز هذه الصفحة كجزء من منصة NASA Space Apps Giza.",
+      "backToOverview": "العودة للرئيسية"
     }
   }
 }
