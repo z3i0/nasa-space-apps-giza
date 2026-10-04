@@ -20,8 +20,10 @@ export function RoleGuard({ allowedRoles, children }: RoleGuardProps) {
   const locale = useLocale()
   const t = useTranslations("RoleGuard")
 
-  const [status, setStatus] = useState<"loading" | "authorized" | "unauthorized" | "unauthenticated">("loading")
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null)
+  const [status, setStatus] = useState<"loading" | "authorized" | "unauthorized" | "unauthenticated">("loading")
+
+  const allowedRolesKey = allowedRoles.join(",")
 
   useEffect(() => {
     let isMounted = true
@@ -80,11 +82,11 @@ export function RoleGuard({ allowedRoles, children }: RoleGuardProps) {
     return () => {
       isMounted = false
     }
-  }, [allowedRoles, router])
+  }, [allowedRolesKey, router])
 
   if (status === "loading" || status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <div className="flex-1 w-full min-h-[50vh] flex flex-col items-center justify-center p-4">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm font-medium text-muted-foreground">
@@ -115,7 +117,7 @@ export function RoleGuard({ allowedRoles, children }: RoleGuardProps) {
       .join(locale === "ar" ? "، " : ", ")
 
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 sm:p-6 text-foreground relative">
+      <div className="flex-1 w-full min-h-[60vh] flex flex-col items-center justify-center p-4 sm:p-6 text-foreground relative">
         {/* Language & Theme Controls */}
         <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2">
           <LanguageSwitcher />

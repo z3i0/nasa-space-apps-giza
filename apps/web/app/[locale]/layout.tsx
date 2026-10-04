@@ -7,6 +7,7 @@ import { NextIntlClientProvider } from "next-intl"
 import "../globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { DirectionProvider } from "@/components/ui/direction"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { routing } from "@/i18n/routing"
 import { cn } from "@/lib/utils"
 
@@ -86,9 +87,11 @@ export default async function LocaleLayout({
       <body>
         <DirectionProvider direction={dir}>
           <ThemeProvider defaultTheme={(themeCookie as "light" | "dark" | "system") || "system"}>
-            <NextIntlClientProvider locale={locale} messages={messages}>
-              {children}
-            </NextIntlClientProvider>
+            <TooltipProvider>
+              <NextIntlClientProvider locale={locale} messages={messages}>
+                {children}
+              </NextIntlClientProvider>
+            </TooltipProvider>
           </ThemeProvider>
         </DirectionProvider>
       </body>
