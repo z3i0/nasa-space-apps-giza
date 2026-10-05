@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl"
 import { RoleGuard } from "@/components/role-guard"
 import {
-  Rocket,
   Users,
   Compass,
   UploadCloud,
@@ -76,7 +75,6 @@ export default function ParticipantDashboard() {
       <div className="w-full flex flex-col gap-4 lg:gap-6">
         {/* Page Header */}
         <PageHeader
-          icon={Rocket}
           iconClassName="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
           title={welcomeTitle}
           subtitle={t("participant.description")}

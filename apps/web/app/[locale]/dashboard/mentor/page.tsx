@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl"
 import { RoleGuard } from "@/components/role-guard"
 import {
-  Compass,
   Users,
   MessageSquareCode,
   CalendarClock,
@@ -84,7 +83,6 @@ export default function MentorDashboard() {
       <div className="w-full flex flex-col gap-4 lg:gap-6">
         {/* Page Header */}
         <PageHeader
-          icon={Compass}
           iconClassName="bg-sky-500/10 text-sky-600 dark:text-sky-400"
           title={welcomeTitle}
           subtitle={t("mentor.description")}
