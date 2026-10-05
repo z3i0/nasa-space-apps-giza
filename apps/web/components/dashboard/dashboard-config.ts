@@ -29,6 +29,16 @@ import {
   FileSpreadsheet,
   Shield,
   UserRound,
+  UserCircle,
+  ListTodo,
+  FolderArchive,
+  MapPin,
+  MessagesSquare,
+  Bot,
+  Timer,
+  History,
+  Activity,
+  Medal,
   type LucideIcon,
 } from "lucide-react"
 
@@ -91,6 +101,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             url: "/dashboard/organizer/analytics",
             icon: BarChart3,
           },
+          {
+            titleKey: "nav.requestsTracking",
+            url: "/dashboard/organizer/requests-tracking",
+            icon: Activity,
+          },
         ],
       },
       {
@@ -128,6 +143,16 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             icon: FolderGit2,
             badgeVariant: "default",
           },
+          {
+            titleKey: "nav.judgingScores",
+            url: "/dashboard/organizer/scores",
+            icon: Medal,
+          },
+          {
+            titleKey: "nav.communityManagement",
+            url: "/dashboard/organizer/community",
+            icon: MessagesSquare,
+          },
         ],
       },
       {
@@ -142,6 +167,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             titleKey: "nav.schedule",
             url: "/dashboard/organizer/schedule",
             icon: CalendarDays,
+          },
+          {
+            titleKey: "nav.timeline",
+            url: "/dashboard/organizer/timeline",
+            icon: Timer,
           },
           {
             titleKey: "nav.logistics",
@@ -186,6 +216,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             icon: LayoutDashboard,
           },
           {
+            titleKey: "nav.profile",
+            url: "/dashboard/participant/profile",
+            icon: UserCircle,
+          },
+          {
             titleKey: "nav.myTeam",
             url: "/dashboard/participant/team",
             icon: Users,
@@ -196,6 +231,16 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             titleKey: "nav.findTeam",
             url: "/dashboard/participant/find-team",
             icon: Compass,
+          },
+          {
+            titleKey: "nav.teamTasks",
+            url: "/dashboard/participant/tasks",
+            icon: ListTodo,
+          },
+          {
+            titleKey: "nav.teamLibrary",
+            url: "/dashboard/participant/team-library",
+            icon: FolderArchive,
           },
           {
             titleKey: "nav.myProject",
@@ -220,10 +265,20 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             icon: HelpCircle,
           },
           {
+            titleKey: "nav.mentorMap",
+            url: "/dashboard/participant/mentor-map",
+            icon: MapPin,
+          },
+          {
             titleKey: "nav.mySessions",
             url: "/dashboard/participant/sessions",
             icon: Clock,
           },
+        ],
+      },
+      {
+        titleKey: "sections.resources",
+        items: [
           {
             titleKey: "nav.nasaChallenges",
             url: "/dashboard/participant/challenges",
@@ -234,6 +289,16 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             url: "/dashboard/participant/resources",
             icon: BookOpen,
           },
+          {
+            titleKey: "nav.community",
+            url: "/dashboard/participant/community",
+            icon: MessagesSquare,
+          },
+          {
+            titleKey: "nav.aiAssistant",
+            url: "/dashboard/participant/ai-assistant",
+            icon: Bot,
+          },
         ],
       },
       {
@@ -243,6 +308,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             titleKey: "nav.schedule",
             url: "/dashboard/participant/schedule",
             icon: Calendar,
+          },
+          {
+            titleKey: "nav.timeline",
+            url: "/dashboard/participant/timeline",
+            icon: Timer,
           },
           {
             titleKey: "nav.evaluationRubric",
@@ -277,6 +347,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             icon: LayoutDashboard,
           },
           {
+            titleKey: "nav.mentorProfile",
+            url: "/dashboard/mentor/profile",
+            icon: UserCircle,
+          },
+          {
             titleKey: "nav.assignedTeams",
             url: "/dashboard/mentor/teams",
             icon: Users,
@@ -290,9 +365,19 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             badgeVariant: "default",
           },
           {
+            titleKey: "nav.mentorMap",
+            url: "/dashboard/mentor/map",
+            icon: MapPin,
+          },
+          {
             titleKey: "nav.mentorSessions",
             url: "/dashboard/mentor/sessions",
             icon: CalendarClock,
+          },
+          {
+            titleKey: "nav.mentorHistory",
+            url: "/dashboard/mentor/history",
+            icon: History,
           },
         ],
       },
@@ -313,6 +398,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             titleKey: "nav.mentorGuidelines",
             url: "/dashboard/mentor/guidelines",
             icon: BookOpenCheck,
+          },
+          {
+            titleKey: "nav.timeline",
+            url: "/dashboard/mentor/timeline",
+            icon: Timer,
           },
         ],
       },
@@ -349,6 +439,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             badgeVariant: "secondary",
           },
           {
+            titleKey: "nav.judgingSchedule",
+            url: "/dashboard/judge/schedule",
+            icon: CalendarClock,
+          },
+          {
             titleKey: "nav.scoringForm",
             url: "/dashboard/judge/evaluation",
             icon: Scale,
@@ -372,6 +467,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             titleKey: "nav.nasaCriteria",
             url: "/dashboard/judge/criteria",
             icon: FileSpreadsheet,
+          },
+          {
+            titleKey: "nav.timeline",
+            url: "/dashboard/judge/timeline",
+            icon: Timer,
           },
         ],
       },
