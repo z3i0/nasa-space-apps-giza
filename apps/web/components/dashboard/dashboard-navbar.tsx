@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/command"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LanguageSwitcher } from "@/components/language-switcher"
-import { useTheme } from "@/components/theme-provider"
+import { ThemeToggle } from "@/components/theme-toggle"
 import {
   DASHBOARD_ROLES_CONFIG,
   DashboardRole,
@@ -35,8 +35,6 @@ import {
 import {
   Search,
   Bell,
-  Sun,
-  Moon,
   Shield,
   Rocket,
   Compass,
@@ -54,14 +52,11 @@ export function DashboardNavbar({ currentRole }: DashboardNavbarProps) {
   const t = useTranslations("Dashboard")
   const locale = useLocale()
   const router = useRouter()
-  const { resolvedTheme, setTheme } = useTheme()
 
-  const [mounted, setMounted] = React.useState(false)
   const [openSearch, setOpenSearch] = React.useState(false)
   const [user, setUser] = React.useState<UserSession | null>(null)
 
   React.useEffect(() => {
-    setMounted(true)
     const stored = getAuthUser()
     if (stored) {
       setUser(stored)
@@ -210,22 +205,8 @@ export function DashboardNavbar({ currentRole }: DashboardNavbarProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* 2. Theme Toggle (Moon / Sun) */}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className="size-9 relative text-muted-foreground hover:text-foreground"
-            >
-              {mounted && (
-                <>
-                  <Moon className="size-4 scale-100 dark:scale-0 transition-transform" />
-                  <Sun className="size-4 absolute scale-0 dark:scale-100 transition-transform" />
-                </>
-              )}
-              <span className="sr-only">{t("header.toggleTheme")}</span>
-            </Button>
+            {/* 2. Theme Toggle (Animated) */}
+            <ThemeToggle variant="ghost" />
 
             {/* 3. Language Switcher */}
             <LanguageSwitcher variant="ghost" />
