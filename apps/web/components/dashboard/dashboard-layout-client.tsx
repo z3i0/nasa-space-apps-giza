@@ -6,13 +6,14 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { DashboardNavbar } from "@/components/dashboard/dashboard-navbar"
 import { DashboardRole } from "@/components/dashboard/dashboard-config"
-import { getAuthUser } from "@/lib/auth"
+import { getAuthUser, UserSession } from "@/lib/auth"
 
 interface DashboardLayoutClientProps {
   children: React.ReactNode
+  initialUser?: UserSession | null
 }
 
-export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) {
+export function DashboardLayoutClient({ children, initialUser }: DashboardLayoutClientProps) {
   const pathname = usePathname()
 
   // Determine current role based on active route
@@ -24,10 +25,19 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
     return null
   }, [pathname])
 
-  const [fallbackRole, setFallbackRole] = React.useState<DashboardRole>("participant")
+  const initialRole: DashboardRole =
+    initialUser?.roles?.includes("organizer") || initialUser?.role === "organizer"
+      ? "organizer"
+      : initialUser?.roles?.includes("judge") || initialUser?.role === "judge"
+      ? "judge"
+      : initialUser?.roles?.includes("mentor") || initialUser?.role === "mentor"
+      ? "mentor"
+      : "participant"
+
+  const [fallbackRole, setFallbackRole] = React.useState<DashboardRole>(initialRole)
 
   React.useEffect(() => {
-    const user = getAuthUser()
+    const user = getAuthUser() || initialUser
     if (user?.roles?.includes("organizer") || user?.role === "organizer") {
       setFallbackRole("organizer")
     } else if (user?.roles?.includes("judge") || user?.role === "judge") {
@@ -35,7 +45,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
     } else if (user?.roles?.includes("mentor") || user?.role === "mentor") {
       setFallbackRole("mentor")
     }
-  }, [])
+  }, [initialUser])
 
   const currentRole: DashboardRole = roleFromPath ?? fallbackRole
 

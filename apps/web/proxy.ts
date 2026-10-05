@@ -90,6 +90,15 @@ export default function proxy(request: NextRequest) {
       const targetRoleDashboard = roles.includes("judge") ? "judge" : "participant"
       return NextResponse.redirect(new URL(`/${locale}/dashboard/${targetRoleDashboard}`, request.url))
     }
+
+    if (pathname.includes("/dashboard/participant") && !roles.includes("participant") && !isOrganizer) {
+      const targetRoleDashboard = roles.includes("judge")
+        ? "judge"
+        : roles.includes("mentor")
+        ? "mentor"
+        : "organizer"
+      return NextResponse.redirect(new URL(`/${locale}/dashboard/${targetRoleDashboard}`, request.url))
+    }
   }
 
   // Delegate to next-intl middleware for locale routing

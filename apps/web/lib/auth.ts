@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { authClient } from './auth-client'
 
 export interface UserSession {
@@ -31,6 +30,7 @@ export function setAuth(tokens: { accessToken?: string; refreshToken?: string },
     localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
   }
   localStorage.setItem(USER_KEY, JSON.stringify(user));
+  document.cookie = `auth_user=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=604800; SameSite=Lax`;
   document.cookie = `auth_roles=${encodeURIComponent(JSON.stringify(user.roles))}; path=/; max-age=604800; SameSite=Lax`;
   const primaryRole = user.role || user.roles[0] || 'participant';
   document.cookie = `auth_role=${primaryRole}; path=/; max-age=604800; SameSite=Lax`;
@@ -45,38 +45,21 @@ export function getAuthToken(): string | null {
 export function getAuthUser(): UserSession | null {
   if (typeof window === 'undefined') return null;
   const raw = localStorage.getItem(USER_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as UserSession;
-  } catch {
-    return null;
+  if (raw) {
+    try {
+      return JSON.parse(raw) as UserSession;
+    } catch {}
   }
+  const match = document.cookie.match(/(?:^|;\s*)auth_user=([^;]*)/);
+  if (match && match[1]) {
+    try {
+      return JSON.parse(decodeURIComponent(match[1])) as UserSession;
+    } catch {}
+  }
+  return null;
 }
 
-export function useAuthUser(): UserSession | null {
-  const [user, setUser] = React.useState<UserSession | null>(() => getAuthUser());
-
-  React.useEffect(() => {
-    setUser(getAuthUser());
-
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === USER_KEY) {
-        setUser(getAuthUser());
-      }
-    };
-    const handleAuthChange = () => {
-      setUser(getAuthUser());
-    };
-    window.addEventListener('storage', handleStorage);
-    window.addEventListener('auth-user-changed', handleAuthChange);
-    return () => {
-      window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('auth-user-changed', handleAuthChange);
-    };
-  }, []);
-
-  return user;
-}
+export { useAuthUser, AuthProvider } from "@/components/auth-provider";
 
 export async function clearAuth(): Promise<void> {
   if (typeof window === 'undefined') return;
@@ -89,19 +72,13 @@ export async function clearAuth(): Promise<void> {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
   document.cookie = 'auth_token=; path=/; max-age=0';
+  document.cookie = 'auth_user=; path=/; max-age=0';
   document.cookie = 'auth_roles=; path=/; max-age=0';
   document.cookie = 'auth_role=; path=/; max-age=0';
   document.cookie = 'better-auth.session_token=; path=/; max-age=0';
   window.dispatchEvent(new Event('auth-user-changed'));
 }
 
-/**
- * Determines the target dashboard path based on the user's role:
- * - organizer   -> /dashboard/organizer
- * - judge       -> /dashboard/judge
- * - mentor      -> /dashboard/mentor
- * - participant -> /dashboard/participant (default)
- */
 export function getRedirectPathByRole(roles: string[] = []): string {
   if (roles.includes('organizer')) {
     return '/dashboard/organizer';

@@ -42,7 +42,7 @@ import {
   LogOut,
   CheckCircle2,
 } from "lucide-react"
-import { getAuthUser, clearAuth, UserSession } from "@/lib/auth"
+import { getAuthUser, clearAuth, useAuthUser, UserSession } from "@/lib/auth"
 
 interface DashboardNavbarProps {
   currentRole: DashboardRole
@@ -52,16 +52,11 @@ export function DashboardNavbar({ currentRole }: DashboardNavbarProps) {
   const t = useTranslations("Dashboard")
   const locale = useLocale()
   const router = useRouter()
+  const user = useAuthUser()
 
   const [openSearch, setOpenSearch] = React.useState(false)
-  const [user, setUser] = React.useState<UserSession | null>(null)
 
   React.useEffect(() => {
-    const stored = getAuthUser()
-    if (stored) {
-      setUser(stored)
-    }
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
