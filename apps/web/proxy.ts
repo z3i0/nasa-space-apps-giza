@@ -32,7 +32,7 @@ function getUserRoles(request: NextRequest): string[] {
   return roles
 }
 
-export default function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = getSessionToken(request)
 
