@@ -106,7 +106,7 @@ export function DashboardNavbar({ currentRole }: DashboardNavbarProps) {
   return (
     <>
       <header className="sticky top-0 z-50 px-4 before:absolute before:inset-0 before:rounded-t-xl before:mask-[linear-gradient(var(--card),var(--card)_18%,transparent_100%)] before:backdrop-blur-md sm:px-6">
-        <div className="bg-card relative z-51 mx-auto mt-3 flex w-full items-center justify-between rounded-xl border px-6 py-2 max-w-348">
+        <div className="bg-card relative z-51 mx-auto mt-3 flex w-full items-center justify-between rounded-xl border border-border shadow-xs px-6 py-2 max-w-348">
           {/* Start: Sidebar Trigger + Separator + Search Button */}
           <div className="flex items-center gap-1.5 sm:gap-4">
             <SidebarTrigger className="size-8 rounded-[min(var(--radius-md),10px)] [&_svg]:size-5!" />

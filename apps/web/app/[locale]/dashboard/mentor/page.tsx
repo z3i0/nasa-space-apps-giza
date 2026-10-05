@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardHeader, CardTitle, CardAction, CardContent } from "@/components/ui/card"
 import { Link } from "@/i18n/routing"
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/dashboard/page-header"
@@ -104,9 +105,10 @@ export default function MentorDashboard() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, i) => (
-            <div
+            <Card
               key={i}
-              className="rounded-xl border border-border/60 bg-card/60 p-5 shadow-xs backdrop-blur-xs flex items-center justify-between hover:border-border transition-all"
+              size="sm"
+              className="p-5 flex-row items-center justify-between hover:border-primary/40 hover:shadow-sm transition-all"
             >
               <div className="space-y-1">
                 <p className="text-xs font-medium text-muted-foreground">
@@ -122,30 +124,30 @@ export default function MentorDashboard() {
               <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
                 <stat.icon className="size-5" />
               </div>
-            </div>
+            </Card>
           ))}
         </div>
 
         {/* Mentorship Requests Queue */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 rounded-2xl border border-border/60 bg-card/40 p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-border/40">
+          <Card className="lg:col-span-2">
+            <CardHeader className="border-b border-border/60 pb-3">
               <div className="flex items-center gap-2">
                 <Clock className="size-4 text-sky-500" />
-                <h2 className="font-semibold text-base text-foreground">
-                  {t("mentor.queue.title")}
-                </h2>
+                <CardTitle className="text-base">{t("mentor.queue.title")}</CardTitle>
               </div>
-              <Badge variant="outline" className="text-xs text-sky-600 dark:text-sky-400 border-sky-500/30">
-                {t("mentor.queue.badge")}
-              </Badge>
-            </div>
+              <CardAction>
+                <Badge variant="outline" className="text-xs text-sky-600 dark:text-sky-400 border-sky-500/30">
+                  {t("mentor.queue.badge")}
+                </Badge>
+              </CardAction>
+            </CardHeader>
 
-            <div className="space-y-3">
+            <CardContent className="space-y-3 pt-4">
               {queueItems.map((req, i) => (
                 <div
                   key={i}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-background/60 border border-border/40 gap-3"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-muted/40 border border-border/70 gap-3 hover:bg-muted/70 transition-colors"
                 >
                   <div className="space-y-1">
                     <span className="font-semibold text-sm text-foreground">{req.team}</span>
@@ -159,19 +161,19 @@ export default function MentorDashboard() {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Quick Schedule Card */}
-          <div className="rounded-2xl border border-border/60 bg-card/40 p-6 space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-border/40">
-              <CalendarClock className="size-4 text-sky-500" />
-              <h2 className="font-semibold text-base text-foreground">
-                {t("mentor.upcoming.title")}
-              </h2>
-            </div>
+          <Card>
+            <CardHeader className="border-b border-border/60 pb-3">
+              <div className="flex items-center gap-2">
+                <CalendarClock className="size-4 text-sky-500" />
+                <CardTitle className="text-base">{t("mentor.upcoming.title")}</CardTitle>
+              </div>
+            </CardHeader>
 
-            <div className="space-y-3 text-xs">
+            <CardContent className="space-y-3 text-xs pt-4">
               <div className="p-3 rounded-xl border border-sky-500/20 bg-sky-500/5 space-y-1">
                 <p className="font-semibold text-foreground">
                   {t("mentor.upcoming.session1Team")}
@@ -181,7 +183,7 @@ export default function MentorDashboard() {
                 </p>
               </div>
 
-              <div className="p-3 rounded-xl border border-border/40 bg-background/40 space-y-1">
+              <div className="p-3 rounded-xl border border-border/70 bg-muted/30 space-y-1">
                 <p className="font-semibold text-foreground">
                   {t("mentor.upcoming.session2Team")}
                 </p>
@@ -189,8 +191,8 @@ export default function MentorDashboard() {
                   {t("mentor.upcoming.session2Time")}
                 </p>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </RoleGuard>

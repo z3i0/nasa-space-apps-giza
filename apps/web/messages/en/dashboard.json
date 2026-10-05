@@ -108,10 +108,158 @@
       "teamsCount": "{count} teams",
       "projectsCount": "{count} projects"
     },
-    "organizer": {
+  "organizer": {
       "welcome": "Welcome to Organizer Dashboard",
       "description": "Manage teams, judges, mentors, and track event progress in real-time.",
       "newAnnouncement": "New Announcement",
+      "overview": {
+        "countdown": {
+          "phaseTitle": "Current Phase: Hacking & Mentorship",
+          "deadlineTitle": "Final Submission Deadline",
+          "hours": "Hours",
+          "minutes": "Minutes",
+          "seconds": "Seconds",
+          "liveWorkshop": "Happening Now",
+          "liveWorkshopTitle": "NASA Earth Data & Sentinel API Workshop - Hall B",
+          "broadcastBtn": "Broadcast Announcement",
+          "extendDeadlineBtn": "Extend Deadline",
+          "quickFilterBadge": "Day 2 · Final Sprint"
+        },
+        "metrics": {
+          "participants": {
+            "title": "Total Participants",
+            "value": "248",
+            "sub": "196 in teams · 52 looking for team"
+          },
+          "teams": {
+            "title": "Formed Teams",
+            "value": "48",
+            "sub": "38 full (5/5) · 10 recruiting"
+          },
+          "mentorship": {
+            "title": "Mentorship Requests",
+            "value": "6",
+            "sub": "3 urgent offline · 12 active sessions"
+          },
+          "submissions": {
+            "title": "Submissions Progress",
+            "value": "31 / 48",
+            "sub": "64.5% teams submitted draft"
+          },
+          "judging": {
+            "title": "Judging Progress",
+            "value": "18 / 48",
+            "sub": "37.5% evaluated · 84.5 avg score"
+          }
+        },
+        "urgentActions": {
+          "title": "Action Center: Immediate Attention",
+          "subtitle": "Requests and bottlenecks that require organizer intervention",
+          "badge": "Urgent Action Required",
+          "tabMentors": "Pending Mentors ({count})",
+          "tabMatching": "Unmatched Participants ({count})",
+          "tabSupport": "Community Queries ({count})",
+          "offlineTag": "Offline ({room})",
+          "onlineTag": "Online Session",
+          "waiting": "Waiting {time}",
+          "dispatchBtn": "Dispatch Mentor",
+          "dispatched": "Dispatched",
+          "unmatchedNotice": "14 registered participants have no team. Team formation closes in 2 hours.",
+          "launchMatchingBtn": "Open Team Matching Tool",
+          "supportNotice": "4 technical and platform questions waiting for answers in community.",
+          "openCommunityBtn": "Go to Community",
+          "requestsList": [
+            {
+              "team": "Team Alpha Orion",
+              "track": "Earth Observation & AI",
+              "type": "offline",
+              "room": "Room 104",
+              "waiting": "22m",
+              "topic": "Trouble fetching MODIS GeoTIFF imagery"
+            },
+            {
+              "team": "Cosmic Coders",
+              "track": "Planetary Exploration",
+              "type": "online",
+              "room": "Discord #mentor-3",
+              "waiting": "14m",
+              "topic": "Need UI/UX mentor for presentation design"
+            },
+            {
+              "team": "RoverX",
+              "track": "Space Robotics & Hardware",
+              "type": "offline",
+              "room": "Lab 2",
+              "waiting": "8m",
+              "topic": "Serial comm baud rate with Arduino"
+            }
+          ]
+        },
+        "distribution": {
+          "title": "Teams Distribution by Challenge Track",
+          "subtitle": "Live distribution of teams across official NASA challenges",
+          "teamsCount": "{count} teams",
+          "tracks": [
+            { "name": "Earth Observation & Climate", "count": 14, "percentage": 29 },
+            { "name": "Planetary Exploration & Rovers", "count": 11, "percentage": 23 },
+            { "name": "Open Science & NASA Datasets", "count": 9, "percentage": 19 },
+            { "name": "Space Biology & Health", "count": 8, "percentage": 17 },
+            { "name": "Astrophysics & Deep Space", "count": 6, "percentage": 12 }
+          ]
+        },
+        "readiness": {
+          "title": "Submission Deliverables Readiness",
+          "subtitle": "Deliverable completion rate across 48 registered teams",
+          "deliverables": [
+            { "label": "Project Name & Abstract", "completed": 44, "total": 48, "percentage": 92 },
+            { "label": "GitHub / Code Repository", "completed": 38, "total": 48, "percentage": 79 },
+            { "label": "Demo Video / Prototype", "completed": 26, "total": 48, "percentage": 54 },
+            { "label": "Pitch Deck & Presentation", "completed": 19, "total": 48, "percentage": 39 }
+          ]
+        },
+        "agenda": {
+          "title": "Camp Agenda & Live Workshops",
+          "subtitle": "Interactive timeline of active and upcoming sessions",
+          "viewFull": "View Full Agenda",
+          "sessions": [
+            {
+              "title": "NASA Earth Science Datasets Workshop",
+              "speaker": "Eng. Kareem Tarek",
+              "time": "14:00 - 15:30",
+              "location": "Main Hall A",
+              "status": "inProgress"
+            },
+            {
+              "title": "Effective Pitching to Hackathon Judges",
+              "speaker": "Dr. Laila Hassan",
+              "time": "16:00 - 17:00",
+              "location": "Auditorium & Virtual Stream",
+              "status": "upcoming"
+            },
+            {
+              "title": "1-on-1 Architecture & Cloud Clinics",
+              "speaker": "NASA Mentorship Pool",
+              "time": "18:00 - 20:00",
+              "location": "Innovation Lounge",
+              "status": "upcoming"
+            }
+          ],
+          "statusLabels": {
+            "inProgress": "In Progress",
+            "upcoming": "Upcoming",
+            "completed": "Completed"
+          }
+        },
+        "quickLinks": {
+          "title": "Operations Quick Links",
+          "participants": "Participants Management",
+          "teams": "Teams Management",
+          "requests": "Requests Tracking",
+          "analytics": "Platform Analytics",
+          "judges": "Judging & Scores",
+          "mentors": "Mentor System"
+        }
+      },
       "stats": {
         "teams": "Total Teams",
         "teamsSub": "+12 this week",
@@ -159,15 +307,26 @@
         },
         "filters": {
           "role": "Select Role",
-          "plan": "Select Plan",
+          "teamStatus": "Team Status",
+          "plan": "Team Status",
           "status": "Select Status",
           "all": "All",
-          "admin": "Admin",
-          "maintainer": "Maintainer",
-          "editor": "Editor",
-          "enterprise": "Enterprise",
-          "basic": "Basic",
-          "autoDebit": "Auto debit",
+          "organizer": "Organizer",
+          "team_leader": "Team Leader",
+          "participant": "Participant",
+          "mentor": "Mentor",
+          "judge": "Judge",
+          "admin": "Organizer",
+          "maintainer": "Team Leader",
+          "editor": "Participant",
+          "has_team": "In a Team",
+          "seeking_team": "Looking for Team",
+          "individual": "Individual",
+          "mentor_pool": "Mentor Pool",
+          "judging_panel": "Judging Panel",
+          "enterprise": "In a Team",
+          "basic": "Looking for Team",
+          "autoDebit": "Confirmed",
           "active": "Active",
           "pending": "Pending"
         },
@@ -181,10 +340,10 @@
           "selectRow": "Select row",
           "user": "Participant",
           "role": "Role",
-          "plan": "Plan",
-          "billing": "Billing",
+          "plan": "Team Status",
+          "billing": "Affiliation / University",
           "status": "Status",
-          "joinedDate": "Joined Date",
+          "joinedDate": "Registered Date",
           "actions": "Actions"
         },
         "actions": {

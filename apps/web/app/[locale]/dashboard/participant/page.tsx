@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardHeader, CardTitle, CardAction, CardContent } from "@/components/ui/card"
 import { Link } from "@/i18n/routing"
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/dashboard/page-header"
@@ -108,9 +109,10 @@ export default function ParticipantDashboard() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, i) => (
-            <div
+            <Card
               key={i}
-              className="rounded-xl border border-border/60 bg-card/60 p-5 shadow-xs backdrop-blur-xs flex items-center justify-between hover:border-border transition-all"
+              size="sm"
+              className="p-5 flex-row items-center justify-between hover:border-primary/40 hover:shadow-sm transition-all"
             >
               <div className="space-y-1">
                 <p className="text-xs font-medium text-muted-foreground">
@@ -126,31 +128,31 @@ export default function ParticipantDashboard() {
               <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
                 <stat.icon className="size-5" />
               </div>
-            </div>
+            </Card>
           ))}
         </div>
 
         {/* Project Checklist & Resources */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Submission Checklist */}
-          <div className="lg:col-span-2 rounded-2xl border border-border/60 bg-card/40 p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-border/40">
+          <Card className="lg:col-span-2">
+            <CardHeader className="border-b border-border/60 pb-3">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-emerald-500" />
-                <h2 className="font-semibold text-base text-foreground">
-                  {t("participant.checklist.title")}
-                </h2>
+                <CardTitle className="text-base">{t("participant.checklist.title")}</CardTitle>
               </div>
-              <Badge variant="outline" className="text-xs text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
-                {t("participant.checklist.progress")}
-              </Badge>
-            </div>
+              <CardAction>
+                <Badge variant="outline" className="text-xs text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                  {t("participant.checklist.progress")}
+                </Badge>
+              </CardAction>
+            </CardHeader>
 
-            <div className="space-y-3">
+            <CardContent className="space-y-3 pt-4">
               {checklistItems.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-3.5 rounded-xl bg-background/60 border border-border/40 text-xs sm:text-sm"
+                  className="flex items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/70 text-xs sm:text-sm hover:bg-muted/70 transition-colors"
                 >
                   <div className="flex items-center gap-2.5">
                     <span
@@ -173,24 +175,24 @@ export default function ParticipantDashboard() {
                   )}
                 </div>
               ))}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Quick Resources Card */}
-          <div className="rounded-2xl border border-border/60 bg-card/40 p-6 space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-border/40">
-              <Sparkles className="size-4 text-emerald-500" />
-              <h2 className="font-semibold text-base text-foreground">
-                {t("participant.resources.title")}
-              </h2>
-            </div>
+          <Card>
+            <CardHeader className="border-b border-border/60 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="size-4 text-emerald-500" />
+                <CardTitle className="text-base">{t("participant.resources.title")}</CardTitle>
+              </div>
+            </CardHeader>
 
-            <div className="space-y-2.5 text-xs">
+            <CardContent className="space-y-2.5 text-xs pt-4">
               <a
                 href="https://data.nasa.gov"
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-between p-3 rounded-xl border border-border/40 bg-background/60 hover:border-primary/40 transition-colors group"
+                className="flex items-center justify-between p-3 rounded-xl border border-border/70 bg-muted/40 hover:border-primary/40 hover:bg-muted/70 transition-colors group"
               >
                 <div className="space-y-0.5">
                   <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
@@ -207,7 +209,7 @@ export default function ParticipantDashboard() {
                 href="https://earthdata.nasa.gov"
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-between p-3 rounded-xl border border-border/40 bg-background/60 hover:border-primary/40 transition-colors group"
+                className="flex items-center justify-between p-3 rounded-xl border border-border/70 bg-muted/40 hover:border-primary/40 hover:bg-muted/70 transition-colors group"
               >
                 <div className="space-y-0.5">
                   <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
@@ -219,8 +221,8 @@ export default function ParticipantDashboard() {
                 </div>
                 <ArrowUpRight className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
               </a>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </RoleGuard>

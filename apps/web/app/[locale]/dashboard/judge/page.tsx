@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardHeader, CardTitle, CardAction, CardContent } from "@/components/ui/card"
 import { Link } from "@/i18n/routing"
 import { cn } from "@/lib/utils"
 import { PageHeader } from "@/components/dashboard/page-header"
@@ -120,9 +121,10 @@ export default function JudgeDashboard() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, i) => (
-            <div
+            <Card
               key={i}
-              className="rounded-xl border border-border/60 bg-card/60 p-5 shadow-xs backdrop-blur-xs flex items-center justify-between hover:border-border transition-all"
+              size="sm"
+              className="p-5 flex-row items-center justify-between hover:border-primary/40 hover:shadow-sm transition-all"
             >
               <div className="space-y-1">
                 <p className="text-xs font-medium text-muted-foreground">
@@ -138,30 +140,30 @@ export default function JudgeDashboard() {
               <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
                 <stat.icon className="size-5" />
               </div>
-            </div>
+            </Card>
           ))}
         </div>
 
         {/* Evaluation Queue & Criteria */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 rounded-2xl border border-border/60 bg-card/40 p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-border/40">
+          <Card className="lg:col-span-2">
+            <CardHeader className="border-b border-border/60 pb-3">
               <div className="flex items-center gap-2">
                 <Scale className="size-4 text-purple-500" />
-                <h2 className="font-semibold text-base text-foreground">
-                  {t("judge.queue.title")}
-                </h2>
+                <CardTitle className="text-base">{t("judge.queue.title")}</CardTitle>
               </div>
-              <Badge variant="outline" className="text-xs text-purple-600 dark:text-purple-400 border-purple-500/30">
-                {t("judge.queue.badge")}
-              </Badge>
-            </div>
+              <CardAction>
+                <Badge variant="outline" className="text-xs text-purple-600 dark:text-purple-400 border-purple-500/30">
+                  {t("judge.queue.badge")}
+                </Badge>
+              </CardAction>
+            </CardHeader>
 
-            <div className="space-y-3">
+            <CardContent className="space-y-3 pt-4">
               {projectQueue.map((proj, i) => (
                 <div
                   key={i}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-background/60 border border-border/40 gap-3"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-muted/40 border border-border/70 gap-3 hover:bg-muted/70 transition-colors"
                 >
                   <div className="space-y-1">
                     <span className="font-semibold text-sm text-foreground">{proj.name}</span>
@@ -181,30 +183,30 @@ export default function JudgeDashboard() {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* NASA Judging Criteria Card */}
-          <div className="rounded-2xl border border-border/60 bg-card/40 p-6 space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-border/40">
-              <Trophy className="size-4 text-purple-500" />
-              <h2 className="font-semibold text-base text-foreground">
-                {t("judge.criteria.title")}
-              </h2>
-            </div>
+          <Card>
+            <CardHeader className="border-b border-border/60 pb-3">
+              <div className="flex items-center gap-2">
+                <Trophy className="size-4 text-purple-500" />
+                <CardTitle className="text-base">{t("judge.criteria.title")}</CardTitle>
+              </div>
+            </CardHeader>
 
-            <div className="space-y-2.5 text-xs">
+            <CardContent className="space-y-2.5 text-xs pt-4">
               {criteriaList.map((c, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-2.5 rounded-lg border border-border/30 bg-background/40"
+                  className="flex items-center justify-between p-2.5 rounded-lg border border-border/70 bg-muted/30 hover:bg-muted/50 transition-colors"
                 >
                   <span className="text-foreground font-medium">{c.criterion}</span>
                   <Badge variant="outline" className="text-[10px]">{c.weight}</Badge>
                 </div>
               ))}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </RoleGuard>

@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -434,7 +435,9 @@ export function TeamsManagementTable() {
                     }}
                   >
                     <SelectTrigger id="filter-team-track" className="w-full">
-                      <SelectValue placeholder={t("filters.track")} />
+                      <SelectValue placeholder={t("filters.track")}>
+                        {(val) => (val ? t(`filters.${val}`) : t("filters.track"))}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t("filters.all")}</SelectItem>
@@ -462,7 +465,9 @@ export function TeamsManagementTable() {
                     }}
                   >
                     <SelectTrigger id="filter-team-roster" className="w-full">
-                      <SelectValue placeholder={t("filters.status")} />
+                      <SelectValue placeholder={t("filters.status")}>
+                        {(val) => (val ? t(`filters.${val}`) : t("filters.status"))}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t("filters.all")}</SelectItem>
@@ -488,7 +493,9 @@ export function TeamsManagementTable() {
                     }}
                   >
                     <SelectTrigger id="filter-team-submission" className="w-full">
-                      <SelectValue placeholder={t("filters.submission")} />
+                      <SelectValue placeholder={t("filters.submission")}>
+                        {(val) => (val ? t(`filters.${val}`) : t("filters.submission"))}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t("filters.all")}</SelectItem>
@@ -559,15 +566,13 @@ export function TeamsManagementTable() {
                       data-slot="table-head"
                       className="h-10 px-2 text-start align-middle font-medium whitespace-nowrap text-muted-foreground ps-4 w-12.5"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={
                           selectedRows.size === filteredTeams.length &&
                           filteredTeams.length > 0
                         }
-                        onChange={toggleSelectAll}
+                        onCheckedChange={toggleSelectAll}
                         aria-label="Select all teams"
-                        className="size-4 rounded-sm border-input text-primary focus:ring-primary cursor-pointer accent-primary"
                       />
                     </th>
 
@@ -645,12 +650,10 @@ export function TeamsManagementTable() {
                           data-slot="table-cell"
                           className="p-2 align-middle whitespace-nowrap ps-4 w-12.5"
                         >
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={isSelected}
-                            onChange={() => toggleSelectRow(team.id)}
+                            onCheckedChange={() => toggleSelectRow(team.id)}
                             aria-label={`Select team ${team.name}`}
-                            className="size-4 rounded-sm border-input text-primary focus:ring-primary cursor-pointer accent-primary"
                           />
                         </td>
 

@@ -112,6 +112,154 @@
       "welcome": "أهلاً بك في لوحة تحكم المنظم",
       "description": "إدارة الفرق، لجان التحكيم، المرشدين، ومتابعة سير الفعالية في بث مباشر.",
       "newAnnouncement": "إعلان جديد",
+      "overview": {
+        "countdown": {
+          "phaseTitle": "المرحلة الحالية: التطوير والإرشاد التقني",
+          "deadlineTitle": "الموعد النهائي لتسليم المشاريع",
+          "hours": "ساعة",
+          "minutes": "دقيقة",
+          "seconds": "ثانية",
+          "liveWorkshop": "جارية الآن",
+          "liveWorkshopTitle": "ورشة معالجة بيانات ناسا وأقمار سينتينل - قاعة ب",
+          "broadcastBtn": "إرسال تنبيه عام",
+          "extendDeadlineBtn": "تمديد الوقت",
+          "quickFilterBadge": "اليوم الثاني · السباق النهائي"
+        },
+        "metrics": {
+          "participants": {
+            "title": "إجمالي المتسابقين",
+            "value": "248",
+            "sub": "196 داخل فرق · 52 يبحثون عن فريق"
+          },
+          "teams": {
+            "title": "الفرق المكتملة",
+            "value": "48",
+            "sub": "38 فريقاً مكتملاً (5/5) · 10 شواغر"
+          },
+          "mentorship": {
+            "title": "طلبات الإرشاد",
+            "value": "6",
+            "sub": "3 طلبات أوفلاين عاجلة · 12 جلسة نشطة"
+          },
+          "submissions": {
+            "title": "حالة تسليم المشاريع",
+            "value": "31 / 48",
+            "sub": "64.5% من الفرق رفعت المسودة"
+          },
+          "judging": {
+            "title": "تقدّم لجان التحكيم",
+            "value": "18 / 48",
+            "sub": "37.5% تم تقييمها · 84.5 متوسط الدرجات"
+          }
+        },
+        "urgentActions": {
+          "title": "مركز الإجراءات العاجلة: يتطلب التدخل",
+          "subtitle": "طلبات ومعوقات تحتاج لقرار أو توجيه فوري من المنظمين",
+          "badge": "إجراء عاجل مطلوب",
+          "tabMentors": "مرشدون بالانتظار ({count})",
+          "tabMatching": "متسابقون بدون فرق ({count})",
+          "tabSupport": "استفسارات المجتمع ({count})",
+          "offlineTag": "حضوري ({room})",
+          "onlineTag": "جلسة أونلاين",
+          "waiting": "ينتظر منذ {time}",
+          "dispatchBtn": "توجيه مرشد",
+          "dispatched": "تم التوجيه",
+          "unmatchedNotice": "14 متسابقاً مسجلاً بلا فريق قبل إغلاق مرحلة تكوين الفرق بساعتين.",
+          "launchMatchingBtn": "فتح أداة توفيق الفرق",
+          "supportNotice": "4 استفسارات تقنية وتنظيمية تنتظر رد المنظمين في منتدى المجتمع.",
+          "openCommunityBtn": "الانتقال للمجتمع",
+          "requestsList": [
+            {
+              "team": "فريق Alpha Orion",
+              "track": "علوم الأرض والذكاء الاصطناعي",
+              "type": "offline",
+              "room": "قاعة 104",
+              "waiting": "22 دقيقة",
+              "topic": "صعوبة في استدعاء صور أقمار MODIS الجغرافية"
+            },
+            {
+              "team": "فريق Cosmic Coders",
+              "track": "استكشاف الكواكب",
+              "type": "online",
+              "room": "Discord #mentor-3",
+              "waiting": "14 دقيقة",
+              "topic": "طلب مرشد UI/UX لمراجعة واجهة النموذج الأولي"
+            },
+            {
+              "team": "فريق RoverX",
+              "track": "روبوتات الفضاء والعتاد",
+              "type": "offline",
+              "room": "معمل 2",
+              "waiting": "8 دقائق",
+              "topic": "ضبط اتصال الـ Serial ومعدل البود مع الأردوينو"
+            }
+          ]
+        },
+        "distribution": {
+          "title": "توزيع الفرق حسب مسارات التحديات",
+          "subtitle": "متابعة إقبال الفرق وتغطية المرشدين لكل مسار فضائي",
+          "teamsCount": "{count} فرق",
+          "tracks": [
+            { "name": "علوم الأرض والمناخ", "count": 14, "percentage": 29 },
+            { "name": "استكشاف الكواكب والمركبات", "count": 11, "percentage": 23 },
+            { "name": "العلوم المفتوحة وبيانات ناسا", "count": 9, "percentage": 19 },
+            { "name": "بيولوجيا الفضاء والصحة", "count": 8, "percentage": 17 },
+            { "name": "الفيزياء الفلكية والفضاء العميق", "count": 6, "percentage": 12 }
+          ]
+        },
+        "readiness": {
+          "title": "معدل جاهزية متطلبات التسليم",
+          "subtitle": "نسبة إنجاز المخرجات المطلوبة من إجمالي الـ 48 فريقاً",
+          "deliverables": [
+            { "label": "اسم المشروع والملخص التنفيذي", "completed": 44, "total": 48, "percentage": 92 },
+            { "label": "مستودع الكود البرمجي (GitHub)", "completed": 38, "total": 48, "percentage": 79 },
+            { "label": "الفيديو التوضيحي والنموذج التجريبي", "completed": 26, "total": 48, "percentage": 54 },
+            { "label": "العرض التقديمي (Pitch Deck)", "completed": 19, "total": 48, "percentage": 39 }
+          ]
+        },
+        "agenda": {
+          "title": "جدول الورش وفعاليات المعسكر",
+          "subtitle": "جدول تفاعلي للورش والجلسات الحالية والقادمة",
+          "viewFull": "عرض الجدول الكامل",
+          "sessions": [
+            {
+              "title": "ورشة معالجة بيانات أقمار ناسا وسينتينل",
+              "speaker": "م. كريم طارق",
+              "time": "14:00 - 15:30",
+              "location": "القاعة الرئيسية أ",
+              "status": "inProgress"
+            },
+            {
+              "title": "كيفية تقديم العرض النهائي للجان التحكيم",
+              "speaker": "د. ليلى حسن",
+              "time": "16:00 - 17:00",
+              "location": "المسرح الكبير وبث مباشر",
+              "status": "upcoming"
+            },
+            {
+              "title": "عيادات الاستشارات الفردية للحوسبة السحابية",
+              "speaker": "فريق مرشدي ناسا",
+              "time": "18:00 - 20:00",
+              "location": "صالة الابتكار",
+              "status": "upcoming"
+            }
+          ],
+          "statusLabels": {
+            "inProgress": "جارية الآن",
+            "upcoming": "قادمة",
+            "completed": "مكتملة"
+          }
+        },
+        "quickLinks": {
+          "title": "روابط الإدارة السريعة",
+          "participants": "إدارة المتسابقين",
+          "teams": "إدارة الفرق والمسارات",
+          "requests": "تتبع الطلبات والاستجابة",
+          "analytics": "تحليلات المنصة",
+          "judges": "لجان التحكيم والنتائج",
+          "mentors": "نظام المرشدين"
+        }
+      },
       "stats": {
         "teams": "إجمالي الفرق",
         "teamsSub": "+12 هذا الأسبوع",
@@ -159,15 +307,26 @@
         },
         "filters": {
           "role": "اختر الدور",
-          "plan": "اختر الخطة",
+          "teamStatus": "حالة الفريق",
+          "plan": "حالة الفريق",
           "status": "اختر الحالة",
           "all": "الكل",
-          "admin": "مسؤول",
-          "maintainer": "مشرف",
-          "editor": "محرر",
-          "enterprise": "مؤسسي",
-          "basic": "أساسي",
-          "autoDebit": "خصم تلقائي",
+          "organizer": "منظم",
+          "team_leader": "قائد فريق",
+          "participant": "متسابق",
+          "mentor": "مرشد",
+          "judge": "محكّم",
+          "admin": "منظم",
+          "maintainer": "قائد فريق",
+          "editor": "متسابق",
+          "has_team": "ضمن فريق",
+          "seeking_team": "يبحث عن فريق",
+          "individual": "فردي",
+          "mentor_pool": "هيئة الإرشاد",
+          "judging_panel": "لجنة التحكيم",
+          "enterprise": "ضمن فريق",
+          "basic": "يبحث عن فريق",
+          "autoDebit": "مؤكد",
           "active": "نشط",
           "pending": "معلق"
         },
@@ -181,10 +340,10 @@
           "selectRow": "تحديد الصف",
           "user": "المتسابق",
           "role": "الدور",
-          "plan": "الخطة",
-          "billing": "الفوترة",
+          "plan": "حالة الفريق",
+          "billing": "الجامعة / الجهة",
           "status": "الحالة",
-          "joinedDate": "تاريخ الانضمام",
+          "joinedDate": "تاريخ التسجيل",
           "actions": "الإجراءات"
         },
         "actions": {

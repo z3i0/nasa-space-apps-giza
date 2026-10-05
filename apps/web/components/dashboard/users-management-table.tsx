@@ -17,13 +17,16 @@ import {
   Eye,
   Trash2,
   MoreVertical,
-  PencilRuler,
   UserRound,
-  Brush,
+  ShieldCheck,
+  Crown,
+  Compass,
+  Award,
 } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -44,13 +47,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+export type HackathonRole = "organizer" | "team_leader" | "participant" | "mentor" | "judge"
+
 interface UserRowData {
   id: string
   name: string
   email: string
-  role: "admin" | "maintainer" | "editor"
-  plan: "enterprise" | "basic"
-  billing: "autoDebit"
+  role: HackathonRole
+  plan: "has_team" | "seeking_team" | "individual" | "mentor_pool" | "judging_panel"
+  teamName?: string
+  billing: string // Affiliation / University
   status: "active" | "pending"
   joinedDate: string
   avatarUrl?: string
@@ -58,104 +64,136 @@ interface UserRowData {
 
 const INITIAL_USERS: UserRowData[] = [
   {
-    id: "user-001",
-    name: "Zsasza McCleverty",
-    email: "zmcclevertye@soundcloud.com",
-    role: "maintainer",
-    plan: "enterprise",
-    billing: "autoDebit",
+    id: "usr-001",
+    name: "Mostafa Mahmoud",
+    email: "mostafa@spaceappsgiza.com",
+    role: "organizer",
+    plan: "has_team",
+    teamName: "NASA Lead Organizing Committee",
+    billing: "Cairo University",
+    status: "active",
+    joinedDate: "01 Oct 2026",
+  },
+  {
+    id: "usr-002",
+    name: "Gamila Ahmed",
+    email: "gamila@spaceappsgiza.com",
+    role: "organizer",
+    plan: "has_team",
+    teamName: "NASA Organizing Committee",
+    billing: "Ain Shams University",
+    status: "active",
+    joinedDate: "01 Oct 2026",
+  },
+  {
+    id: "usr-003",
+    name: "Habiba Hassan",
+    email: "habiba@spaceappsgiza.com",
+    role: "organizer",
+    plan: "has_team",
+    teamName: "NASA Organizing Committee",
+    billing: "Zewail City of Science",
+    status: "active",
+    joinedDate: "01 Oct 2026",
+  },
+  {
+    id: "usr-004",
+    name: "Omar Farooq",
+    email: "omar.farooq@example.com",
+    role: "team_leader",
+    plan: "has_team",
+    teamName: "Team Nebula",
+    billing: "Cairo University - Computer Science",
+    status: "active",
+    joinedDate: "02 Oct 2026",
+  },
+  {
+    id: "usr-005",
+    name: "Salma Ezzat",
+    email: "salma.ezzat@example.com",
+    role: "participant",
+    plan: "has_team",
+    teamName: "Team Nebula",
+    billing: "GUC - Engineering",
+    status: "active",
+    joinedDate: "02 Oct 2026",
+  },
+  {
+    id: "usr-006",
+    name: "Kareem Tarek",
+    email: "kareem.tarek@example.com",
+    role: "mentor",
+    plan: "mentor_pool",
+    teamName: "AI & Remote Sensing Mentor",
+    billing: "Egyptian Space Agency",
+    status: "active",
+    joinedDate: "02 Oct 2026",
+  },
+  {
+    id: "usr-007",
+    name: "Dr. Laila Hassan",
+    email: "dr.laila@example.com",
+    role: "judge",
+    plan: "judging_panel",
+    teamName: "Earth Science Evaluation Panel",
+    billing: "National Research Institute",
+    status: "active",
+    joinedDate: "03 Oct 2026",
+  },
+  {
+    id: "usr-008",
+    name: "Ziad Khaled",
+    email: "ziad.khaled@example.com",
+    role: "team_leader",
+    plan: "has_team",
+    teamName: "Team AstroCode",
+    billing: "Helwan University",
+    status: "active",
+    joinedDate: "03 Oct 2026",
+  },
+  {
+    id: "usr-009",
+    name: "Nourhan Ali",
+    email: "nourhan.ali@example.com",
+    role: "participant",
+    plan: "seeking_team",
+    teamName: "Looking for Team",
+    billing: "Alexandria University",
     status: "pending",
-    joinedDate: "14 Jan 2022",
+    joinedDate: "04 Oct 2026",
   },
   {
-    id: "user-002",
-    name: "Galen Slixby",
-    email: "galen.slixby1@example.com",
-    role: "admin",
-    plan: "basic",
-    billing: "autoDebit",
+    id: "usr-010",
+    name: "Dr. Ahmed Youssef",
+    email: "ahmed.youssef@example.com",
+    role: "mentor",
+    plan: "mentor_pool",
+    teamName: "Space Robotics Mentor",
+    billing: "Zewail City",
     status: "active",
-    joinedDate: "22 Mar 2022",
+    joinedDate: "04 Oct 2026",
   },
   {
-    id: "user-003",
-    name: "Halsey Redmore",
-    email: "halsey.redmore2@example.com",
-    role: "admin",
-    plan: "basic",
-    billing: "autoDebit",
+    id: "usr-011",
+    name: "Youssef Amr",
+    email: "youssef.amr@example.com",
+    role: "judge",
+    plan: "judging_panel",
+    teamName: "Astrophysics Evaluation Panel",
+    billing: "Cairo University",
     status: "active",
-    joinedDate: "08 May 2022",
+    joinedDate: "04 Oct 2026",
   },
   {
-    id: "user-004",
-    name: "Marjory Sicely",
-    email: "marjory.sicely3@example.com",
-    role: "admin",
-    plan: "basic",
-    billing: "autoDebit",
+    id: "usr-012",
+    name: "Mariam Salem",
+    email: "mariam.salem@example.com",
+    role: "participant",
+    plan: "individual",
+    teamName: "Working Individually",
+    billing: "Nile University",
     status: "active",
-    joinedDate: "19 Jul 2022",
-  },
-  {
-    id: "user-005",
-    name: "Cyrill Risby",
-    email: "cyrill.risby4@example.com",
-    role: "admin",
-    plan: "basic",
-    billing: "autoDebit",
-    status: "active",
-    joinedDate: "30 Sep 2022",
-  },
-  {
-    id: "user-006",
-    name: "Maggy Hurran",
-    email: "maggy.hurran5@example.com",
-    role: "admin",
-    plan: "basic",
-    billing: "autoDebit",
-    status: "active",
-    joinedDate: "12 Nov 2022",
-  },
-  {
-    id: "user-007",
-    name: "Silvain Halstead",
-    email: "silvain.halstead6@example.com",
-    role: "editor",
-    plan: "basic",
-    billing: "autoDebit",
-    status: "active",
-    joinedDate: "25 Jan 2023",
-  },
-  {
-    id: "user-008",
-    name: "Breena Gallemore",
-    email: "breena.gallemore7@example.com",
-    role: "editor",
-    plan: "basic",
-    billing: "autoDebit",
-    status: "active",
-    joinedDate: "03 Apr 2023",
-  },
-  {
-    id: "user-009",
-    name: "Kathryne Litterick",
-    email: "kathryne.litterick8@example.com",
-    role: "editor",
-    plan: "basic",
-    billing: "autoDebit",
-    status: "active",
-    joinedDate: "17 Jun 2023",
-  },
-  {
-    id: "user-010",
-    name: "Elke Klasen",
-    email: "elke.klasen9@example.com",
-    role: "editor",
-    plan: "basic",
-    billing: "autoDebit",
-    status: "active",
-    joinedDate: "29 Aug 2023",
+    joinedDate: "04 Oct 2026",
   },
 ]
 
@@ -205,14 +243,44 @@ export function UsersManagementTable() {
     })
   }
 
-  const getRoleIcon = (role: UserRowData["role"]) => {
+  const getRoleBadge = (role: UserRowData["role"]) => {
     switch (role) {
-      case "maintainer":
-        return <PencilRuler className="text-chart-3 size-4" />
-      case "admin":
-        return <UserRound className="size-4 text-green-600 dark:text-green-400" />
-      case "editor":
-        return <Brush className="text-chart-2 size-4" />
+      case "organizer":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+            <ShieldCheck className="size-3.5" />
+            <span>{t("filters.organizer")}</span>
+          </span>
+        )
+      case "team_leader":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+            <Crown className="size-3.5" />
+            <span>{t("filters.team_leader")}</span>
+          </span>
+        )
+      case "mentor":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+            <Compass className="size-3.5" />
+            <span>{t("filters.mentor")}</span>
+          </span>
+        )
+      case "judge":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+            <Award className="size-3.5" />
+            <span>{t("filters.judge")}</span>
+          </span>
+        )
+      case "participant":
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            <UserRound className="size-3.5" />
+            <span>{t("filters.participant")}</span>
+          </span>
+        )
     }
   }
 
@@ -366,25 +434,29 @@ export function UsersManagementTable() {
                     }}
                   >
                     <SelectTrigger id="filter-role" className="w-full">
-                      <SelectValue placeholder={t("filters.role")} />
+                      <SelectValue placeholder={t("filters.role")}>
+                        {(val) => (val ? t(`filters.${val}`) : t("filters.role"))}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t("filters.all")}</SelectItem>
-                      <SelectItem value="admin">{t("filters.admin")}</SelectItem>
-                      <SelectItem value="maintainer">{t("filters.maintainer")}</SelectItem>
-                      <SelectItem value="editor">{t("filters.editor")}</SelectItem>
+                      <SelectItem value="organizer">{t("filters.organizer")}</SelectItem>
+                      <SelectItem value="team_leader">{t("filters.team_leader")}</SelectItem>
+                      <SelectItem value="participant">{t("filters.participant")}</SelectItem>
+                      <SelectItem value="mentor">{t("filters.mentor")}</SelectItem>
+                      <SelectItem value="judge">{t("filters.judge")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Filter 2: Plan */}
+                {/* Filter 2: Team Status */}
                 <div className="flex w-full flex-col gap-2">
                   <label
                     data-slot="label"
                     htmlFor="filter-plan"
                     className="flex items-center gap-2 text-sm leading-none font-medium select-none"
                   >
-                    {t("filters.plan")}
+                    {t("filters.teamStatus")}
                   </label>
                   <Select
                     value={selectedPlan}
@@ -393,12 +465,17 @@ export function UsersManagementTable() {
                     }}
                   >
                     <SelectTrigger id="filter-plan" className="w-full">
-                      <SelectValue placeholder={t("filters.plan")} />
+                      <SelectValue placeholder={t("filters.teamStatus")}>
+                        {(val) => (val ? t(`filters.${val}`) : t("filters.teamStatus"))}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t("filters.all")}</SelectItem>
-                      <SelectItem value="enterprise">{t("filters.enterprise")}</SelectItem>
-                      <SelectItem value="basic">{t("filters.basic")}</SelectItem>
+                      <SelectItem value="has_team">{t("filters.has_team")}</SelectItem>
+                      <SelectItem value="seeking_team">{t("filters.seeking_team")}</SelectItem>
+                      <SelectItem value="individual">{t("filters.individual")}</SelectItem>
+                      <SelectItem value="mentor_pool">{t("filters.mentor_pool")}</SelectItem>
+                      <SelectItem value="judging_panel">{t("filters.judging_panel")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -419,7 +496,9 @@ export function UsersManagementTable() {
                     }}
                   >
                     <SelectTrigger id="filter-status" className="w-full">
-                      <SelectValue placeholder={t("filters.status")} />
+                      <SelectValue placeholder={t("filters.status")}>
+                        {(val) => (val ? t(`filters.${val}`) : t("filters.status"))}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t("filters.all")}</SelectItem>
@@ -524,15 +603,13 @@ export function UsersManagementTable() {
                       data-slot="table-head"
                       className="h-10 px-2 text-start align-middle font-medium whitespace-nowrap text-muted-foreground ps-4 w-12.5"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={
                           selectedRows.size === filteredUsers.length &&
                           filteredUsers.length > 0
                         }
-                        onChange={toggleSelectAll}
+                        onCheckedChange={toggleSelectAll}
                         aria-label={t("columns.selectAll")}
-                        className="size-4 rounded-sm border-input text-primary focus:ring-primary cursor-pointer accent-primary"
                       />
                     </th>
 
@@ -630,12 +707,10 @@ export function UsersManagementTable() {
                           data-slot="table-cell"
                           className="p-2 align-middle whitespace-nowrap ps-4 w-12.5"
                         >
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={isSelected}
-                            onChange={() => toggleSelectRow(user.id)}
+                            onCheckedChange={() => toggleSelectRow(user.id)}
                             aria-label={`${t("columns.selectRow")} ${user.name}`}
-                            className="size-4 rounded-sm border-input text-primary focus:ring-primary cursor-pointer accent-primary"
                           />
                         </td>
 
@@ -669,31 +744,26 @@ export function UsersManagementTable() {
                           data-slot="table-cell"
                           className="p-2 align-middle whitespace-nowrap"
                         >
-                          <div className="flex items-center gap-2">
-                            {getRoleIcon(user.role)}
-                            <span className="capitalize">
-                              {t(`filters.${user.role}`)}
-                            </span>
-                          </div>
+                          {getRoleBadge(user.role)}
                         </td>
 
-                        {/* Plan */}
+                        {/* Team Status / Team Name */}
                         <td
                           data-slot="table-cell"
                           className="p-2 align-middle whitespace-nowrap"
                         >
-                          <span className="text-muted-foreground">
-                            {t(`filters.${user.plan}`)}
+                          <span className="font-medium text-foreground">
+                            {user.teamName || t(`filters.${user.plan}`)}
                           </span>
                         </td>
 
-                        {/* Billing */}
+                        {/* Affiliation / University */}
                         <td
                           data-slot="table-cell"
                           className="p-2 align-middle whitespace-nowrap"
                         >
-                          <span className="text-muted-foreground">
-                            {t(`filters.${user.billing}`)}
+                          <span className="text-muted-foreground text-xs">
+                            {user.billing}
                           </span>
                         </td>
 
