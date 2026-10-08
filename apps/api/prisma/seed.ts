@@ -42,6 +42,7 @@ async function main() {
       name: organizerName,
       username: 'organizer',
       role: 'organizer',
+      passwordHash,
       isActive: true,
       deletedAt: null,
     },
