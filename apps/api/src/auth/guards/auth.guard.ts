@@ -47,7 +47,7 @@ export class AuthGuard implements CanActivate {
 
     const primaryRole = user.role || 'participant';
 
-    // Fetch user roles
+    // Fetch user roles and profile
     const dbUser = await this.prisma.user.findUnique({
       where: { id: user.id },
       include: {
@@ -56,6 +56,7 @@ export class AuthGuard implements CanActivate {
             role: true,
           },
         },
+        profile: true,
       },
     });
 
@@ -70,6 +71,7 @@ export class AuthGuard implements CanActivate {
       email: user.email,
       phone: user.phone || null,
       roles,
+      profile: dbUser?.profile || null,
     };
 
     request.user = authUser;

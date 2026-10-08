@@ -4,6 +4,7 @@ export interface AuthenticatedUser {
   email: string;
   phone?: string | null;
   roles: string[];
+  profile?: Record<string, unknown> | null;
 }
 
 export interface JwtPayload {
@@ -25,6 +26,7 @@ export interface AuthResponse {
     email: string;
     phone?: string | null;
     roles: string[];
+    profile?: Record<string, unknown> | null;
   };
   tokens: AuthTokens;
 }

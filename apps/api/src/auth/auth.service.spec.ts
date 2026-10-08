@@ -89,6 +89,59 @@ describe('AuthService', () => {
       expect(result.tokens.refreshToken).toBeDefined();
     });
 
+    it('successfully registers participant with complete profile details', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+      mockPrisma.role.findUnique.mockResolvedValue({ id: 'role-participant', name: 'participant' });
+
+      mockPrisma.user.create.mockResolvedValue({
+        id: 'user-profile-1',
+        name: 'Ahmed Space',
+        email: 'ahmed@space.local',
+        phone: '+201011111111',
+        isActive: true,
+        deletedAt: null,
+        roles: [{ role: { name: 'participant' } }],
+        profile: {
+          institution: 'Cairo University',
+          academicLevel: 'Junior',
+          skills: ['Python', 'AI'],
+          preferredChallenge: 'Climate Action',
+          teamStatus: 'want_to_join_team',
+        },
+      });
+
+      mockPrisma.account.create.mockResolvedValue({});
+      mockPrisma.session.create.mockResolvedValue({});
+
+      const result = await service.register({
+        name: 'Ahmed Space',
+        email: 'ahmed@space.local',
+        password: 'password123',
+        phone: '+201011111111',
+        institution: 'Cairo University',
+        academicLevel: 'Junior',
+        skills: ['Python', 'AI'],
+        preferredChallenge: 'Climate Action',
+      });
+
+      expect(mockPrisma.user.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            profile: expect.objectContaining({
+              create: expect.objectContaining({
+                institution: 'Cairo University',
+                skills: ['Python', 'AI'],
+                preferredChallenge: 'Climate Action',
+              }),
+            }),
+          }),
+        }),
+      );
+
+      expect(result.user.profile).toBeDefined();
+      expect(result.user.profile.institution).toBe('Cairo University');
+    });
+
     it('rejects registration if email already exists', async () => {
       mockPrisma.user.findUnique.mockResolvedValue({ id: 'existing-id', email: 'test@example.com' });
 

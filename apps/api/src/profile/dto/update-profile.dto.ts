@@ -1,34 +1,13 @@
 import {
   IsArray,
-  IsEmail,
+  IsBoolean,
   IsEnum,
   IsOptional,
   IsString,
-  MinLength,
 } from 'class-validator';
 import { TeamStatus } from '@prisma/client';
 
-export class RegisterDto {
-  @IsString()
-  @IsOptional()
-  name?: string;
-
-  @IsString()
-  @IsOptional()
-  fullName?: string;
-
-  @IsEmail({}, { message: 'Must be a valid email address' })
-  email!: string;
-
-  @IsString()
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  password!: string;
-
-  @IsString()
-  @IsOptional()
-  phone?: string;
-
-  // Profile Information
+export class UpdateProfileDto {
   @IsString()
   @IsOptional()
   institution?: string;
@@ -78,4 +57,21 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   portfolioUrl?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isPublic?: boolean;
+
+  // Optional updates to User account fields
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
+
+  @IsString()
+  @IsOptional()
+  avatar?: string;
 }

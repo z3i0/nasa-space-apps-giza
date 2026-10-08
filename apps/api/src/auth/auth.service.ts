@@ -35,6 +35,7 @@ export class AuthService {
       email: user.email,
       phone: user.phone || null,
       roles: roleNames,
+      profile: user.profile || null,
     };
   }
 
@@ -75,6 +76,23 @@ export class AuthService {
             roleId: participantRole.id,
           },
         },
+        profile: {
+          create: {
+            institution: dto.institution?.trim() || null,
+            academicLevel: dto.academicLevel?.trim() || null,
+            skills: dto.skills || [],
+            bio: dto.bio?.trim() || null,
+            interests: dto.interests || [],
+            experience: dto.experience?.trim() || null,
+            preferredChallenge: dto.preferredChallenge?.trim() || null,
+            teamStatus: dto.teamStatus || 'want_to_join_team',
+            desiredRole: dto.desiredRole?.trim() || null,
+            githubUrl: dto.githubUrl?.trim() || null,
+            linkedinUrl: dto.linkedinUrl?.trim() || null,
+            portfolioUrl: dto.portfolioUrl?.trim() || null,
+            isPublic: true,
+          },
+        },
       },
       include: {
         roles: {
@@ -82,6 +100,7 @@ export class AuthService {
             role: true,
           },
         },
+        profile: true,
       },
     });
 
@@ -142,6 +161,7 @@ export class AuthService {
             role: true,
           },
         },
+        profile: true,
       },
     });
 
@@ -252,6 +272,7 @@ export class AuthService {
             role: true,
           },
         },
+        profile: true,
       },
     });
 

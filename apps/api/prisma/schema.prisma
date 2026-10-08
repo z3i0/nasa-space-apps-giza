@@ -33,6 +33,7 @@ model User {
   accounts            Account[]
   roles               UserRole[]
   passwordResetTokens PasswordResetToken[]
+  profile             Profile?
 
   @@index([email])
   @@index([deletedAt])
@@ -127,5 +128,39 @@ model PasswordResetToken {
   @@index([userId])
   @@index([tokenHash])
   @@map("password_reset_tokens")
+}
+
+enum TeamStatus {
+  already_have_team
+  want_to_join_team
+  want_to_create_team
+  working_individually
+}
+
+model Profile {
+  id                 String     @id @default(uuid())
+  userId             String     @unique @map("user_id")
+  institution        String?    @map("institution")
+  academicLevel      String?    @map("academic_level")
+  skills             String[]   @default([])
+  bio                String?
+  interests          String[]   @default([])
+  experience         String?
+  preferredChallenge String?    @map("preferred_challenge")
+  teamStatus         TeamStatus @default(want_to_join_team) @map("team_status")
+  desiredRole        String?    @map("desired_role")
+  githubUrl          String?    @map("github_url")
+  linkedinUrl        String?    @map("linkedin_url")
+  portfolioUrl       String?    @map("portfolio_url")
+  isPublic           Boolean    @default(true) @map("is_public")
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([teamStatus])
+  @@index([preferredChallenge])
+  @@index([isPublic])
+  @@map("profiles")
 }
 
