@@ -4,7 +4,7 @@ import { createNavigation } from "next-intl/navigation"
 export const routing = defineRouting({
   locales: ["ar", "en"],
   defaultLocale: "ar",
-  localePrefix: "as-needed",
+  localePrefix: "never",
 })
 
 export type Locale = (typeof routing.locales)[number]
