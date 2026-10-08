@@ -9,7 +9,7 @@ The NestJS 12 backend API service for the **NASA Space Apps Giza** platform.
 ## 🛠️ Tech Stack & Features
 
 - **NestJS 12** with TypeScript ESM & Express engine.
-- **Prisma ORM 6** connected to PostgreSQL 16.
+- **Prisma ORM 6** connected to PostgreSQL 18.
 - **Authentication & RBAC**:
   - Better-Auth integration with password hashing via `bcryptjs`.
   - JWT Access & Refresh Token generation (`@nestjs/jwt`).

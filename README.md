@@ -5,7 +5,7 @@
 [![NestJS 12](https://img.shields.io/badge/NestJS-12.0.1-ea2845?logo=nestjs)](https://nestjs.com/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.0-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
 [![Prisma ORM](https://img.shields.io/badge/Prisma-6.19.3-2d3748?logo=prisma)](https://www.prisma.io/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-336791?logo=postgresql)](https://www.postgresql.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![RTL Supported](https://img.shields.io/badge/RTL-Arabic_%26_English-success)](#-internationalization-i18n--rtl)
 
@@ -81,7 +81,7 @@ Official management and participation platform for **NASA Space Apps Challenge �
 
 ### Infrastructure & Database
 
-- **Database**: PostgreSQL 16 Alpine containerized with Docker Compose
+- **Database**: PostgreSQL 18 Alpine containerized with Docker Compose
 - **Package Manager**: `pnpm` (Workspace Monorepo)
 
 ---
@@ -146,7 +146,7 @@ nasa-space-apps-giza/
 │           ├── schema.prisma                # PostgreSQL data schema
 │           └── seed.ts                      # Database seed script for roles & demo users
 │
-├── docker-compose.yml                       # PostgreSQL 16 Alpine container
+├── docker-compose.yml                       # PostgreSQL 18 Alpine container
 ├── package.json                             # Monorepo root scripts & dev dependencies
 ├── pnpm-workspace.yaml                      # pnpm packages definition
 └── .env.example                             # Environment variable template
@@ -358,7 +358,7 @@ The application uses PostgreSQL with Prisma ORM.
 
 | Command            | Description                                                                     |
 | :----------------- | :------------------------------------------------------------------------------ |
-| `pnpm docker:up`   | Starts the PostgreSQL 16 container                                              |
+| `pnpm docker:up`   | Starts the PostgreSQL 18 container                                              |
 | `pnpm docker:down` | Stops the PostgreSQL container                                                  |
 | `pnpm db:generate` | Generates the Prisma client                                                     |
 | `pnpm db:push`     | Pushes the Prisma schema state directly to the database                         |
