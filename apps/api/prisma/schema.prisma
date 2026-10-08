@@ -34,6 +34,12 @@ model User {
   roles               UserRole[]
   passwordResetTokens PasswordResetToken[]
   profile             Profile?
+  createdTeams        Team[]               @relation("TeamCreator")
+  teamMemberships     TeamMember[]         @relation("UserTeamMemberships")
+  assignedTasks       TeamTask[]           @relation("AssignedTasks")
+  receivedInvitations TeamInvitation[]     @relation("ReceivedInvitations")
+  sentInvitations     TeamInvitation[]     @relation("SentInvitations")
+  joinRequests        TeamJoinRequest[]    @relation("UserJoinRequests")
 
   @@index([email])
   @@index([deletedAt])
@@ -163,4 +169,132 @@ model Profile {
   @@index([isPublic])
   @@map("profiles")
 }
+
+// -------------------------------------------------------------
+// Team Management Models
+// -------------------------------------------------------------
+
+enum TeamMemberRole {
+  leader
+  member
+}
+
+enum TeamSubmissionStatus {
+  not_started
+  draft
+  submitted
+}
+
+enum TaskStatus {
+  not_started
+  in_progress
+  completed
+}
+
+enum RequestStatus {
+  pending
+  accepted
+  rejected
+  canceled
+}
+
+model Team {
+  id               String               @id @default(uuid())
+  name             String               @unique
+  description      String?
+  challenge        String?              @map("challenge")
+  track            String?              @map("track")
+  createdById      String               @map("created_by_id")
+  maxMembers       Int                  @default(5) @map("max_members")
+  submissionStatus TeamSubmissionStatus @default(not_started) @map("submission_status")
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+
+  createdBy        User                 @relation("TeamCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  members          TeamMember[]
+  tasks            TeamTask[]
+  invitations      TeamInvitation[]
+  joinRequests     TeamJoinRequest[]
+
+  @@index([createdById])
+  @@index([challenge])
+  @@index([submissionStatus])
+  @@map("teams")
+}
+
+model TeamMember {
+  id           String         @id @default(uuid())
+  teamId       String         @map("team_id")
+  userId       String         @unique @map("user_id")
+  role         TeamMemberRole @default(member) @map("role")
+  assignedRole String?        @map("assigned_role")
+  joinedAt     DateTime       @default(now()) @map("joined_at")
+
+  team         Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user         User           @relation("UserTeamMemberships", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+  @@map("team_members")
+}
+
+model TeamTask {
+  id           String     @id @default(uuid())
+  teamId       String     @map("team_id")
+  title        String
+  description  String?
+  status       TaskStatus @default(not_started) @map("status")
+  assignedToId String?    @map("assigned_to_id")
+  dueDate      DateTime?  @map("due_date")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  team         Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  assignedTo   User?      @relation("AssignedTasks", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([teamId])
+  @@index([assignedToId])
+  @@index([status])
+  @@map("team_tasks")
+}
+
+model TeamInvitation {
+  id              String        @id @default(uuid())
+  teamId          String        @map("team_id")
+  invitedUserId   String        @map("invited_user_id")
+  invitedByUserId String        @map("invited_by_user_id")
+  status          RequestStatus @default(pending) @map("status")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  team            Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  invitedUser     User          @relation("ReceivedInvitations", fields: [invitedUserId], references: [id], onDelete: Cascade)
+  invitedByUser   User          @relation("SentInvitations", fields: [invitedByUserId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, invitedUserId])
+  @@index([invitedUserId])
+  @@index([status])
+  @@map("team_invitations")
+}
+
+model TeamJoinRequest {
+  id        String        @id @default(uuid())
+  teamId    String        @map("team_id")
+  userId    String        @map("user_id")
+  message   String?
+  status    RequestStatus @default(pending) @map("status")
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  team      Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User          @relation("UserJoinRequests", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+  @@index([status])
+  @@map("team_join_requests")
+}
+
 
