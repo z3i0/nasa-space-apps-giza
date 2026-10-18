@@ -45,12 +45,18 @@ export interface ParticipantProfile {
   shareProjectsWithMentors: boolean
   hideFromSearch: boolean
   updatedAt: string
-  user: { id: string; name: string; emailVerified: boolean }
+  user: {
+    id: string
+    name: string
+    emailVerified: boolean
+    phone?: string | null
+  }
   team: { id: string; name: string; memberCount: number } | null
 }
 
 export interface ProfileDraft {
   name: string
+  phone: string
   desiredRole: string
   skills: string[]
   bio: string
@@ -66,6 +72,7 @@ export interface ProfileDraft {
 export function profileDraft(profile: ParticipantProfile): ProfileDraft {
   return {
     name: profile.user.name,
+    phone: profile.user.phone ?? "",
     desiredRole: profile.desiredRole ?? "",
     skills: profile.skills,
     bio: profile.bio ?? "",

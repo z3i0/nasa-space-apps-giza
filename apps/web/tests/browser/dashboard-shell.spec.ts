@@ -55,7 +55,7 @@ for (const locale of ["en", "ar"]) {
       const shell = page.locator("[data-dashboard-shell]")
       const header = shell.locator("header")
       const navigation = page.locator("[data-dashboard-navigation]")
-      const sidebar = shell.locator("aside")
+      const sidebar = shell.locator("aside:has([data-dashboard-navigation])")
       await expect(shell).toHaveAttribute(
         "dir",
         locale === "ar" ? "rtl" : "ltr"

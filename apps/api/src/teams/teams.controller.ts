@@ -11,6 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TeamsService } from './teams.service.js';
+import { SubmissionsService } from './submissions.service.js';
+import { SaveSubmissionDto } from './dto/submission.dto.js';
 import { CreateTeamDto } from './dto/create-team.dto.js';
 import { UpdateTeamDto } from './dto/update-team.dto.js';
 import { CreateTaskDto, UpdateTaskDto } from './dto/team-task.dto.js';
@@ -18,6 +20,7 @@ import {
   InviteMemberDto,
   JoinRequestDto,
   RespondRequestDto,
+  TransferLeadershipDto,
 } from './dto/team-request.dto.js';
 import { SearchTeamsDto } from './dto/search-teams.dto.js';
 import { AuthGuard } from '../auth/guards/auth.guard.js';
@@ -27,7 +30,19 @@ import type { AuthenticatedUser } from '../auth/types/auth-user.interface.js';
 
 @Controller('teams')
 export class TeamsController {
-  constructor(private readonly teamsService: TeamsService) {}
+  constructor(private readonly teamsService: TeamsService, private readonly submissionsService: SubmissionsService) {}
+
+  @UseGuards(AuthGuard)
+  @Get(':id/submission')
+  getSubmission(@Param('id') teamId: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.submissionsService.get(teamId, user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Put(':id/submission')
+  saveSubmission(@Param('id') teamId: string, @CurrentUser() user: AuthenticatedUser, @Body() dto: SaveSubmissionDto) {
+    return this.submissionsService.save(teamId, user.id, dto);
+  }
 
   /**
    * 1. Create a new team (creator becomes leader)
@@ -49,6 +64,28 @@ export class TeamsController {
   async getMyTeam(@CurrentUser() user: AuthenticatedUser) {
     const result = await this.teamsService.getMyTeam(user.id);
     return result || { team: null };
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('requests/me')
+  async getMyRequests(@CurrentUser() user: AuthenticatedUser) {
+    return this.teamsService.getMyRequests(user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(':id/leader')
+  async getLeaderContact(@Param('id') teamId: string) {
+    return this.teamsService.getLeaderContact(teamId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(':id/leadership')
+  async transferLeadershipDto(
+    @Param('id') teamId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: TransferLeadershipDto,
+  ) {
+    return this.teamsService.transferLeadership(teamId, user.id, dto.userId);
   }
 
   /**

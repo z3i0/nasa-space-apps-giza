@@ -9,6 +9,7 @@ import type { Profile } from '@prisma/client';
 
 describe('Profile validation and privacy', () => {
   it.each([
+    { phone: '' }, { phone: '123' }, { phone: 'not a phone' }, { phone: null }, { phone: '+1234567890123456' },
     { name: '   ' }, { name: null }, { bio: 'x'.repeat(1001) },
     { skills: Array.from({length:51},(_,i)=>`skill ${i}`) }, { skills: ['  '] },
     { skills: ['Python','Python'] }, { skills: [1] }, { isPublic: 'true' },
@@ -16,6 +17,11 @@ describe('Profile validation and privacy', () => {
     { teamStatus: 'admin' }, { expectedUpdatedAt: 'not a timestamp' },
   ])('rejects invalid payload %j', async payload => {
     expect((await validate(plainToInstance(UpdateProfileDto,payload))).length).toBeGreaterThan(0);
+  });
+  it('normalizes formatted and Arabic contact numbers', async () => {
+    const dto = plainToInstance(UpdateProfileDto, { phone: '+٢٠ (١٠) ١٢٣٤-٥٦٧٨' });
+    expect(await validate(dto)).toEqual([]);
+    expect(dto.phone).toBe('+201012345678');
   });
   it('accepts clearing optional fields and trims input', async () => {
     const dto=plainToInstance(UpdateProfileDto,{name:' Amira ',bio:'',githubUrl:'',skills:[' Python '],hideFromSearch:true});

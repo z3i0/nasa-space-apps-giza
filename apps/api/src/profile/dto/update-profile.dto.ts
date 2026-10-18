@@ -8,11 +8,13 @@ import {
   IsString,
   IsUrl,
   MaxLength,
+  Matches,
   MinLength,
   ValidateIf,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { TeamStatus } from '@prisma/client';
+import { normalizePhone, phonePattern } from '../contact.js';
 
 export class UpdateProfileDto {
   @ValidateIf((_object, value) => value !== undefined)
@@ -122,6 +124,8 @@ export class UpdateProfileDto {
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()
   @MaxLength(40)
+  @Transform(({ value }) => typeof value === 'string' ? normalizePhone(value) : value)
+  @Matches(phonePattern, { message: 'Enter a contact number with 7–15 digits and an optional + country code' })
   phone?: string;
 
   @ValidateIf((_object, value) => value !== undefined)

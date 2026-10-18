@@ -24,14 +24,15 @@ test("edits preview immediately and save once; reload restores persisted data", 
   await page.route("**/api/profiles/me",async route=>{
     if(route.request().method()==="PATCH") {
       saves++
-      const {name,expectedUpdatedAt,...fields}=route.request().postDataJSON()
+      const {name,phone,expectedUpdatedAt,...fields}=route.request().postDataJSON()
       expect(expectedUpdatedAt).toBe(profile.updatedAt)
-      profile={...profile,...fields,user:{...profile.user,name},updatedAt:"2026-10-17T10:01:00.000Z"}
+      profile={...profile,...fields,user:{...profile.user,name,phone},updatedAt:"2026-10-17T10:01:00.000Z"}
     }
     await route.fulfill({json:profile})
   })
   await page.goto("/en/dashboard/participant/profile")
   await page.getByLabel("Display name",{exact:true}).fill("Amira Updated")
+  await page.getByLabel("Contact number",{exact:true}).fill("+201011223344")
   await page.getByRole("button",{name:"Frontend",exact:true}).click()
   await page.getByLabel("Short bio",{exact:true}).fill("A new profile story")
   await expect(page.locator("[data-matching-card]")).toContainText("A new profile story")
@@ -46,6 +47,7 @@ test("edits preview immediately and save once; reload restores persisted data", 
   expect(saves).toBe(1)
   await page.reload()
   await expect(page.locator("#profile-name")).toHaveValue("Amira Updated")
+  await expect(page.locator("#profile-phone")).toHaveValue("+201011223344")
   await expect(page.getByRole("button",{name:"Frontend",exact:true})).toHaveAttribute("aria-pressed","true")
   await expect(page.getByRole("checkbox",{name:"Hide profile from participant search"})).toBeChecked()
 })

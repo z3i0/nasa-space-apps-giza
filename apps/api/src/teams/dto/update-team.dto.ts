@@ -1,8 +1,17 @@
-import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+import { Transform } from 'class-transformer';
 import { TeamSubmissionStatus } from '@prisma/client';
 
 export class UpdateTeamDto {
   @IsString()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @MinLength(3)
   @IsOptional()
   @MaxLength(50)
   name?: string;

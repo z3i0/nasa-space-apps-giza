@@ -5,3 +5,4 @@ export default async function MyTeamPage() {
   const { team } = await getServerMyTeam()
   return <MyTeamClient initialTeam={team} />
 }
+

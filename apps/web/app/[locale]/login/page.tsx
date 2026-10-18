@@ -48,7 +48,7 @@ export default function LoginPage() {
               roles: [role],
             })
             const redirectPath = getRedirectPathByRole([role])
-            router.replace(redirectPath as "/dashboard/participant")
+            window.location.replace(`/${locale}${redirectPath}`)
           } else {
             clearLocalAuth()
             setCheckingAuth(false)
@@ -60,7 +60,7 @@ export default function LoginPage() {
           setCheckingAuth(false)
         })
     return () => { active = false }
-  }, [router])
+  }, [locale])
 
   // Demo accounts for rapid role testing
   const demoAccounts = [
@@ -115,6 +115,7 @@ export default function LoginPage() {
 
     setLoading(true)
 
+    let canRecoverSession = true
     try {
       const res = await authClient.signIn.email({
         email: email.trim(),
@@ -122,6 +123,9 @@ export default function LoginPage() {
       })
 
       if (res.error) {
+        // Credential/permission failures must remain failures even if another
+        // session exists. Only recover ambiguous transport/server failures.
+        canRecoverSession = !res.error.status || res.error.status >= 500
         throw new Error(res.error.message || t("errors.invalidCredentials"))
       }
 
@@ -154,8 +158,32 @@ export default function LoginPage() {
       )
 
       const redirectPath = getRedirectPathByRole([userRole])
-      router.push(redirectPath as "/dashboard/participant")
+      window.location.replace(`/${locale}${redirectPath}`)
     } catch (err: unknown) {
+      if (canRecoverSession) {
+        try {
+          // A response can fail after the server has already set the session.
+          // Verify that session instead of making the user leave and re-enter.
+          const recovered = await authClient.getSession({ query: { disableCookieCache: true } })
+          const user = recovered.data?.user as {
+            id: string; name?: string; email: string; role?: string
+          } | undefined
+          const role = user?.role || "participant"
+          if (user && recovered.data?.session.token &&
+              user.email.toLowerCase() === email.trim().toLowerCase() &&
+              ["organizer", "judge", "mentor", "participant"].includes(role)) {
+            setAuth({ accessToken: recovered.data.session.token }, {
+              id: user.id, name: user.name || user.email,
+              fullName: user.name || user.email, email: user.email,
+              role, roles: [role],
+            })
+            window.location.replace(`/${locale}${getRedirectPathByRole([role])}`)
+            return
+          }
+        } catch {
+          // Preserve the original failure if session verification also fails.
+        }
+      }
       const msg = err instanceof Error ? err.message : String(err)
       setError(msg || t("errors.serverError"))
     } finally {

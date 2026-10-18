@@ -49,7 +49,7 @@ describe('TeamsService', () => {
         update: vi.fn(),
       },
       user: {
-        findUnique: vi.fn(),
+        findUnique: vi.fn().mockResolvedValue({ phone: '+201000000000' }),
       },
       $transaction: vi.fn(async (cb) => {
         if (typeof cb === 'function') {
@@ -178,6 +178,25 @@ describe('TeamsService', () => {
   });
 
   describe('Tasks management', () => {
+    it('rejects assignment outside the team', async () => {
+      mockPrisma.teamMember.findUnique.mockResolvedValue({ teamId: 't-1' });
+      mockPrisma.teamMember.findFirst.mockResolvedValue(null);
+      await expect(service.createTask('t-1', 'u-1', { title: 'Map', assignedToId: 'outsider' })).rejects.toThrow('Assigned user');
+      expect(mockPrisma.teamTask.create).not.toHaveBeenCalled();
+    });
+
+    it('allows clearing assignee and due date, but rejects outsider edits', async () => {
+      mockPrisma.teamTask.findUnique.mockResolvedValue({ team: { members: [{ userId: 'u-1', role: 'member' }] } });
+      await service.updateTask('task-1', 'u-1', { assignedToId: null, dueDate: null });
+      expect(mockPrisma.teamTask.update).toHaveBeenCalledWith(expect.objectContaining({ data: { assignedToId: null, dueDate: null } }));
+      await expect(service.updateTask('task-1', 'outsider', { title: 'Changed' })).rejects.toThrow(ForbiddenException);
+      await expect(service.deleteTask('task-1', 'u-1')).rejects.toThrow(ForbiddenException);
+    });
+
+    it('prevents changing submission status through general team edits', async () => {
+      await expect(service.updateTeam('t-1', 'u-1', ['participant'], { submissionStatus: 'submitted' })).rejects.toThrow('submission endpoint');
+      expect(mockPrisma.team.update).not.toHaveBeenCalled();
+    });
     it('creates a task in the team', async () => {
       mockPrisma.teamMember.findUnique.mockResolvedValue({
         userId: 'u-1',

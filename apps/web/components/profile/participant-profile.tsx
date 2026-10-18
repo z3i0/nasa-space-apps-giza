@@ -85,6 +85,7 @@ import {
 
 export function ParticipantProfilePage() {
   const t = useTranslations("Dashboard.profilePage")
+  const contact = useTranslations("Teams")
   const locale = useLocale()
   const theme = useContext(DashboardThemeContext)
   const [profile, setProfile] = useState<ParticipantProfile | null>(null)
@@ -243,7 +244,7 @@ export function ParticipantProfilePage() {
       if (user)
         setAuth(
           {},
-          { ...user, name: result.user.name, fullName: result.user.name }
+          { ...user, name: result.user.name, fullName: result.user.name, phone: result.user.phone }
         )
     } catch (error) {
       if (!controller.signal.aborted) setError(errorKey(error))
@@ -584,6 +585,30 @@ export function ParticipantProfilePage() {
                           </SelectGroup>
                         </SelectContent>
                       </Select>
+                    </div>
+
+                    <div className="space-y-2 sm:col-span-2">
+                      <label
+                        htmlFor="profile-phone"
+                        className="text-xs font-semibold text-foreground block"
+                      >
+                        {contact("contactNumber")}
+                      </label>
+                      <Input
+                        id="profile-phone"
+                        type="tel"
+                        dir="ltr"
+                        autoComplete="tel"
+                        maxLength={40}
+                        value={draft.phone}
+                        onChange={(e) => change("phone", e.target.value)}
+                        placeholder="+20 123 456 7890"
+                        className="rounded-xl h-10 text-sm"
+                        aria-describedby="profile-phone-help"
+                      />
+                      <p id="profile-phone-help" className="text-[11px] text-muted-foreground">
+                        {contact("contactHelp")}
+                      </p>
                     </div>
                   </div>
 

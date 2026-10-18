@@ -1,5 +1,41 @@
 import { expect, test, type BrowserContext } from "@playwright/test"
 
+for (const locale of ["en", "ar"]) {
+  for (const outcome of ["success", "lost-response", "invalid", "other-user", "offline"]) {
+    test(`${locale} submitted login handles ${outcome}`, async ({ page }) => {
+      let submitted = false
+      const user = { id: "login-user", name: "Login User", email: "login@example.test", role: "participant" }
+      const session = { token: "login-session", expiresAt: "2099-01-01T00:00:00.000Z" }
+      await page.route("**/api/auth/get-session**", route => {
+        if (submitted && outcome === "offline") return route.abort("failed")
+        return route.fulfill({ json: submitted ? {
+          user: outcome === "other-user" ? { ...user, email: "other@example.test" } : user,
+          session,
+        } : null })
+      })
+      await page.route("**/api/auth/sign-in/email", route => {
+        expect(new URL(route.request().url()).origin).toBe("http://localhost:3000")
+        submitted = true
+        if (["lost-response", "other-user", "offline"].includes(outcome)) return route.abort("failed")
+        if (outcome === "invalid") return route.fulfill({ status: 401, json: { message: "Invalid credentials" } })
+        return route.fulfill({ json: { user, token: session.token } })
+      })
+      await page.goto(`/${locale}/login`)
+      await page.locator('input[type="email"]').fill(user.email)
+      await page.locator('input[type="password"]').fill("test-password")
+      await page.locator('button[type="submit"]').click()
+      if (["success", "lost-response"].includes(outcome)) {
+        await expect(page).toHaveURL(new RegExp(`/${locale}/dashboard/participant$`))
+        await expect(page.locator("[data-dashboard-shell]")).toBeVisible()
+      } else {
+        await expect(page.locator('button[type="submit"]')).toBeEnabled()
+        await expect(page).toHaveURL(new RegExp(`/${locale}/login$`))
+        expect(await page.evaluate(() => localStorage.getItem("hackathon_user"))).toBeNull()
+      }
+    })
+  }
+}
+
 async function setCookies(
   context: BrowserContext,
   values: Record<string, string>

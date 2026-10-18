@@ -1,7 +1,9 @@
 import { IsOptional, IsString, MinLength, MaxLength } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateTeamDto {
   @IsString()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @MinLength(3, { message: 'Team name must be at least 3 characters long' })
   @MaxLength(50, { message: 'Team name cannot exceed 50 characters' })
   name!: string;

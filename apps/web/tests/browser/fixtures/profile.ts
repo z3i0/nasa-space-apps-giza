@@ -8,7 +8,7 @@ export const profileFixture: ParticipantProfile = {
   experience: "Built a crop-health classifier using Sentinel-2 imagery. Volunteered on a campus flood-awareness campaign. GitHub: github.com/demo-salma",
   interests: ["Earth observation", "Climate resilience", "Open data"], preferredChallenge: "Flood Signals · Earth observation",
   teamStatus: "already_have_team", isPublic: true, hideFromSearch: false, shareProjectsWithMentors: true,
-  updatedAt: "2026-10-17T10:00:00.000Z", user: {id:"profile-user", name:"Amira Ragab", emailVerified:true},
+  updatedAt: "2026-10-17T10:00:00.000Z", user: {id:"profile-user", name:"Amira Ragab", emailVerified:true, phone:"+201000000001"},
   team: {id:"team-fixture",name:"NileScope",memberCount:4},
 }
 
