@@ -17,6 +17,7 @@
     "db:push": "pnpm --filter api prisma:push",
     "db:studio": "pnpm --filter api prisma:studio",
     "db:seed": "pnpm --filter api prisma:seed",
+    "db:reset": "pnpm --filter api prisma:reset",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
   },
