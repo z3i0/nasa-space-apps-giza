@@ -730,7 +730,7 @@ export function SpecificTeamClient({
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
                       <UserPlus className="size-4 text-primary" />
-                      <CardTitle className="text-sm font-bold">{tFind("requestToJoin")}</CardTitle>
+                      <CardTitle className="text-sm font-bold">{tFind("requestJoinBtn")}</CardTitle>
                     </div>
                     <CardDescription className="text-xs">
                       {isTeamFull
@@ -752,7 +752,7 @@ export function SpecificTeamClient({
                         <Textarea
                           value={joinMessage}
                           onChange={(e) => setJoinMessage(e.target.value)}
-                          placeholder={tFind("joinRequestNotePlaceholder")}
+                          placeholder={tFind("joinMessagePlaceholder")}
                           disabled={sendingJoin || isTeamFull || userHasAnyTeam}
                           rows={3}
                           className="rounded-xl text-xs resize-none"
@@ -767,7 +767,7 @@ export function SpecificTeamClient({
                           ) : (
                             <Send className="size-3.5" />
                           )}
-                          <span>{tFind("sendJoinRequest")}</span>
+                          <span>{tFind("sendRequestBtn")}</span>
                         </Button>
                       </form>
                     )}
