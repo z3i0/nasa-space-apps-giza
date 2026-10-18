@@ -2,7 +2,16 @@ import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class InviteMemberDto {
   @IsString()
-  userId!: string;
+  @IsOptional()
+  username?: string;
+
+  @IsString()
+  @IsOptional()
+  userId?: string;
+
+  @IsString()
+  @IsOptional()
+  email?: string;
 
   @IsString()
   @IsOptional()

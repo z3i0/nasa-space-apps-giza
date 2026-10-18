@@ -37,7 +37,6 @@ export class TeamsService {
       createdById: team.createdById,
       maxMembers: team.maxMembers,
       submissionStatus: team.submissionStatus,
-      createdAt: team.createdAt,
       updatedAt: team.updatedAt,
       membersCount: team.members ? team.members.length : (team._count?.members ?? 0),
       members: team.members?.map((m: any) => ({
@@ -50,6 +49,7 @@ export class TeamsService {
           ? {
               id: m.user.id,
               name: m.user.name,
+              username: m.user.username,
               avatar: m.user.avatar,
               profile: publicProfile(m.user.profile),
             }
@@ -75,12 +75,12 @@ export class TeamsService {
       invitations: team.invitations?.map((invitation: any) => ({
         id: invitation.id, teamId: invitation.teamId, invitedUserId: invitation.invitedUserId,
         status: invitation.status, message: invitation.message, createdAt: invitation.createdAt,
-        invitedUser: invitation.invitedUser ? { id: invitation.invitedUser.id, name: invitation.invitedUser.name, avatar: invitation.invitedUser.avatar, profile: publicProfile(invitation.invitedUser.profile) } : undefined,
+        invitedUser: invitation.invitedUser ? { id: invitation.invitedUser.id, name: invitation.invitedUser.name, username: invitation.invitedUser.username, avatar: invitation.invitedUser.avatar, profile: publicProfile(invitation.invitedUser.profile) } : undefined,
       })),
       joinRequests: team.joinRequests?.map((request: any) => ({
         id: request.id, teamId: request.teamId, userId: request.userId, status: request.status,
         message: request.message, createdAt: request.createdAt,
-        user: request.user ? { id: request.user.id, name: request.user.name, avatar: request.user.avatar, profile: publicProfile(request.user.profile) } : undefined,
+        user: request.user ? { id: request.user.id, name: request.user.name, username: request.user.username, avatar: request.user.avatar, profile: publicProfile(request.user.profile) } : undefined,
       })),
       createdBy: team.createdBy
         ? {
@@ -219,11 +219,16 @@ export class TeamsService {
   }
 
   // -------------------------------------------------------------
-  // 3. Get Team by ID
+  // 3. Get Team by ID or Name
   // -------------------------------------------------------------
   async getTeamById(teamId: string) {
-    const team = await this.prisma.team.findUnique({
-      where: { id: teamId },
+    const team = await this.prisma.team.findFirst({
+      where: {
+        OR: [
+          { id: teamId },
+          { name: teamId },
+        ],
+      },
       include: {
         members: {
           include: {
@@ -238,6 +243,22 @@ export class TeamsService {
             assignedTo: true,
           },
           orderBy: { createdAt: 'desc' },
+        },
+        invitations: {
+          where: { status: RequestStatus.pending },
+          include: {
+            invitedUser: {
+              include: { profile: true },
+            },
+          },
+        },
+        joinRequests: {
+          where: { status: RequestStatus.pending },
+          include: {
+            user: {
+              include: { profile: true },
+            },
+          },
         },
         createdBy: true,
       },
@@ -312,8 +333,13 @@ export class TeamsService {
   // 5. Update Team (Leader or Organizer)
   // -------------------------------------------------------------
   async updateTeam(teamId: string, userId: string, userRoles: string[], dto: UpdateTeamDto) {
-    const team = await this.prisma.team.findUnique({
-      where: { id: teamId },
+    const team = await this.prisma.team.findFirst({
+      where: {
+        OR: [
+          { id: teamId },
+          { name: teamId },
+        ],
+      },
       include: { members: true },
     });
 
@@ -340,7 +366,7 @@ export class TeamsService {
     }
 
     const updated = await this.prisma.team.update({
-      where: { id: teamId },
+      where: { id: team.id },
       data: {
         ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
         ...(dto.description !== undefined ? { description: dto.description?.trim() || null } : {}),
@@ -350,7 +376,34 @@ export class TeamsService {
       },
       include: {
         members: {
-          include: { user: true },
+          include: {
+            user: {
+              include: { profile: true },
+            },
+          },
+          orderBy: { joinedAt: 'asc' },
+        },
+        tasks: {
+          include: {
+            assignedTo: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+        invitations: {
+          where: { status: RequestStatus.pending },
+          include: {
+            invitedUser: {
+              include: { profile: true },
+            },
+          },
+        },
+        joinRequests: {
+          where: { status: RequestStatus.pending },
+          include: {
+            user: {
+              include: { profile: true },
+            },
+          },
         },
         createdBy: true,
       },
@@ -363,8 +416,13 @@ export class TeamsService {
   // 6. Invite Member (Team Leader)
   // -------------------------------------------------------------
   async inviteMember(teamId: string, leaderUserId: string, dto: InviteMemberDto) {
-    const team = await this.prisma.team.findUnique({
-      where: { id: teamId },
+    const team = await this.prisma.team.findFirst({
+      where: {
+        OR: [
+          { id: teamId },
+          { name: teamId },
+        ],
+      },
       include: { members: true },
     });
 
@@ -383,24 +441,45 @@ export class TeamsService {
       throw new BadRequestException(`Team is full (max ${team.maxMembers} members)`);
     }
 
-    const targetUser = await this.prisma.user.findUnique({
-      where: { id: dto.userId },
+    const rawIdentifier = dto.username || dto.userId || dto.email;
+    const identifier = rawIdentifier?.trim().replace(/^@/, '');
+
+    if (!identifier) {
+      throw new BadRequestException('Username is required to invite a member');
+    }
+
+    const targetUser = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: { equals: identifier, mode: 'insensitive' } },
+          { id: identifier },
+          { email: { equals: identifier, mode: 'insensitive' } },
+        ],
+      },
       include: { teamMemberships: true },
     });
 
     if (!targetUser) {
-      throw new NotFoundException('Invited participant not found');
+      throw new NotFoundException(`Participant with username "@${identifier}" not found`);
+    }
+
+    if (targetUser.id === leaderUserId) {
+      throw new BadRequestException('You cannot invite yourself to your own team');
+    }
+
+    if (team.members.some((m) => m.userId === targetUser.id)) {
+      throw new ConflictException('This participant is already a member of your team');
     }
 
     if (targetUser.teamMemberships.length > 0) {
-      throw new ConflictException('This participant is already a member of a team');
+      throw new ConflictException('This participant is already a member of another team');
     }
 
     const invitation = await this.prisma.teamInvitation.upsert({
       where: {
         teamId_invitedUserId: {
-          teamId,
-          invitedUserId: dto.userId,
+          teamId: team.id,
+          invitedUserId: targetUser.id,
         },
       },
       update: {
@@ -408,20 +487,22 @@ export class TeamsService {
         invitedByUserId: leaderUserId,
       },
       create: {
-        teamId,
-        invitedUserId: dto.userId,
+        teamId: team.id,
+        invitedUserId: targetUser.id,
         invitedByUserId: leaderUserId,
         status: RequestStatus.pending,
       },
       include: {
         team: true,
-        invitedUser: true,
+        invitedUser: {
+          include: { profile: true },
+        },
       },
     });
 
     return {
       success: true,
-      message: `Invitation sent to ${targetUser.name || targetUser.email}`,
+      message: `Invitation sent to ${targetUser.username ? `@${targetUser.username}` : targetUser.name || targetUser.email}`,
       invitation,
     };
   }
@@ -493,6 +574,19 @@ export class TeamsService {
     });
 
     return { success: true, message: `Successfully joined ${invitation.team.name}!` };
+  }
+
+  async getMyInvitations(userId: string) {
+    const invitations = await this.prisma.teamInvitation.findMany({
+      where: { invitedUserId: userId, status: RequestStatus.pending },
+      include: {
+        team: { select: { id: true, name: true, track: true } },
+        invitedByUser: { select: { id: true, name: true, username: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return { invitations };
   }
 
   // -------------------------------------------------------------
@@ -681,6 +775,52 @@ export class TeamsService {
       success: true,
       message: isSelf ? 'You have left the team' : 'Member removed from team',
     };
+  }
+
+  async transferLeadership(teamId: string, callerUserId: string, targetUserId: string) {
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+      include: { members: true },
+    });
+
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+
+    const isLeader = team.members.some(
+      (m) => m.userId === callerUserId && m.role === TeamMemberRole.leader,
+    );
+    if (!isLeader) {
+      throw new ForbiddenException('Only the team leader can transfer leadership');
+    }
+
+    if (callerUserId === targetUserId) {
+      throw new BadRequestException('You are already the team leader');
+    }
+
+    const targetMembership = team.members.find((m) => m.userId === targetUserId);
+    if (!targetMembership) {
+      throw new NotFoundException('Target user is not a member of this team');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.teamMember.update({
+        where: { userId: callerUserId },
+        data: { role: TeamMemberRole.member },
+      });
+
+      await tx.teamMember.update({
+        where: { userId: targetUserId },
+        data: { role: TeamMemberRole.leader },
+      });
+
+      await tx.team.update({
+        where: { id: teamId },
+        data: { createdById: targetUserId },
+      });
+    });
+
+    return { success: true, message: 'Leadership transferred' };
   }
 
   // -------------------------------------------------------------

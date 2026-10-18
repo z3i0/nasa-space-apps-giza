@@ -96,6 +96,15 @@ export class TeamsController {
   }
 
   /**
+   * 7a. List pending invitations received by the current user
+   */
+  @UseGuards(AuthGuard)
+  @Get('invitations/me')
+  async getMyInvitations(@CurrentUser() user: AuthenticatedUser) {
+    return this.teamsService.getMyInvitations(user.id);
+  }
+
+  /**
    * 7. Respond to an invitation (accept or reject)
    */
   @UseGuards(AuthGuard)
@@ -145,6 +154,19 @@ export class TeamsController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.teamsService.removeMember(teamId, user.id, targetUserId);
+  }
+
+  /**
+   * 10b. Transfer team leadership to another member (leader only)
+   */
+  @UseGuards(AuthGuard)
+  @Post(':id/members/:userId/transfer-leadership')
+  async transferLeadership(
+    @Param('id') teamId: string,
+    @Param('userId') targetUserId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.teamsService.transferLeadership(teamId, user.id, targetUserId);
   }
 
   /**
