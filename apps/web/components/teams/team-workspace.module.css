@@ -4,6 +4,12 @@
   gap: 24px;
   min-width: 0;
 }
+.workText {
+  color: var(--muted-foreground);
+  white-space: pre-wrap;
+  line-height: 1.7;
+  font-size: 14px;
+}
 .heading {
   display: flex;
   align-items: center;
@@ -208,6 +214,66 @@ textarea.control {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+.applicantRequest {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--background);
+  overflow: hidden;
+}
+.requestSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.requestSummary::-webkit-details-marker {
+  display: none;
+}
+.requestSummary:hover {
+  background: var(--secondary);
+}
+.requestSummary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -3px;
+  border-radius: 12px;
+}
+.requestIdentity {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.requestToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--accent-foreground);
+  font-size: 13px;
+  font-weight: 600;
+}
+.hideDetails,
+.applicantRequest[open] .showDetails {
+  display: none;
+}
+.applicantRequest[open] .hideDetails {
+  display: inline;
+}
+.applicantRequest[open] .requestToggle svg {
+  transform: rotate(180deg);
+}
+.requestBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--border);
+  padding: 16px;
+}
+.requestMessage p {
+  margin-top: 6px;
+  white-space: pre-wrap;
 }
 .notice,
 .error {

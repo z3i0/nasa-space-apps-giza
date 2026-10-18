@@ -15,11 +15,8 @@ import {
   type TeamSearch,
 } from "@/lib/teams"
 import { TeamEditor } from "./team-editor"
-import {
-  ApplicantDetails,
-  ContactNumber,
-  LeaderContact,
-} from "./participant-details"
+import { ApplicantRequest } from "./applicant-request"
+import { ContactNumber, LeaderContact } from "./participant-details"
 import styles from "./team-workspace.module.css"
 
 function fetchWorkspace(signal?: AbortSignal) {
@@ -59,9 +56,11 @@ export function TeamWorkspace({ discover = false }: { discover?: boolean }) {
   const [message, setMessage] = useState("")
   const actionLock = useRef(false)
   const activeRequest = useRef<AbortController | null>(null)
+  const workspaceSnapshot = useRef("")
 
   const applyWorkspace = useCallback(
     ([mine, requests]: Awaited<ReturnType<typeof fetchWorkspace>>) => {
+      workspaceSnapshot.current = JSON.stringify([mine, requests])
       setTeam("id" in mine ? mine : null)
       setInbox(requests)
       setReady(true)
@@ -87,6 +86,48 @@ export function TeamWorkspace({ discover = false }: { discover?: boolean }) {
       activeRequest.current?.abort()
     }
   }, [applyWorkspace])
+
+  // Refresh quietly while idle; never interrupt a form or overlap a mutation.
+  useEffect(() => {
+    if (!ready || loading || busy || editing || selected || inviteEmail) return
+    let controller: AbortController | null = null
+    const update = async () => {
+      if (
+        document.visibilityState !== "visible" ||
+        actionLock.current ||
+        controller
+      )
+        return
+      controller = new AbortController()
+      const signal = controller.signal
+      try {
+        const data = await fetchWorkspace(signal)
+        if (
+          !signal.aborted &&
+          !actionLock.current &&
+          JSON.stringify(data) !== workspaceSnapshot.current
+        ) {
+          applyWorkspace(data)
+          setNotice("workspaceUpdated")
+          setRevision((value) => value + 1)
+        }
+      } catch {
+        // Keep the current workspace on a background failure; the next tick retries.
+      } finally {
+        controller = null
+      }
+    }
+    const timer = window.setInterval(() => void update(), 30_000)
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void update()
+    }
+    document.addEventListener("visibilitychange", onVisible)
+    return () => {
+      window.clearInterval(timer)
+      document.removeEventListener("visibilitychange", onVisible)
+      controller?.abort()
+    }
+  }, [ready, loading, busy, editing, selected, inviteEmail, applyWorkspace])
 
   useEffect(() => {
     if (!discover) return
@@ -471,46 +512,42 @@ export function TeamWorkspace({ discover = false }: { discover?: boolean }) {
                           <ul className={styles.list}>
                             {team.joinRequests.map((request) => (
                               <li key={request.id} className={styles.request}>
-                                <strong>
-                                  {request.user?.name || t("participant")}
-                                </strong>
-                                {request.message && (
-                                  <p className={styles.muted}>
-                                    {request.message}
-                                  </p>
-                                )}
-                                <ApplicantDetails user={request.user} />
-                                <div className={styles.actions}>
-                                  <Button
-                                    size="sm"
-                                    disabled={busy || full}
-                                    onClick={() =>
-                                      void mutate(
-                                        `/join-requests/${request.id}/respond`,
-                                        "POST",
-                                        { accept: true },
-                                        "approved"
-                                      )
-                                    }
-                                  >
-                                    {t("approve")}
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    disabled={busy}
-                                    onClick={() =>
-                                      void mutate(
-                                        `/join-requests/${request.id}/respond`,
-                                        "POST",
-                                        { accept: false },
-                                        "declined"
-                                      )
-                                    }
-                                  >
-                                    {t("decline")}
-                                  </Button>
-                                </div>
+                                <ApplicantRequest
+                                  user={request.user}
+                                  message={request.message}
+                                >
+                                  <div className={styles.actions}>
+                                    <Button
+                                      size="sm"
+                                      disabled={busy || full}
+                                      onClick={() =>
+                                        void mutate(
+                                          `/join-requests/${request.id}/respond`,
+                                          "POST",
+                                          { accept: true },
+                                          "approved"
+                                        )
+                                      }
+                                    >
+                                      {t("approve")}
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      disabled={busy}
+                                      onClick={() =>
+                                        void mutate(
+                                          `/join-requests/${request.id}/respond`,
+                                          "POST",
+                                          { accept: false },
+                                          "declined"
+                                        )
+                                      }
+                                    >
+                                      {t("decline")}
+                                    </Button>
+                                  </div>
+                                </ApplicantRequest>
                               </li>
                             ))}
                           </ul>

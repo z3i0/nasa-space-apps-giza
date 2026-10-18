@@ -34,6 +34,8 @@ const crew: Team = {
       message: "I build accessible maps.",
       user: {
         name: "Mona",
+        avatar:
+          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' fill='%236366f1'/%3E%3C/svg%3E",
         phone: "+201022334455",
         profile: {
           bio: "I analyse satellite imagery.",
@@ -149,6 +151,25 @@ async function fixture(
 
 test.beforeEach(async ({ context }) => profileSession(context))
 
+test("new requests appear automatically with an activity notice", async ({
+  page,
+}) => {
+  await page.clock.install()
+  const team = structuredClone(crew)
+  team.joinRequests = []
+  await fixture(page, team)
+  await page.goto("/en/dashboard/participant/team")
+  await expect(
+    page.getByText("No pending requests.", { exact: false })
+  ).toBeVisible()
+  team.joinRequests = structuredClone(crew.joinRequests)
+  await page.clock.fastForward(30_000)
+  await expect(page.locator("summary")).toContainText("Mona")
+  await expect(
+    page.getByText("Your team activity has been updated.", { exact: false })
+  ).toBeVisible()
+})
+
 for (const locale of ["en", "ar"])
   for (const width of [1440, 390, 320]) {
     test(`${locale} team workspace fits ${width}px`, async ({ page }, info) => {
@@ -172,6 +193,21 @@ for (const locale of ["en", "ar"])
       )
       await page.screenshot({
         path: info.outputPath(`team-${locale}-${width}.png`),
+        fullPage: true,
+      })
+      await page.locator("summary").click()
+      await expect(
+        page.getByText("Built a flood map.", { exact: true })
+      ).toBeVisible()
+      expect(
+        await page.evaluate(
+          () =>
+            document.documentElement.scrollWidth <=
+            document.documentElement.clientWidth
+        )
+      ).toBe(true)
+      await page.screenshot({
+        path: info.outputPath(`request-open-${locale}-${width}.png`),
         fullPage: true,
       })
       await page.goto(`/${locale}/dashboard/participant/find-team`)
@@ -222,6 +258,19 @@ test("leader invites by email and approves join requests into the roster", async
 }) => {
   const api = await fixture(page)
   await page.goto("/en/dashboard/participant/team")
+  await expect(page.locator("summary")).toContainText("Mona")
+  await expect(
+    page.locator("summary").getByText("Python", { exact: true })
+  ).toBeVisible()
+  await expect(page.locator("summary img")).toBeVisible()
+  await expect(
+    page.getByRole("button", { name: "Approve", exact: true })
+  ).not.toBeVisible()
+  await expect(
+    page.getByText("I analyse satellite imagery.", { exact: true })
+  ).not.toBeVisible()
+  await page.locator("summary").focus()
+  await page.keyboard.press("Enter")
   await expect(
     page.getByRole("link", { name: "+201022334455", exact: true })
   ).toHaveAttribute("href", "tel:+201022334455")
@@ -231,7 +280,7 @@ test("leader invites by email and approves join requests into the roster", async
   await expect(
     page.getByText("Built a flood map.", { exact: true })
   ).toBeVisible()
-  await expect(page.getByText("Python", { exact: true })).toBeVisible()
+  await expect(page.locator("details[open]")).toHaveCount(1)
   await expect(
     page.getByText("Cairo University", { exact: true })
   ).toBeVisible()
@@ -254,6 +303,7 @@ test("full team disables invitations and approval, while allowing declines", asy
 }) => {
   await fixture(page, { ...structuredClone(crew), membersCount: 5 })
   await page.goto("/en/dashboard/participant/team")
+  await page.locator("summary").click()
   await expect(
     page.getByRole("button", { name: "Send invitation" })
   ).toBeDisabled()

@@ -11,6 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TeamsService } from './teams.service.js';
+import { SubmissionsService } from './submissions.service.js';
+import { SaveSubmissionDto } from './dto/submission.dto.js';
 import { CreateTeamDto } from './dto/create-team.dto.js';
 import { UpdateTeamDto } from './dto/update-team.dto.js';
 import { CreateTaskDto, UpdateTaskDto } from './dto/team-task.dto.js';
@@ -28,7 +30,19 @@ import type { AuthenticatedUser } from '../auth/types/auth-user.interface.js';
 
 @Controller('teams')
 export class TeamsController {
-  constructor(private readonly teamsService: TeamsService) {}
+  constructor(private readonly teamsService: TeamsService, private readonly submissionsService: SubmissionsService) {}
+
+  @UseGuards(AuthGuard)
+  @Get(':id/submission')
+  getSubmission(@Param('id') teamId: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.submissionsService.get(teamId, user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Put(':id/submission')
+  saveSubmission(@Param('id') teamId: string, @CurrentUser() user: AuthenticatedUser, @Body() dto: SaveSubmissionDto) {
+    return this.submissionsService.save(teamId, user.id, dto);
+  }
 
   /**
    * 1. Create a new team (creator becomes leader)

@@ -131,7 +131,7 @@ export class TeamsService {
             }
           : undefined,
       })),
-      tasks: team.tasks?.map((t: any) => ({
+      tasks: (memberView ? team.tasks : undefined)?.map((t: any) => ({
         id: t.id,
         title: t.title,
         description: t.description,
@@ -397,6 +397,9 @@ export class TeamsService {
   // 5. Update Team (Leader or Organizer)
   // -------------------------------------------------------------
   async updateTeam(teamId: string, userId: string, userRoles: string[], dto: UpdateTeamDto) {
+    if (dto.submissionStatus !== undefined) {
+      throw new BadRequestException('Use the submission endpoint to change submission status');
+    }
     const team = await this.prisma.team.findUnique({
       where: { id: teamId },
       include: { members: true },
@@ -814,7 +817,7 @@ export class TeamsService {
         dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
       },
       include: {
-        assignedTo: true,
+        assignedTo: { select: { id: true, name: true, avatar: true } },
       },
     });
 
@@ -856,7 +859,7 @@ export class TeamsService {
         ...(dto.dueDate !== undefined ? { dueDate: dto.dueDate ? new Date(dto.dueDate) : null } : {}),
       },
       include: {
-        assignedTo: true,
+        assignedTo: { select: { id: true, name: true, avatar: true } },
       },
     });
 

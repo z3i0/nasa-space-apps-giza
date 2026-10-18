@@ -15,6 +15,7 @@ export interface ApplicantProfile {
 export interface TeamContact {
   id?: string
   name: string
+  avatar?: string | null
   phone?: string | null
   profile?: ApplicantProfile | null
 }
@@ -37,12 +38,44 @@ export interface Team {
   membersCount: number
   myRole?: "leader" | "member"
   members: TeamMember[]
+  tasks?: TeamTask[]
   invitations?: { id: string; invitedUser?: { name: string } }[]
   joinRequests?: {
     id: string
     message: string | null
     user?: TeamContact
   }[]
+}
+
+export type TaskStatus = "not_started" | "in_progress" | "completed"
+export interface TeamTask {
+  id: string
+  title: string
+  description: string | null
+  status: TaskStatus
+  assignedToId: string | null
+  dueDate: string | null
+}
+
+export interface SubmissionDraft {
+  title: string
+  summary: string
+  challenge: string
+  projectUrl: string
+  repositoryUrl: string
+  demoUrl: string
+}
+export interface SubmissionState {
+  submission:
+    | (SubmissionDraft & {
+        status: "draft" | "submitted"
+        version: number
+        submittedAt: string | null
+        updatedAt: string
+      })
+    | null
+  deadline: string | null
+  canEdit: boolean
 }
 
 export interface TeamDraft {

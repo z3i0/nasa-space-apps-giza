@@ -1,8 +1,19 @@
-import { IsDateString, IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+  ValidateIf,
+} from 'class-validator';
+import { Transform } from 'class-transformer';
 import { TaskStatus } from '@prisma/client';
 
 export class CreateTaskDto {
   @IsString()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @MinLength(1)
   @MaxLength(100)
   title!: string;
 
@@ -26,7 +37,9 @@ export class CreateTaskDto {
 
 export class UpdateTaskDto {
   @IsString()
-  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @ValidateIf((_, value) => value !== undefined)
+  @MinLength(1)
   @MaxLength(100)
   title?: string;
 
@@ -36,14 +49,14 @@ export class UpdateTaskDto {
   description?: string;
 
   @IsEnum(TaskStatus)
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   status?: TaskStatus;
 
   @IsString()
   @IsOptional()
-  assignedToId?: string;
+  assignedToId?: string | null;
 
   @IsDateString()
   @IsOptional()
-  dueDate?: string;
+  dueDate?: string | null;
 }

@@ -12,7 +12,9 @@ with other members. Leaving as the only member deletes the team after confirmati
 Both screens use the existing dashboard theme and support mobile layouts and RTL.
 The landing page and shared visual components are unchanged. Invitations appear
 inside the workspace; sending notification emails is not part of this milestone.
-Refresh the page to see changes made by another participant.
+The team workspace checks for activity every 30 seconds while visible and idle,
+and when the tab becomes visible again. Updates show an in-page activity notice.
+Polling pauses while editing, sending invitations, or performing an action.
 
 Participant profiles include a required contact number when saving. Creating a
 team, requesting membership, accepting an invitation, and taking leadership
@@ -21,8 +23,11 @@ profile. Formatted and Arabic-digit numbers are normalized before validation.
 
 The join form shows the current leader's contact through an authenticated endpoint.
 The receiving leader sees the applicant's number, bio, skills, interests,
-experience, education, preferred role/challenge, and profile links directly in the
-request. The form explains this sharing even for profiles hidden from public
+experience, education, preferred role/challenge, and profile links inside an
+expandable request. Each collapsed card shows the applicant's profile photo
+(with initials as a fallback), name, and up to three skills. Opening the card
+reveals their introduction, full profile, and approve/decline controls. Cards
+support keyboard interaction and English/Arabic layouts. The form explains this sharing even for profiles hidden from public
 search. Only the current leader receives applications; teammates can see their
 own roster's phone numbers. Public team and profile listings omit phone numbers.
 
@@ -52,9 +57,51 @@ own roster's phone numbers. Public team and profile listings omit phone numbers.
 - A live three-account browser workflow verified the HTTP API, session cookies,
   and database persistence. Its disposable users and team were removed afterward.
 
-## Recommended next milestone
+## Tasks and submissions — 18 October 2026
 
-Connect **Team tasks** to the existing task API: create tasks, assign teammates,
-change status and due dates, and let leaders delete tasks. Then build the project
-submission workflow with editing allowed until the configured deadline. These
-are proposed next steps, not implemented features of this milestone.
+`/en/dashboard/participant/tasks` and its Arabic equivalent now use the task API.
+Members can create tasks, assign teammates, edit descriptions, clear assignments
+and due dates, and change status. Only the leader can delete tasks. Task details
+are returned through the authenticated team view, not public team discovery.
+Due dates are calendar dates stored at 23:59:59 UTC and displayed as that same
+calendar date regardless of the viewer's timezone.
+
+`/en/dashboard/participant/submit` and its Arabic equivalent provide saved drafts
+and final submission. All teammates can view their project; only the current
+leader can edit or submit it. Final submission requires a title, summary,
+challenge, and project URL. Repository and demo links are optional. Links must
+use HTTP or HTTPS. Editing a submitted project keeps it submitted.
+
+The new authenticated `GET/PUT /teams/:id/submission` endpoints store the project
+in `team_submissions`. Version checks and a serializable transaction prevent stale
+tabs from overwriting a newer save, and synchronize the team's submission status.
+The general team update endpoint cannot bypass submission validation.
+
+### Deployment
+
+- Apply `apps/api/prisma/migrations/20261018120000_team_submissions/migration.sql`
+  and regenerate Prisma before starting the updated API. The table and migration
+  record have already been applied to this workspace's local development database.
+- Set `SUBMISSION_DEADLINE` in the API environment to the actual event deadline,
+  using ISO 8601 with an explicit timezone, then restart the API. No event date is
+  assumed. Without a valid deadline, drafts are allowed and final submission is
+  disabled. At or after the deadline, the server rejects all project writes.
+- Deadline and submission timestamps are displayed in Cairo time.
+- The repository's older migration history does not fully describe the current
+  schema. The local change was applied as the additive SQL above and marked
+  applied; reconcile historical migrations before provisioning a fresh database.
+
+### Verification for this milestone
+
+- 21 backend unit tests covering tasks, submission validation, permissions,
+  missing/expired deadlines, conflicting versions, and submitted project edits.
+- Browser scenarios cover task creation/editing/deletion, saved drafts, final
+  submission, failed saves retaining input, permissions, empty states, and both
+  languages at desktop and narrow mobile widths.
+- `node --env-file=.env test/team-work-smoke.mjs` (from `apps/api`, after build)
+  verifies real database persistence and simultaneous submission saves, and
+  removes its own disposable fixtures afterward.
+
+Next: connect the organizer submissions list to these saved projects and build
+the judging/review workflow. Email/push notifications remain outside this change;
+request activity currently uses the in-page notice and automatic refresh.

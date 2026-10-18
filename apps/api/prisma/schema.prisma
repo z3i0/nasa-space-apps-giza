@@ -216,6 +216,7 @@ model Team {
   createdBy        User                 @relation("TeamCreator", fields: [createdById], references: [id], onDelete: Cascade)
   members          TeamMember[]
   tasks            TeamTask[]
+  submission       TeamSubmission?
   invitations      TeamInvitation[]
   joinRequests     TeamJoinRequest[]
 
@@ -223,6 +224,23 @@ model Team {
   @@index([challenge])
   @@index([submissionStatus])
   @@map("teams")
+}
+
+model TeamSubmission {
+  teamId       String @id @map("team_id")
+  title        String @default("")
+  summary      String @default("")
+  challenge    String @default("")
+  projectUrl   String @default("") @map("project_url")
+  repositoryUrl String @default("") @map("repository_url")
+  demoUrl      String @default("") @map("demo_url")
+  status       TeamSubmissionStatus @default(draft)
+  version      Int @default(1)
+  submittedAt  DateTime? @map("submitted_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  team         Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("team_submissions")
 }
 
 model TeamMember {
