@@ -95,14 +95,26 @@ export async function requestProfile(
   const base = (
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
   ).replace(/\/$/, "")
+
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("hackathon_access_token") ||
+        document.cookie.match(/(?:^|;\s*)(?:auth_token|better-auth\.session_token)=([^;]*)/)?.[1]
+      : null
+
+  const headers: Record<string, string> = {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(draft ? { "Content-Type": "application/json" } : {}),
+  }
+
   const response = await fetch(`${base}/profiles/me`, {
     method: draft ? "PATCH" : "GET",
     credentials: "include",
     cache: "no-store",
     signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]),
+    headers,
     ...(draft
       ? {
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...draft, expectedUpdatedAt: version }),
         }
       : {}),
