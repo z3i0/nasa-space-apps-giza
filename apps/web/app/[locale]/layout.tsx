@@ -8,6 +8,7 @@ import "../globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { DirectionProvider } from "@/components/ui/direction"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { Toaster } from "@/components/ui/sonner"
 import { routing } from "@/i18n/routing"
 import { cn } from "@/lib/utils"
 import { SmoothScroll } from "@/components/smooth-scroll"
@@ -92,6 +93,7 @@ export default async function LocaleLayout({
             <TooltipProvider>
               <NextIntlClientProvider locale={locale} messages={messages}>
                 {children}
+                <Toaster position={dir === "rtl" ? "top-left" : "top-right"} />
               </NextIntlClientProvider>
             </TooltipProvider>
           </ThemeProvider>
