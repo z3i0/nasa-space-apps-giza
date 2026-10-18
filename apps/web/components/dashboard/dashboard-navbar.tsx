@@ -63,7 +63,7 @@ export function DashboardNavbar({
 
   React.useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+      if (event.key?.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
         event.preventDefault()
         setOpenSearch((open) => !open)
       }
