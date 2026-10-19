@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import { spawnSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { syncOfficialCatalogue } from './official-catalogue.mjs';
 
 const cwd = fileURLToPath(new URL('..', import.meta.url));
 const cli = fileURLToPath(new URL('../node_modules/prisma/build/index.js', import.meta.url));
@@ -75,7 +76,8 @@ END $$;`;
       if (!names.has(folder)) prisma(['migrate','resolve','--applied',folder]);
     }
   }
-  console.log('Database updated without removing accounts, teams, submissions or conversations.');
+  const catalogue = await syncOfficialCatalogue(db);
+  console.log(`Database updated; ${catalogue.count} published NASA challenges synchronized. Accounts, teams, submissions and conversations retained.`);
 } catch (error) {
   console.error(error.message);
   process.exitCode = 1;

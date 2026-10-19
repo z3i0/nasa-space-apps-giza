@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { officialChallengeWhere } from '../challenges/official-catalogue.js';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -150,7 +151,7 @@ export class AccountService {
   }
   challengeOptions() {
     return this.db.challenge.findMany({
-      where: { isPublished: true, isArchived: false },
+      where: officialChallengeWhere,
       select: { id: true, title: true, titleAr: true },
       orderBy: [{ year: 'desc' }, { title: 'asc' }],
     });

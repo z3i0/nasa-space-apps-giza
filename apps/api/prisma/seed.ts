@@ -106,7 +106,6 @@ async function main() {
   }
 
   console.log(`✅ Seeded default organizer account: ${organizerEmail}`);
-  await seedChallenges(prisma, organizerUser.id);
 
   // -------------------------------------------------------------
   // 3. Seed Demo Accounts for Each Role (Easy Testing)
@@ -926,6 +925,7 @@ async function main() {
     console.log(`✅ Seeded team: StarGaze Collective (2 members, 1 join request, 1 invitation, 4 tasks)`);
   }
 
+  await seedChallenges(prisma);
   console.log('🎉 Seeding completed successfully!');
 }
 

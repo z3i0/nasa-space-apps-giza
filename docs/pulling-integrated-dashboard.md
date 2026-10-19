@@ -13,15 +13,18 @@ Stop the API before installing on Windows so Prisma can replace its engine file.
 Restart the API and frontend after the update.
 
 `db:update` supports a new database, the dashboard branch database, and the
-incoming master catalogue schema. It preserves bilingual challenge content,
-resources, account records, teams, conversations, and submissions. Existing
+incoming master catalogue schema. It retains account records, teams,
+conversations, submissions and historical judging snapshots. Existing
 databases created with `prisma db push` are aligned and their migration history
 is baselined. The command refuses generated plans that drop stored tables,
-columns or types. It does not reset or seed the database.
+columns or types. It does not reset the database. It synchronizes the 14
+published NASA Space Apps 2026 challenges from the checked-in official catalogue.
 
-The authenticated challenge explorer is the unified challenge API. It retains
-subject/skill filters and catalogue resource metadata. Seeded challenge examples
-remain drafts for organizer review.
+The authenticated challenge explorer is read-only for every role, including
+organizers. Local creation, editing, publication, archiving, demo seeding and
+legacy-choice reconciliation are removed. Current custom choices are cleared
+so teams can select an official NASA challenge. Old custom records remain
+excluded from discovery without deleting project or judging history.
 
 The team workspace remains at `/dashboard/participant/team`. Its **Team overview**
 link opens the incoming card interface, including username invitations and

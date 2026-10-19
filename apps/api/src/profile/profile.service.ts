@@ -3,8 +3,10 @@ import {
   NotFoundException,
   ForbiddenException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { officialChallengeWhere } from '../challenges/official-catalogue.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { SearchProfilesDto } from './dto/search-profiles.dto.js';
 import { Prisma, TeamStatus, type Profile, type User } from '@prisma/client';
@@ -132,6 +134,10 @@ export class ProfileService {
         select: { id: true },
       });
       if (!user) throw new NotFoundException('User not found');
+      if (fields.preferredChallenge?.trim()) {
+        const choice = await tx.challenge.findFirst({ where: { ...officialChallengeWhere, title: fields.preferredChallenge.trim() }, select: { id: true } });
+        if (!choice) throw new BadRequestException('Choose a published NASA challenge from the catalogue.');
+      }
       const data = Object.fromEntries(
         Object.entries(fields).map(([key, value]) => [
           key,

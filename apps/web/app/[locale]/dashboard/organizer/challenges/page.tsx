@@ -3,7 +3,7 @@ import { ChallengeExplorer } from "@/components/challenges/challenge-explorer"
 export default function ChallengesPage() {
   return (
     <RoleGuard allowedRoles={["organizer"]}>
-      <ChallengeExplorer management />
+      <ChallengeExplorer role="organizer" />
     </RoleGuard>
   )
 }

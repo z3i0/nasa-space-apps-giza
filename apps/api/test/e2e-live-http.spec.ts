@@ -48,7 +48,7 @@ describe('🚀 Full End-to-End Live HTTP Test Suite', () => {
         bio: 'Mission Lead exploring deep space navigation.',
         interests: ['Space Exploration', 'AI'],
         experience: 'Space Apps Winner 2024',
-        preferredChallenge: 'Deep Space Communications',
+        preferredChallenge: 'Be An Earth System Trend Detective!',
         teamStatus: 'want_to_create_team',
         desiredRole: 'AI & Flight Dynamics Lead',
       }),
@@ -81,7 +81,7 @@ describe('🚀 Full End-to-End Live HTTP Test Suite', () => {
         skills: ['React', 'TypeScript', 'UI/UX'],
         bio: 'Frontend and UI designer for mission control consoles.',
         interests: ['Space Exploration', 'Data Visualization'],
-        preferredChallenge: 'Deep Space Communications',
+        preferredChallenge: 'Be An Earth System Trend Detective!',
         teamStatus: 'want_to_join_team',
         desiredRole: 'Frontend Developer',
       }),
@@ -168,7 +168,7 @@ describe('🚀 Full End-to-End Live HTTP Test Suite', () => {
   });
 
   it('3.4. Searches public profiles by skill and challenge', async () => {
-    const res = await fetch(`${API_BASE}/profiles?skills=Python&preferredChallenge=Deep Space`);
+    const res = await fetch(`${API_BASE}/profiles?skills=Python&preferredChallenge=Earth System`);
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.items.length).toBeGreaterThanOrEqual(1);
@@ -188,7 +188,7 @@ describe('🚀 Full End-to-End Live HTTP Test Suite', () => {
       body: JSON.stringify({
         name: teamName,
         description: 'Deep Space communications relay array simulation',
-        challenge: 'Deep Space Communications',
+        challenge: 'Be An Earth System Trend Detective!',
         track: 'astrophysics',
         assignedRole: 'Lead Mission Commander',
       }),

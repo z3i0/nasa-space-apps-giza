@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { officialChallengeWhere } from '../challenges/official-catalogue.js';
 import { SaveSubmissionDto } from './dto/submission.dto.js';
 
 @Injectable()
@@ -88,6 +89,14 @@ export class SubmissionsService {
           const current = await tx.teamSubmission.findUnique({
             where: { teamId },
           });
+          if (dto.challenge.trim()) {
+            const challenge = await tx.challenge.findFirst({ where: { ...officialChallengeWhere, title: dto.challenge.trim() }, select: { id: true, title: true } });
+            if (!challenge) throw new BadRequestException('Choose a published NASA challenge from the catalogue.');
+            const team = await tx.team.findUnique({ where: { id: teamId }, select: { challengeId: true } });
+            if (team?.challengeId && team.challengeId !== challenge.id)
+              throw new BadRequestException('The project must use the NASA challenge selected by your team.');
+            await tx.team.update({ where: { id: teamId }, data: { challengeId: challenge.id, challenge: challenge.title } });
+          }
           if ((current?.version ?? 0) !== dto.version)
             throw new ConflictException({
               code: 'SUBMISSION_CONFLICT',

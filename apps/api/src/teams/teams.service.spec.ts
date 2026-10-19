@@ -16,7 +16,7 @@ describe('TeamsService', () => {
   beforeEach(() => {
     mockPrisma = {
       $queryRaw: vi.fn().mockResolvedValue([]),
-      challenge: { findFirst: vi.fn().mockResolvedValue(null) },
+      challenge: { findFirst: vi.fn().mockResolvedValue({id: 'official'}) },
       teamSubmission: { findUnique: vi.fn().mockResolvedValue(null) },
       team: {
         findUnique: vi.fn(),

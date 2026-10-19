@@ -12,6 +12,7 @@ import {
 import { useTeamWork } from "./use-team-work"
 import { WorkShell } from "./work-shell"
 import styles from "./team-workspace.module.css"
+import { ChallengeSelect } from "@/components/profile/challenge-select"
 
 const emptyDraft: SubmissionDraft = {
   title: "",
@@ -236,10 +237,11 @@ function SubmissionEditor({ teamId }: { teamId: string }) {
                   className={styles.fields}
                 >
                   {fields.map((key) => (
-                    <label key={key} className={styles.field}>
-                      {t(key)}
+                    <div key={key} className={styles.field}>
+                      <label htmlFor={`submission-${key}`}>{t(key)}</label>
                       {key === "summary" ? (
                         <textarea
+                          id={`submission-${key}`}
                           className={styles.control}
                           maxLength={5000}
                           value={draft[key]}
@@ -249,8 +251,20 @@ function SubmissionEditor({ teamId }: { teamId: string }) {
                             setNotice("")
                           }}
                         />
+                      ) : key === "challenge" ? (
+                        <ChallengeSelect
+                          id="submission-challenge"
+                          value={draft.challenge}
+                          className={styles.control}
+                          onChange={(challenge) => {
+                            setDraft({ ...draft, challenge })
+                            setDirty(true)
+                            setNotice("")
+                          }}
+                        />
                       ) : (
                         <input
+                          id={`submission-${key}`}
                           className={styles.control}
                           type={key.endsWith("Url") ? "url" : "text"}
                           maxLength={
@@ -268,7 +282,7 @@ function SubmissionEditor({ teamId }: { teamId: string }) {
                           }}
                         />
                       )}
-                    </label>
+                    </div>
                   ))}
                   {editable && (
                     <div className={styles.actions}>

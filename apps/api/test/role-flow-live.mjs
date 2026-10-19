@@ -17,7 +17,6 @@ if (
     'Run role-flow tests only against local development services.',
   );
 const userIds = [],
-  challengeIds = [],
   rubricIds = [],
   teamIds = [];
 let assertions = 0;
@@ -143,25 +142,17 @@ try {
     r.status === 200 && r.data.skills.includes('GIS'),
     'Participant profile saves',
   );
-  for (let n = 0; n < 2; n++) {
-    r = await call('/challenges/manage', organizer, 'POST', {
-      title: `Flow challenge ${n} ${suffix}`,
-      summary: 'Explore an environmental signal.',
-      description:
-        'Use satellite measurements to explain an environmental signal to local communities.',
-      category: 'Science',
-      difficulty: 'beginner',
-      year: 2026,
-      tags: ['Maps'],
-      isPublished: true,
-      isArchived: false,
-      resources: [],
-    });
-    check(r.status === 201, `Organizer creates published challenge ${n}`);
-    challengeIds.push(r.data.id);
+  const officialCatalogue = await db.challenge.findMany({ where: { isPublished: true, isArchived: false, isDemo: false, year: 2026 }, orderBy: { title: 'asc' } });
+  check(officialCatalogue.length === 14, 'Catalogue contains exactly 14 published NASA challenges');
+  const catalogueIds = officialCatalogue.map(item => item.id);
+  for (const [path, method] of [['/challenges/manage','POST'], [`/challenges/manage/${catalogueIds[0]}`,'PUT'], [`/challenges/manage/${catalogueIds[0]}`,'DELETE']]) {
+    r = await call(path, organizer, method, {});
+    check(r.status === 404, 'Organizer cannot create, edit, publish or archive NASA challenges');
   }
+  r = await call('/challenges/manage/legacy-teams', organizer);
+  check(r.status === 404, 'No legacy challenge reconciliation endpoint');
   const challenge = await db.challenge.findUniqueOrThrow({
-    where: { id: challengeIds[0] },
+    where: { id: catalogueIds[0] },
   });
   r = await call('/teams', leader, 'POST', {
     name: `Flow ${suffix}`,
@@ -306,7 +297,7 @@ try {
     r.status === 200 && r.data.submission.version === 1,
     'Leader saves project draft',
   );
-  r = await call(`/challenges/${challengeIds[1]}/select`, leader, 'POST');
+  r = await call(`/challenges/${catalogueIds[1]}/select`, leader, 'POST');
   check(r.status === 409, 'Catalog cannot change a saved project challenge');
   r = await call(`/teams/${teamId}`, leader, 'PUT', {
     challenge: 'Changed through team editor',
@@ -455,7 +446,6 @@ try {
 } finally {
   await db.team.deleteMany({ where: { id: { in: teamIds } } });
   await db.judgingRubric.deleteMany({ where: { id: { in: rubricIds } } });
-  await db.challenge.deleteMany({ where: { id: { in: challengeIds } } });
   await db.user.deleteMany({ where: { id: { in: userIds } } });
   await db.$disconnect();
 }

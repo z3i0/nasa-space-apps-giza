@@ -33,7 +33,8 @@ describe('Team submissions', () => {
           .fn()
           .mockImplementation(({ create }) => Promise.resolve(create)),
       },
-      team: { update: vi.fn() },
+      team: { update: vi.fn(), findUnique: vi.fn().mockResolvedValue({challengeId:null}) },
+      challenge: { findFirst: vi.fn().mockResolvedValue({ id: 'official', title: 'Earth' }) },
       $transaction: vi.fn((fn) => fn(db)),
     };
     service = new SubmissionsService(db as PrismaService);
@@ -48,6 +49,15 @@ describe('Team submissions', () => {
       where: { id: 'team' },
       data: { submissionStatus: 'draft' },
     });
+  });
+  it('rejects custom project challenges and mismatches with the team choice', async () => {
+    db.challenge.findFirst.mockResolvedValue(null);
+    await expect(service.save('team','leader',draft)).rejects.toThrow('published NASA challenge');
+    expect(db.teamSubmission.upsert).not.toHaveBeenCalled();
+    db.challenge.findFirst.mockResolvedValue({id:'official',title:'Earth'});
+    db.team.findUnique.mockResolvedValue({challengeId:'another-official'});
+    await expect(service.save('team','leader',draft)).rejects.toThrow('selected by your team');
+    expect(db.teamSubmission.upsert).not.toHaveBeenCalled();
   });
   it('submits a complete project and preserves submission when editing', async () => {
     const result = await service.save('team', 'leader', {

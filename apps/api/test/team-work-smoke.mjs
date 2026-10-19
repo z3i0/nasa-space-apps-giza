@@ -61,7 +61,7 @@ try {
   const draft = {
     title: 'Flood signals',
     summary: 'Satellite-powered flood maps',
-    challenge: 'Earth',
+    challenge: 'Be An Earth System Trend Detective!',
     projectUrl: 'https://example.org/project',
     repositoryUrl: '',
     demoUrl: '',

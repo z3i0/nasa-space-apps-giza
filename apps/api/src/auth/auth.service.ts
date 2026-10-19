@@ -6,6 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { officialChallengeWhere } from '../challenges/official-catalogue.js';
 import { auth } from './auth.js';
 import bcrypt from 'bcryptjs';
 import crypto from 'node:crypto';
@@ -66,6 +67,10 @@ export class AuthService {
 
     if (existing) {
       throw new ConflictException('An account with this email already exists.');
+    }
+    if (dto.preferredChallenge?.trim()) {
+      const challenge = await this.prisma.challenge.findFirst({ where: { ...officialChallengeWhere, title: dto.preferredChallenge.trim() }, select: { id: true } });
+      if (!challenge) throw new BadRequestException('Choose a published NASA challenge from the catalogue.');
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);

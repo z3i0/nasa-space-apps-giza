@@ -28,7 +28,6 @@
     "db:update": "node --env-file=.env prisma/update-database.mjs",
     "prisma:studio": "prisma studio",
     "prisma:seed": "node --experimental-strip-types prisma/seed.ts",
-    "seed:challenges:dev": "node --env-file=.env --experimental-strip-types prisma/seed-challenges-dev.ts",
     "prisma:reset": "prisma db push --force-reset --skip-generate && pnpm prisma:seed"
   },
   "prisma": {

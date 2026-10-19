@@ -1,14 +1,16 @@
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { randomUUID } from 'node:crypto';
+import {
+  officialChallengeWhere,
+  isOfficialChallenge,
+} from './official-catalogue.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { SaveChallengeDto, SearchChallengesDto } from './dto.js';
+import { SearchChallengesDto } from './dto.js';
 
 const cardSelect = {
   id: true,
@@ -32,10 +34,8 @@ const cardSelect = {
 export class ChallengesService {
   constructor(private readonly db: PrismaService) {}
 
-  async list(userId: string, query: SearchChallengesDto, management = false) {
-    const visible: Prisma.ChallengeWhereInput = management
-      ? {}
-      : { isPublished: true, isArchived: false };
+  async list(userId: string, query: SearchChallengesDto) {
+    const visible: Prisma.ChallengeWhereInput = officialChallengeWhere;
     const where: Prisma.ChallengeWhereInput = { ...visible };
     if (query.search?.trim()) {
       const contains = {
@@ -56,13 +56,6 @@ export class ChallengesService {
     if (query.difficulty) where.difficulty = query.difficulty;
     if (query.year) where.year = query.year;
     if (query.view === 'saved') where.favorites = { some: { userId } };
-    if (management && query.status && query.status !== 'all') {
-      if (query.status === 'archived') where.isArchived = true;
-      else {
-        where.isArchived = false;
-        where.isPublished = query.status === 'published';
-      }
-    }
     const page = query.page ?? 1,
       limit = query.limit ?? 20;
     const [records, total, categories, years] = await Promise.all([
@@ -106,20 +99,23 @@ export class ChallengesService {
 
   async getSubjects(year?: number) {
     const records = await this.db.challenge.findMany({
-      where: { isPublished: true, isArchived: false, ...(year ? { year } : {}) },
+      where: { ...officialChallengeWhere, ...(year ? { year } : {}) },
       select: { subjects: true },
     });
     const counts = new Map<string, number>();
-    for (const record of records) for (const subject of new Set(record.subjects))
-      counts.set(subject, (counts.get(subject) || 0) + 1);
-    return [...counts].map(([subject, count]) => ({ subject, count })).sort((a, b) => b.count - a.count);
+    for (const record of records)
+      for (const subject of new Set(record.subjects))
+        counts.set(subject, (counts.get(subject) || 0) + 1);
+    return [...counts]
+      .map(([subject, count]) => ({ subject, count }))
+      .sort((a, b) => b.count - a.count);
   }
 
-  async detail(key: string, userId: string, management = false) {
+  async detail(key: string, userId: string) {
     const record = await this.db.challenge.findFirst({
       where: {
         OR: [{ id: key }, { slug: key }],
-        ...(!management ? { isPublished: true } : {}),
+        ...officialChallengeWhere,
       },
       include: {
         resources: { orderBy: { position: 'asc' } },
@@ -131,93 +127,6 @@ export class ChallengesService {
     return { ...challenge, saved: favorites.length > 0 };
   }
 
-  private data(dto: SaveChallengeDto) {
-    return {
-      title: dto.title.trim(),
-      titleAr: dto.titleAr?.trim() || null,
-      summary: dto.summary.trim(),
-      summaryAr: dto.summaryAr?.trim() || null,
-      description: dto.description.trim(),
-      descriptionAr: dto.descriptionAr?.trim() || null,
-      category: dto.category.trim(),
-      difficulty: dto.difficulty,
-      year: dto.year,
-      tags: [...new Set(dto.tags.map((tag) => tag.trim()).filter(Boolean))],
-      sourceUrl: dto.sourceUrl || null,
-      isPublished: dto.isPublished,
-      isArchived: dto.isArchived,
-    };
-  }
-
-  async create(userId: string, dto: SaveChallengeDto) {
-    const base =
-      dto.title
-        .toLowerCase()
-        .normalize('NFKD')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')
-        .slice(0, 90) || 'challenge';
-    return this.db.challenge.create({
-      data: {
-        ...this.data(dto),
-        slug: `${dto.year}-${base}-${randomUUID().slice(0, 8)}`,
-        createdById: userId,
-        resources: {
-          create: dto.resources.map((resource, position) => ({
-            ...resource,
-            position,
-          })),
-        },
-      },
-      include: { resources: { orderBy: { position: 'asc' } } },
-    });
-  }
-
-  async update(id: string, dto: SaveChallengeDto) {
-    if (!dto.expectedVersion)
-      throw new BadRequestException('Expected version is required');
-    return this.db.$transaction(async (tx) => {
-      const saved = await tx.challenge.updateMany({
-        where: { id, version: dto.expectedVersion },
-        data: { ...this.data(dto), version: { increment: 1 } },
-      });
-      if (!saved.count)
-        throw new ConflictException('Challenge changed; reload before saving');
-      const existingResources = await tx.challengeResource.findMany({ where: { challengeId: id } });
-      await tx.challengeResource.deleteMany({ where: { challengeId: id } });
-      if (dto.resources.length)
-        await tx.challengeResource.createMany({
-          data: dto.resources.map((resource, position) => {
-            const previous = existingResources.find(item => item.url === resource.url);
-            return {
-              ...(previous ? {
-                titleAr: previous.titleAr, descriptionEn: previous.descriptionEn,
-                descriptionAr: previous.descriptionAr, type: previous.type,
-                language: previous.language, isOfficial: previous.isOfficial,
-                isCurated: previous.isCurated, isFeatured: previous.isFeatured,
-                metadata: previous.metadata === null ? Prisma.DbNull : previous.metadata as Prisma.InputJsonValue,
-              } : {}),
-              ...resource, challengeId: id, position,
-            };
-          }),
-        });
-      return tx.challenge.findUniqueOrThrow({
-        where: { id },
-        include: { resources: { orderBy: { position: 'asc' } } },
-      });
-    });
-  }
-
-  async archive(id: string, expectedVersion: number) {
-    const saved = await this.db.challenge.updateMany({
-      where: { id, version: expectedVersion },
-      data: { isArchived: true, version: { increment: 1 } },
-    });
-    if (!saved.count)
-      throw new ConflictException('Challenge changed; reload before archiving');
-    return { success: true };
-  }
-
   async favorite(id: string, userId: string, saved: boolean) {
     if (!saved) {
       await this.db.challengeFavorite.deleteMany({
@@ -226,7 +135,7 @@ export class ChallengesService {
       return { saved: false };
     }
     const challenge = await this.db.challenge.findUnique({ where: { id } });
-    if (!challenge?.isPublished || challenge.isArchived)
+    if (!isOfficialChallenge(challenge))
       throw new NotFoundException('Challenge unavailable');
     await this.db.challengeFavorite.createMany({
       data: [{ userId, challengeId: id }],
@@ -252,17 +161,16 @@ export class ChallengesService {
     };
   }
 
-  async select(id: string, userId: string, organizerTeamId?: string) {
+  async select(id: string, userId: string) {
     return this.db.$transaction(async (tx) => {
       const member = await tx.teamMember.findUnique({ where: { userId } });
-      const teamId = organizerTeamId || member?.teamId;
-      if (!teamId || (!organizerTeamId && member?.role !== 'leader'))
+      const teamId = member?.teamId;
+      if (!teamId || member?.role !== 'leader')
         throw new ForbiddenException(
           'Only the team leader can select a challenge',
         );
       const deadline = process.env.SUBMISSION_DEADLINE;
       if (
-        !organizerTeamId &&
         deadline &&
         /(Z|[+-]\d{2}:\d{2})$/.test(deadline) &&
         Number.isFinite(Date.parse(deadline)) &&
@@ -274,7 +182,7 @@ export class ChallengesService {
         });
       await tx.$queryRaw`SELECT id FROM teams WHERE id = ${teamId} FOR UPDATE`;
       const challenge = await tx.challenge.findUnique({ where: { id } });
-      if (!challenge?.isPublished || challenge.isArchived)
+      if (!isOfficialChallenge(challenge))
         throw new NotFoundException('Challenge unavailable');
       const [currentTeam, submission] = await Promise.all([
         tx.team.findUnique({
@@ -285,6 +193,7 @@ export class ChallengesService {
       ]);
       if (
         submission &&
+        currentTeam?.challengeId &&
         currentTeam?.challengeId !== id &&
         currentTeam?.challenge !== challenge.title
       )
@@ -298,29 +207,5 @@ export class ChallengesService {
       });
       return { team };
     });
-  }
-
-  async legacy(query: SearchChallengesDto) {
-    const where: Prisma.TeamWhereInput = {
-      challengeId: null,
-      challenge: { not: null },
-      NOT: { challenge: '' },
-    };
-    const [items, total] = await Promise.all([
-      this.db.team.findMany({
-        where,
-        select: { id: true, name: true, challenge: true },
-        orderBy: { name: 'asc' },
-        take: query.limit,
-        skip: (query.page - 1) * query.limit,
-      }),
-      this.db.team.count({ where }),
-    ]);
-    return {
-      items,
-      total,
-      page: query.page,
-      totalPages: Math.ceil(total / query.limit),
-    };
   }
 }

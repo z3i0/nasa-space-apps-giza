@@ -39,29 +39,6 @@ export interface ChallengeSelection {
     canSelect: boolean
   } | null
 }
-export interface LegacyChoices {
-  items: { id: string; name: string; challenge: string }[]
-  total: number
-  page: number
-  totalPages: number
-}
-export interface ChallengeDraft {
-  title: string
-  titleAr: string
-  summary: string
-  summaryAr: string
-  description: string
-  descriptionAr: string
-  category: string
-  difficulty: Difficulty
-  year: number
-  tags: string[]
-  sourceUrl?: string
-  isPublished: boolean
-  isArchived: boolean
-  resources: { label: string; url: string }[]
-  expectedVersion?: number
-}
 export class ChallengeApiError extends Error {
   constructor(
     public status: number,

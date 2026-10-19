@@ -425,10 +425,10 @@ model Challenge {
   isArchived    Boolean @default(false) @map("is_archived")
   isDemo        Boolean @default(false) @map("is_demo")
   version       Int @default(1)
-  createdById   String @map("created_by_id")
+  createdById   String? @map("created_by_id")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
-  createdBy     User @relation("ChallengeCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  createdBy     User? @relation("ChallengeCreator", fields: [createdById], references: [id], onDelete: Restrict)
   resources     ChallengeResource[]
   favorites     ChallengeFavorite[]
   teams         Team[]

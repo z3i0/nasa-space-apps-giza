@@ -423,7 +423,7 @@ test("load failures show retry and never show a false empty team", async ({
   const api = await fixture(page)
   api.fail(500)
   await page.goto("/en/dashboard/participant/team")
-  await expect(page.getByRole("alert")).toBeVisible()
+  await expect(page.locator("[data-team-workspace]").getByRole("alert")).toBeVisible()
   await expect(
     page.getByRole("button", { name: "Create team", exact: true })
   ).toHaveCount(0)

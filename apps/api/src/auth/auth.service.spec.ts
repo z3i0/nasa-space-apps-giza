@@ -14,6 +14,7 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     mockPrisma = {
+      challenge: { findFirst: vi.fn().mockResolvedValue({ id: 'official' }) },
       user: {
         findUnique: vi.fn(),
         create: vi.fn(),
@@ -49,6 +50,12 @@ describe('AuthService', () => {
   });
 
   describe('Registration (Participant Self-Registration)', () => {
+    it('rejects invented challenge preferences before creating an account', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+      mockPrisma.challenge.findFirst.mockResolvedValue(null);
+      await expect(service.register({name:'New User',email:'new@example.test',password:'ValidPassword2026!',preferredChallenge:'Invented challenge'})).rejects.toThrow('published NASA challenge');
+      expect(mockPrisma.user.create).not.toHaveBeenCalled();
+    });
     it('creates credentials, profile, participant role and session in one atomic write', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(null);
       mockPrisma.user.create.mockResolvedValue({

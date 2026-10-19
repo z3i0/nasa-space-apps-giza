@@ -199,7 +199,8 @@ describe('Account isolation and role approval (live PostgreSQL)', () => {
       challenges.push(c.id);
     }
     const choices = await account.challengeOptions();
-    expect(choices.some((c) => c.id === challenges[0])).toBe(true);
+    expect(choices.some((c) => challenges.includes(c.id))).toBe(false);
+    expect(choices).toHaveLength(14);
     expect(
       choices.some((c) => c.id === challenges[1] || c.id === challenges[2]),
     ).toBe(false);

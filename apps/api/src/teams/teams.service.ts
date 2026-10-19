@@ -6,6 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { officialChallengeWhere } from '../challenges/official-catalogue.js';
 import { CreateTeamDto } from './dto/create-team.dto.js';
 import { UpdateTeamDto } from './dto/update-team.dto.js';
 import { CreateTaskDto, UpdateTaskDto } from './dto/team-task.dto.js';
@@ -273,12 +274,12 @@ export class TeamsService {
         ? await tx.challenge.findFirst({
             where: {
               title: dto.challenge.trim(),
-              isPublished: true,
-              isArchived: false,
+              ...officialChallengeWhere,
             },
             select: { id: true },
           })
         : null;
+      if (dto.challenge?.trim() && !choice) throw new BadRequestException('Choose a published NASA challenge from the catalogue.');
       const created = await tx.team.create({
         data: {
           name: dto.name.trim(),
@@ -544,7 +545,7 @@ export class TeamsService {
             code: 'SUBMISSION_CLOSED',
             message: 'The submission deadline has passed',
           });
-        if (await tx.teamSubmission.findUnique({ where: { teamId } }))
+        if (team.challengeId && await tx.teamSubmission.findUnique({ where: { teamId } }))
           throw new ConflictException(
             'A project is already saved for this team. Its challenge cannot be changed.',
           );
@@ -552,12 +553,12 @@ export class TeamsService {
           ? await tx.challenge.findFirst({
               where: {
                 title: dto.challenge.trim(),
-                isPublished: true,
-                isArchived: false,
+                ...officialChallengeWhere,
               },
               select: { id: true },
             })
           : null;
+        if (dto.challenge.trim() && !choice) throw new BadRequestException('Choose a published NASA challenge from the catalogue.');
         challengeId = choice?.id || null;
       }
       const updated = await tx.team.update({

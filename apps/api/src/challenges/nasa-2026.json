@@ -1,0 +1,156 @@
+{
+  "year": 2026,
+  "source": "https://www.spaceappschallenge.org/2026/challenges/",
+  "apiSource": "https://api.spaceappschallenge.org/graphql",
+  "verifiedAt": "2026-10-19",
+  "challenges": [
+    {
+      "nasaChallengeId": "aWQ6NTUxMjU=",
+      "title": "Abandoned but not Forgotten: Storytelling about NASA's Discarded Equipment on the Moon and Mars",
+      "slug": "abandoned-but-not-forgotten-storytelling-about-nasas-discarded-equipment-on-the-moon-and-mars",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/abandoned-but-not-forgotten-storytelling-about-nasas-discarded-equipment-on-the-moon-and-mars/",
+      "summary": "Since the 1960s, NASA has left hardware across the solar system–on the Moon, on Mars, and in deep space. From rovers and instruments that completed their science missions to probes still traveling away from Earth this hardware varies widely in both its purpose and current level of functionality. Your challenge is to tell the story of some or all of this equipment that introduces school-age space enthusiasts to the hardware and the science it made possible.",
+      "subjects": ["Astrophysics", "Planets & Moons", "Space Exploration"],
+      "difficulty": "intermediate"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMjg=",
+      "title": "Be An Earth System Trend Detective!",
+      "slug": "be-an-earth-system-trend-detective",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/be-an-earth-system-trend-detective/",
+      "summary": "Change is always occurring in the Earth’s interconnected environmental system, and when it  runs in a consistent direction – rising or falling, increasing or decreasing, thickening or thinning – measured variables reflect it. But a variable can trend one way in one region and the opposite way in another, even when the same process drives both.   Your challenge is to find and examine variables measured by NASA missions or produced by NASA models, visualize how they change over time, and determine what is changing, where it is changing, how much it is changing, and if these changes are what scientists call “significant.”",
+      "subjects": ["Earth Science", "Software"],
+      "difficulty": "advanced"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMjQ=",
+      "title": "Build a Junior Astronaut Mission Trainer",
+      "slug": "build-a-junior-astronaut-mission-trainer",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/build-a-junior-astronaut-mission-trainer/",
+      "summary": "Space-themed STEM content often oversimplifies the engineering trade-offs that define a real mission or presents them at a level too complex to hold a young learner's attention. Few tools make those trade-offs both tangible and fun. Your challenge is to design and build an interactive game or app that lets students run a lunar or Martian outpost, balancing competing demands like life support, radiation shielding, power, and food production, so they experience firsthand the decisions that determine whether a mission fails or succeeds.",
+      "subjects": [
+        "Games",
+        "Planets & Moons",
+        "Software",
+        "Space Exploration",
+        "Sun"
+      ],
+      "difficulty": "intermediate"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMjc=",
+      "title": "CLPS Lunar Mission Browser",
+      "slug": "clps-lunar-mission-browser",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/clps-lunar-mission-browser/",
+      "summary": "Missions to the Moon’s south pole face extreme lighting and communication constraints, and planning  them takes careful coordination between science and engineering teams. Tools for determining Sun and Earth positions at candidate landing sites exist, but their complicated interfaces make it difficult to evaluate critical information with efficiency. Your challenge is to create an intuitive tool or application that lets mission planners, educators, and the public compare landing sites and dates quickly, visualizing Sun and Earth positions relative to the horizon to assess power generation potential and direct-to-Earth communication windows.",
+      "subjects": [
+        "Human Exploration",
+        "Moon",
+        "Software",
+        "Space Exploration"
+      ],
+      "difficulty": "intermediate"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMzA=",
+      "title": "Create Health Monitoring Software for Astronauts on Space Missions",
+      "slug": "create-health-monitoring-software-for-astronauts-on-space-missions",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/create-health-monitoring-software-for-astronauts-on-space-missions/",
+      "summary": "Long-duration missions expose astronauts to space radiation, isolation and confinement, altered gravity, and a hostile closed environment, which can bring immune changes, bone loss, cardiovascular events, and behavioral health problems. On long missions, astronauts carry much of the responsibility for spotting these changes in themselves. Your challenge is to build a health monitoring software that gathers health indicators and enables astronauts to evaluate and act on the status of their health.",
+      "subjects": ["Human Exploration", "Software", "Space Exploration"],
+      "difficulty": "intermediate"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMTk=",
+      "title": "Dancing with the SARs",
+      "slug": "dancing-with-the-sars",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/dancing-with-the-sars/",
+      "summary": "Earth's surface is an endless dance of natural processes and human activities, but these changes are often difficult to visualize, understand, and communicate. From wetland loss to forest wildfires, earthquakes, farming activities, glacier movement, and more, Earth is in a constant waltz of surface changes. Your challenge is to build an interactive application that uses radar remote sensing data from the NASA-ISRO Synthetic Aperture Radar (NISAR) mission to track and visualize one or more types of surface change at locations around the world.",
+      "subjects": ["Earth Science"],
+      "difficulty": "intermediate"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMjY=",
+      "title": "Field Shift: Adapting Farms with NASA Data",
+      "slug": "field-shift-adapting-farms-with-nasa-data",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/field-shift-adapting-farms-with-nasa-data/",
+      "summary": "Farmers around the world navigate shifting temperatures, changing rainfall patterns, water shortages, extreme weather, and declining soil health. These pressures make it difficult to choose crop rotations that protect fields, conserve water, and support long‑term resilience. Your challenge is to create a decision‑support tool that uses NASA Earth observations along with local soil information, crop characteristics, and farmer priorities to help farmers explore rotation strategies that could strengthen soil health and adapt their farms to changing conditions.",
+      "subjects": ["Arts & Multimedia", "Earth Science", "Software"],
+      "difficulty": "intermediate"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMjE=",
+      "title": "Flame in Freefall: AI-Powered Fire Safety Insights from Microgravity Combustion Data",
+      "slug": "flame-in-freefall-ai-powered-fire-safety-insights-from-microgravity-combustion-data",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/flame-in-freefall-ai-powered-fire-safety-insights-from-microgravity-combustion-data/",
+      "summary": "For decades, NASA has studied how flames and fire behave in microgravity, gathering a trove of experimental data along the way. That knowledge matters more than ever as humans gear up to return to the Moon and press on to Mars, yet the volume of results makes them hard to find, compare, and understand. Your challenge is to create an interactive, super intelligence (SI) powered dashboard that summarizes, ranks, and interprets those findings to deliver fire safety insights for human space exploration.",
+      "subjects": ["Space Exploration"],
+      "difficulty": "intermediate"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMzI=",
+      "title": "Harmonization of MODIS and VIIRS Hot Spots",
+      "slug": "harmonization-of-modis-and-viirs-hot-spots",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/harmonization-of-modis-and-viirs-hot-spots/",
+      "summary": "Understanding how burning activity is distributed across our planet over time, including wildfires and agricultural burns intense enough to be detected by satellite sensors, enables us to anticipate critical periods, guide monitoring efforts, and improve fire response.  Satellites have tracked active fire hotspots for more than two decades, but the record is split across sensors whose data cannot be compared directly, leaving fire managers without a consistent picture of when and where burning has occurred. Your challenge is to build a web application that harmonizes these records into a burning activity calendar based on active fire hotspots,  enabling early warning and emergency responders, scientists, and land managers to examine historical fire patterns, unusual conditions, and critical periods within a selected area of interest.",
+      "subjects": ["Earth Science", "Software"],
+      "difficulty": "intermediate"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMjk=",
+      "title": "Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars",
+      "slug": "identify-earth-locations-that-analog-the-permanent-moon-base-locations-and-mars",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/identify-earth-locations-that-analog-the-permanent-moon-base-locations-and-mars/",
+      "summary": "Selecting future landing sites and lunar base locations depends on many factors, including topography, geology, environment, and available resources, to name a few. Places on Earth that have analogous characteristics to the Moon or Mars – the Atacama Desert, Haughton Crater, Death Valley – allow mission teams to test equipment and methods before they fly; however, such terrestrial analog sites are not entirely well characterized. Your challenge is to use open Earth, Moon, and Mars data from NASA and other space agencies to identify and characterize new terrestrial analogs for future bases or landing sites, drawing on deserts, polar regions, volcanic and arid terrains, caves, and other environments that share conditions with the lunar or Martian surface.",
+      "subjects": [
+        "Earth Science",
+        "Planets & Moons",
+        "Software",
+        "Space Exploration"
+      ],
+      "difficulty": "intermediate"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMTg=",
+      "title": "Interplanetary Survival Guide: Martian Map",
+      "slug": "interplanetary-survival-guide-martian-map",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/interplanetary-survival-guide-martian-map/",
+      "summary": "NASA has explored Mars robotically for decades, studying its extreme environment, mapping its surface, and collecting many types of data. Far from home, the first astronauts to set foot on Mars will want the best map possible, with information on the details of their routes and destinations, updates on current conditions, and the data needed to complete their mission quickly and safely. Your challenge is to create a layered, integrated view of a location or route on the Martian surface that pulls together data from multiple NASA science missions and could help a human explorer plan and carry out a successful Marswalk while conducting new and exciting science along the way.",
+      "subjects": [
+        "Human Exploration",
+        "Mars",
+        "Planets & Moons",
+        "Software",
+        "Space Exploration"
+      ],
+      "difficulty": "intermediate"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMjA=",
+      "title": "Planet X and SPHEREx",
+      "slug": "planet-x-and-spherex",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/planet-x-and-spherex/",
+      "summary": "Since 2025, NASA’s SPHEREx mission has been mapping the entire sky every six months in 102 bands of near-infrared light, returning images of more than a billion objects. Comets, asteroids, stars, brown dwarfs, and even new planets reveal themselves by shifting position between images, but no one person can sift through all that data alone. Your challenge is to create a public-facing web tool to display images of the sky from SPHEREx mission, making it easy for anyone to quickly see how they change over time.",
+      "subjects": ["Astrophysics", "Planets & Moons", "Software"],
+      "difficulty": "advanced"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMzE=",
+      "title": "Space Mission Design Game",
+      "slug": "space-mission-design-game",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/space-mission-design-game/",
+      "summary": "Designing a space mission requires careful consideration of competing demands, including mission objectives, spacecraft design, scientific instruments, launch vehicles, budgets, power, mass, communications, and orbital constraints. For students who  rarely get to experiment with an entire mission from concept to operation, these trade-offs often remain abstract. Your challenge is to create an interactive game that allows participants to design, manage, and simulate a complete space mission while making engineering decisions, managing limited resources, and evaluating how each choice shapes the success of their mission.",
+      "subjects": ["Games"],
+      "difficulty": "intermediate"
+    },
+    {
+      "nasaChallengeId": "aWQ6NTUxMTc=",
+      "title": "The Earth Information Jukebox",
+      "slug": "the-earth-information-jukebox",
+      "sourceUrl": "https://www.spaceappschallenge.org/2026/challenges/the-earth-information-jukebox/",
+      "summary": "NASA’s Earth Information Center (EIC) produces stunning visualizations of our changing planet, but presenting Earth science through visualization alone limits who can reach it. We invite you to make this complex Earth science accessible, engaging, and multi-sensory by translating sight into sound. Your challenge is to build an \"Earth Jukebox\"—an interface, script, or application that pairs Earth Information Center (EIC) visual frames with dynamic sonifications generated in real time.",
+      "subjects": ["Arts & Multimedia", "Earth Science", "Software"],
+      "difficulty": "intermediate"
+    }
+  ]
+}

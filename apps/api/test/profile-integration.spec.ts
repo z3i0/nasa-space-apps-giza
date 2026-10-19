@@ -45,7 +45,7 @@ describe('Profile & Registration Integration Flow (Live DB)', () => {
       bio: 'Astrophysics enthusiast working on exoplanet detection.',
       interests: ['Deep Space Exploration', 'Exoplanets', 'Data Science'],
       experience: 'Winner of NASA Space Apps 2024 local event.',
-      preferredChallenge: 'Earth Observation & Climate Action',
+      preferredChallenge: 'Be An Earth System Trend Detective!',
       teamStatus: TeamStatus.want_to_join_team,
       desiredRole: 'Data Scientist',
       githubUrl: 'https://github.com/layla-space',
@@ -86,7 +86,7 @@ describe('Profile & Registration Integration Flow (Live DB)', () => {
   it('4. Searches and filters profiles by skills and preferred challenge', async () => {
     const searchRes = await profileService.searchProfiles({
       skills: 'Python',
-      preferredChallenge: 'Earth Observation',
+      preferredChallenge: 'Earth System',
     });
 
     expect(searchRes.total).toBeGreaterThanOrEqual(1);

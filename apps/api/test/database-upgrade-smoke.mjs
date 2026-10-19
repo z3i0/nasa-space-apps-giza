@@ -28,9 +28,12 @@ try {
         await db.$executeRaw`INSERT INTO challenge_resources (id,challenge_id,title_en,title_ar,url,updated_at) VALUES ('integration-resource','integration-challenge','Preserved resource','Arabic resource','https://example.invalid/data',NOW())`;
       }
       run(['prisma/update-database.mjs'],url.href);
+      assert.equal(await db.challenge.count({where:{isPublished:true,isArchived:false,isDemo:false}}),14);
       if (mode === 'catalogue') {
         const challenge = await db.challenge.findUniqueOrThrow({where:{id:'integration-challenge'},include:{resources:true}});
         assert.equal(challenge.title,'Preserved challenge');
+        assert.equal(challenge.isPublished,false);
+        assert.equal(challenge.isArchived,true);
         assert.equal(challenge.summary,'Preserved summary');
         assert.equal(challenge.createdById,'integration-organizer');
         assert.equal(challenge.resources[0].label,'Preserved resource');

@@ -39,7 +39,7 @@ export function ChallengeSelect({
       <select
         id={id}
         className={className}
-        value={value}
+        value={options?.some(option => option.title === value) ? value : ""}
         onChange={(e) => onChange(e.target.value)}
         disabled={!options || error}
         aria-describedby={`${id}-help`}
@@ -47,11 +47,6 @@ export function ChallengeSelect({
         <option value="">
           {t(!options ? "loadingChallenges" : "chooseChallenge")}
         </option>
-        {value && !options?.some((o) => o.title === value) && (
-          <option value={value} disabled>
-            {value} — {t("legacyChallenge")}
-          </option>
-        )}
         {options?.map((o) => (
           <option key={o.id} value={o.title}>
             {locale === "ar" && o.titleAr ? o.titleAr : o.title}

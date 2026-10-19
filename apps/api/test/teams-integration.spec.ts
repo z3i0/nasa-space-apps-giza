@@ -34,7 +34,7 @@ describe('Teams Module Integration Flow (Live DB)', () => {
       email: leaderEmail,
       password: 'Password123!',
       phone: '+201012345678',
-      preferredChallenge: 'Planetary Defense',
+      preferredChallenge: 'Be An Earth System Trend Detective!',
       teamStatus: TeamStatus.want_to_create_team,
     });
     leaderId = leaderRes.user.id;
@@ -45,7 +45,7 @@ describe('Teams Module Integration Flow (Live DB)', () => {
       email: memberEmail,
       password: 'Password123!',
       phone: '+201098765432',
-      preferredChallenge: 'Planetary Defense',
+      preferredChallenge: 'Be An Earth System Trend Detective!',
       teamStatus: TeamStatus.want_to_join_team,
     });
     memberId = memberRes.user.id;
@@ -65,7 +65,7 @@ describe('Teams Module Integration Flow (Live DB)', () => {
     const team = await teamsService.createTeam(leaderId, {
       name: `Pioneers ${Date.now()}`,
       description: 'Asteroid tracking and mitigation algorithms',
-      challenge: 'Planetary Defense',
+      challenge: 'Be An Earth System Trend Detective!',
       assignedRole: 'Lead Astrodynamicist',
     });
 

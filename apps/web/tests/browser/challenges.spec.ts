@@ -94,14 +94,8 @@ async function fixture(
       path = url.pathname.replace("/api/challenges", ""),
       method = route.request().method()
     if (path === "/selection") return route.fulfill({ json: selection })
-    if (path === "/manage/legacy-teams")
-      return route.fulfill({
-        json: { items: [], total: 0, page: 1, totalPages: 0 },
-      })
-    if ((path === "" || path === "/manage") && method === "GET") {
-      let items = records.filter(
-        (item) => path === "/manage" || (item.isPublished && !item.isArchived)
-      )
+    if (path === "" && method === "GET") {
+      let items = records.filter((item) => item.isPublished && !item.isArchived)
       const q = url.searchParams
       if (q.get("search"))
         items = items.filter((item) =>
@@ -132,19 +126,6 @@ async function fixture(
         },
       })
     }
-    if (path === "/manage" && method === "POST") {
-      const body = route.request().postDataJSON()
-      const created = {
-        ...body,
-        id: "new",
-        slug: "new-mission",
-        version: 1,
-        isDemo: false,
-        saved: false,
-      }
-      records.push(created)
-      return route.fulfill({ status: 201, json: created })
-    }
     const parts = path.split("/").filter(Boolean),
       record = records.find(
         (item) =>
@@ -166,17 +147,7 @@ async function fixture(
       }
       return route.fulfill({ json: selection })
     }
-    if (parts[0] === "manage" && method === "DELETE") {
-      record.isArchived = true
-      record.version++
-      return route.fulfill({ json: { success: true } })
-    }
-    if (parts[0] === "manage" && method === "PUT") {
-      Object.assign(record, route.request().postDataJSON(), {
-        version: record.version + 1,
-      })
-      return route.fulfill({ json: record })
-    }
+
     return route.fulfill({ json: record })
   })
 }
@@ -197,14 +168,12 @@ test("participant searches, saves a challenge, opens resources, and selects it f
     page.getByRole("heading", { name: "Earth observation", exact: true })
   ).toHaveCount(0)
   await page.getByRole("searchbox").fill("")
-  const card = page
-    .getByRole("article")
-    .filter({
-      has: page.getByRole("heading", {
-        name: "Earth observation",
-        exact: true,
-      }),
-    })
+  const card = page.getByRole("article").filter({
+    has: page.getByRole("heading", {
+      name: "Earth observation",
+      exact: true,
+    }),
+  })
   await card
     .getByRole("button", { name: "Save challenge", exact: true })
     .click()
@@ -230,7 +199,10 @@ test("participant searches, saves a challenge, opens resources, and selects it f
   await expect(
     page.getByRole("button", { name: "Selected for your team" })
   ).toBeDisabled()
-  await page.evaluate(() => { (document.activeElement as HTMLElement | null)?.blur(); window.scrollTo({top:0,behavior:"instant"}) })
+  await page.evaluate(() => {
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    window.scrollTo({ top: 0, behavior: "instant" })
+  })
   await page.screenshot({
     path: testInfo.outputPath("challenge-detail-desktop.png"),
     fullPage: true,
@@ -257,63 +229,30 @@ test("Arabic catalogue fits mobile and a member cannot select for the team", asy
       () => document.documentElement.scrollWidth <= window.innerWidth
     )
   ).toBe(true)
-  await page.evaluate(() => { (document.activeElement as HTMLElement | null)?.blur(); window.scrollTo({top:0,behavior:"instant"}) })
+  await page.evaluate(() => {
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    window.scrollTo({ top: 0, behavior: "instant" })
+  })
   await page.screenshot({
     path: testInfo.outputPath("challenge-detail-ar-mobile.png"),
     fullPage: true,
   })
 })
 
-test("organizer creates, publishes, edits, and archives a challenge", async ({
+test("organizer can browse NASA challenges but has no authoring controls", async ({
   page,
   context,
 }) => {
   await fixture(page, context, "organizer")
   await page.goto("/en/dashboard/organizer/challenges")
-  await page.getByRole("button", { name: "New challenge", exact: true }).click()
-  const form = page.getByRole("region", { name: "New challenge", exact: true })
-  await form
-    .getByRole("textbox", { name: "Title (English)", exact: true })
-    .fill("Ocean mission")
-  await form
-    .getByRole("textbox", { name: "Short summary (English)", exact: true })
-    .fill("Explore changes in our ocean with open data.")
-  await form
-    .getByRole("textbox", { name: "Full description (English)", exact: true })
-    .fill(
-      "Choose an ocean dataset and build a prototype that explains a change to your community."
-    )
-  await form
-    .getByRole("textbox", { name: "Category", exact: true })
-    .fill("Ocean")
-  await form.getByRole("button", { name: "Add resource", exact: true }).click()
-  await form
-    .getByRole("textbox", { name: "Link label", exact: true })
-    .fill("NASA data")
-  await form
-    .getByRole("textbox", { name: "Link URL", exact: true })
-    .fill("https://data.nasa.gov/")
-  await form.getByRole("checkbox", { name: "Publish to the catalogue" }).check()
-  await form
-    .getByRole("button", { name: "Save challenge", exact: true })
-    .click()
-  const card = page
-    .getByRole("article")
-    .filter({
-      has: page.getByRole("heading", { name: "Ocean mission", exact: true }),
-    })
-  await expect(card.getByText("Published", { exact: true })).toBeVisible()
-  await card.getByRole("button", { name: "Edit", exact: true }).click()
-  const edit = page.getByRole("region", { name: "Edit", exact: true })
-  await edit
-    .getByRole("textbox", { name: "Short summary (English)", exact: true })
-    .fill("An updated ocean challenge summary for the team.")
-  await edit
-    .getByRole("button", { name: "Save challenge", exact: true })
-    .click()
   await expect(
-    card.getByText("An updated ocean challenge summary for the team.")
+    page.getByRole("heading", { name: "Challenge explorer", exact: true })
   ).toBeVisible()
-  await card.getByRole("button", { name: "Archive", exact: true }).click()
-  await expect(card.getByText("Archived", { exact: true })).toBeVisible()
+  await expect(page.getByRole("article").first()).toBeVisible()
+  await expect(
+    page.getByRole("button", { name: /New challenge|Edit|Archive|Publish/ })
+  ).toHaveCount(0)
+  await expect(
+    page.getByText("Team choices to review", { exact: true })
+  ).toHaveCount(0)
 })

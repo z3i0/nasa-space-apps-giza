@@ -19,7 +19,7 @@ export function ChallengeDetail({
   role,
 }: {
   challengeKey: string
-  role: "participant" | "mentor" | "judge"
+  role: "participant" | "mentor" | "judge" | "organizer"
 }) {
   const t = useTranslations("Challenges"),
     locale = useLocale()
@@ -142,9 +142,7 @@ export function ChallengeDetail({
             {record.tags.map((tag) => (
               <span key={tag}>{tag}</span>
             ))}
-            {record.isArchived && <span>{t("archived")}</span>}
           </div>
-          {record.isDemo && <p className={s.banner}>{t("demoNotice")}</p>}
           {notice && (
             <p role="status" className={s.banner}>
               {notice}
