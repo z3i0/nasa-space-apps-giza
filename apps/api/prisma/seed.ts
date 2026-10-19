@@ -7,11 +7,17 @@ import {
   RequestStatus,
 } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { seedChallenges } from './seed-challenges.ts';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Starting database seeding for auth & authorization...');
+
+  // -------------------------------------------------------------
+  // 0. Seed Official NASA Space Apps 2026 Challenges
+  // -------------------------------------------------------------
+  await seedChallenges(prisma);
 
   // -------------------------------------------------------------
   // 1. Seed Roles

@@ -32,6 +32,7 @@ describe('Teams Module Integration Flow (Live DB)', () => {
       name: 'Leader Test',
       email: leaderEmail,
       password: 'Password123!',
+      phone: '+201012345678',
       preferredChallenge: 'Planetary Defense',
       teamStatus: TeamStatus.want_to_create_team,
     });
@@ -41,6 +42,7 @@ describe('Teams Module Integration Flow (Live DB)', () => {
       name: 'Member Test',
       email: memberEmail,
       password: 'Password123!',
+      phone: '+201098765432',
       preferredChallenge: 'Planetary Defense',
       teamStatus: TeamStatus.want_to_join_team,
     });

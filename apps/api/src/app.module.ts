@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { ProfileModule } from './profile/profile.module.js';
 import { TeamsModule } from './teams/teams.module.js';
+import { ChallengesModule } from './challenges/challenges.module.js';
 import { LastSeenMiddleware } from './auth/middleware/last-seen.middleware.js';
 
 @Module({
@@ -18,6 +19,7 @@ import { LastSeenMiddleware } from './auth/middleware/last-seen.middleware.js';
     AuthModule,
     ProfileModule,
     TeamsModule,
+    ChallengesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
