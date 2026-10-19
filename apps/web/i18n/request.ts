@@ -52,6 +52,12 @@ export default getRequestConfig(async ({ requestLocale }) => {
       ...judging.default,
       ...account.default,
       ...operations.default,
+      Dashboard: {
+        ...dashboard.default.Dashboard,
+        myTeam: teams.default.Teams.myTeam,
+        findTeam: teams.default.Teams.findTeam,
+        teamsDialog: teams.default.Teams.dialog,
+      },
     },
   }
 })

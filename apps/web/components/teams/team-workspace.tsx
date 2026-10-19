@@ -251,6 +251,9 @@ export function TeamWorkspace({ discover = false }: { discover?: boolean }) {
           {t(discover ? "title" : "findTitle")}
         </Link>
       </header>
+      <Link className={styles.profileLink} href={discover ? "/dashboard/participant/find-team/browse" : "/dashboard/participant/team/overview"}>
+        {t(discover ? "browseTeams" : "teamOverview")}
+      </Link>
 
       {error && (
         <div role="alert" className={styles.error}>

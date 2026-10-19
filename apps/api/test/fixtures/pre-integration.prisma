@@ -1,0 +1,426 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------------------------------------
+// Core Authentication & User Tables
+// -------------------------------------------------------------
+
+model User {
+  id            String    @id @default(uuid())
+  name          String    @default("") @map("name")
+  username      String?   @unique
+  email         String    @unique
+  emailVerified Boolean   @default(false) @map("email_verified")
+  avatar        String?
+  role          String?   @default("participant")
+  passwordHash  String?   @map("password_hash")
+  phone         String?
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  lastLoginAt   DateTime? @map("last_login_at")
+  lastSeenAt    DateTime? @map("last_seen_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  // Relationships
+  sessions            Session[]
+  accounts            Account[]
+  roles               UserRole[]
+  passwordResetTokens PasswordResetToken[]
+  profile             Profile?
+  createdTeams        Team[]               @relation("TeamCreator")
+  teamMemberships     TeamMember[]         @relation("UserTeamMemberships")
+  assignedTasks       TeamTask[]           @relation("AssignedTasks")
+  receivedInvitations TeamInvitation[]     @relation("ReceivedInvitations")
+  sentInvitations     TeamInvitation[]     @relation("SentInvitations")
+  joinRequests        TeamJoinRequest[]    @relation("UserJoinRequests")
+
+  @@index([email])
+  @@index([deletedAt])
+  @@index([isActive])
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  expiresAt DateTime @map("expires_at")
+  token     String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  ipAddress      String?  @map("ip_address")
+  userAgent      String?  @map("user_agent")
+  userId         String   @map("user_id")
+  impersonatedBy String?  @map("impersonated_by")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  userId                String    @map("user_id")
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([identifier])
+  @@map("verifications")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  users UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  roleId    String   @map("role_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  tokenHash String   @unique @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("password_reset_tokens")
+}
+
+enum TeamStatus {
+  already_have_team
+  want_to_join_team
+  want_to_create_team
+  working_individually
+}
+
+model Profile {
+  id                 String     @id @default(uuid())
+  userId             String     @unique @map("user_id")
+  institution        String?    @map("institution")
+  academicLevel      String?    @map("academic_level")
+  skills             String[]   @default([])
+  bio                String?
+  interests          String[]   @default([])
+  experience         String?
+  preferredChallenge String?    @map("preferred_challenge")
+  preferredChallengeId String?  @map("preferred_challenge_id")
+  teamStatus         TeamStatus @default(want_to_join_team) @map("team_status")
+  desiredRole        String?    @map("desired_role")
+  githubUrl          String?    @map("github_url")
+  linkedinUrl        String?    @map("linkedin_url")
+  portfolioUrl       String?    @map("portfolio_url")
+  isPublic           Boolean    @default(true) @map("is_public")
+  shareProjectsWithMentors Boolean @default(true) @map("share_projects_with_mentors")
+  hideFromSearch     Boolean    @default(false) @map("hide_from_search")
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
+
+  user                  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferredChallengeRef Challenge? @relation("ProfilePreferredChallenge", fields: [preferredChallengeId], references: [id], onDelete: SetNull)
+
+  @@index([teamStatus])
+  @@index([preferredChallenge])
+  @@index([preferredChallengeId])
+  @@index([isPublic])
+  @@index([isPublic, hideFromSearch, updatedAt(sort: Desc)], map: "profiles_matching_visibility_idx")
+  @@map("profiles")
+}
+
+// -------------------------------------------------------------
+// Team Management Models
+// -------------------------------------------------------------
+
+enum TeamMemberRole {
+  leader
+  member
+}
+
+enum TeamSubmissionStatus {
+  not_started
+  draft
+  submitted
+}
+
+enum TaskStatus {
+  not_started
+  in_progress
+  completed
+}
+
+enum RequestStatus {
+  pending
+  accepted
+  rejected
+  canceled
+}
+
+model Team {
+  id               String               @id @default(uuid())
+  name             String               @unique
+  description      String?
+  challenge        String?              @map("challenge")
+  track            String?              @map("track")
+  challengeId      String?              @map("challenge_id")
+  createdById      String               @map("created_by_id")
+  maxMembers       Int                  @default(5) @map("max_members")
+  submissionStatus TeamSubmissionStatus @default(not_started) @map("submission_status")
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+
+  createdBy        User                 @relation("TeamCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  challengeRef     Challenge?           @relation(fields: [challengeId], references: [id], onDelete: SetNull)
+  members          TeamMember[]
+  tasks            TeamTask[]
+  submission       TeamSubmission?
+  invitations      TeamInvitation[]
+  joinRequests     TeamJoinRequest[]
+
+  @@index([createdById])
+  @@index([challenge])
+  @@index([challengeId])
+  @@index([submissionStatus])
+  @@map("teams")
+}
+
+model TeamSubmission {
+  teamId       String @id @map("team_id")
+  title        String @default("")
+  summary      String @default("")
+  challenge    String @default("")
+  projectUrl   String @default("") @map("project_url")
+  repositoryUrl String @default("") @map("repository_url")
+  demoUrl      String @default("") @map("demo_url")
+  status       TeamSubmissionStatus @default(draft)
+  version      Int @default(1)
+  submittedAt  DateTime? @map("submitted_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  team         Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("team_submissions")
+}
+
+model TeamMember {
+  id           String         @id @default(uuid())
+  teamId       String         @map("team_id")
+  userId       String         @unique @map("user_id")
+  role         TeamMemberRole @default(member) @map("role")
+  assignedRole String?        @map("assigned_role")
+  joinedAt     DateTime       @default(now()) @map("joined_at")
+
+  team         Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user         User           @relation("UserTeamMemberships", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+  @@map("team_members")
+}
+
+model TeamTask {
+  id           String     @id @default(uuid())
+  teamId       String     @map("team_id")
+  title        String
+  description  String?
+  status       TaskStatus @default(not_started) @map("status")
+  assignedToId String?    @map("assigned_to_id")
+  dueDate      DateTime?  @map("due_date")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  team         Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  assignedTo   User?      @relation("AssignedTasks", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([teamId])
+  @@index([assignedToId])
+  @@index([status])
+  @@map("team_tasks")
+}
+
+model TeamInvitation {
+  id              String        @id @default(uuid())
+  teamId          String        @map("team_id")
+  invitedUserId   String        @map("invited_user_id")
+  invitedByUserId String        @map("invited_by_user_id")
+  status          RequestStatus @default(pending) @map("status")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  team            Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  invitedUser     User          @relation("ReceivedInvitations", fields: [invitedUserId], references: [id], onDelete: Cascade)
+  invitedByUser   User          @relation("SentInvitations", fields: [invitedByUserId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, invitedUserId])
+  @@index([invitedUserId])
+  @@index([status])
+  @@map("team_invitations")
+}
+
+model TeamJoinRequest {
+  id        String        @id @default(uuid())
+  teamId    String        @map("team_id")
+  userId    String        @map("user_id")
+  message   String?
+  status    RequestStatus @default(pending) @map("status")
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  team      Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User          @relation("UserJoinRequests", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+  @@index([status])
+  @@map("team_join_requests")
+}
+
+// -------------------------------------------------------------
+// Challenge & Resource Models
+// -------------------------------------------------------------
+
+enum ChallengeDifficulty {
+  beginner
+  intermediate
+  advanced
+}
+
+enum ResourceType {
+  dataset
+  api
+  starter_code
+  video
+  tutorial
+  document
+  external_tool
+}
+
+enum ResourceLanguage {
+  ar
+  en
+  both
+}
+
+model Challenge {
+  id                    String              @id @default(uuid())
+  slug                  String              @unique
+  year                  Int                 @default(2026)
+
+  // Bilingual core titles & descriptions
+  titleEn               String              @map("title_en")
+  titleAr               String              @map("title_ar")
+  taglineEn             String?             @map("tagline_en")
+  taglineAr             String?             @map("tagline_ar")
+  descriptionEn         String              @db.Text @map("description_en")
+  descriptionAr         String              @db.Text @map("description_ar")
+  requirementsEn        String?             @db.Text @map("requirements_en")
+  requirementsAr        String?             @db.Text @map("requirements_ar")
+  deliverablesEn        String?             @db.Text @map("deliverables_en")
+  deliverablesAr        String?             @db.Text @map("deliverables_ar")
+
+  // Subjects (multiple badges: Astrophysics, Planets & Moons, etc.)
+  subjects              String[]            @default([])
+
+  // Recommended skills
+  recommendedSkills     String[]            @default([]) @map("recommended_skills")
+
+  difficulty            ChallengeDifficulty @default(intermediate)
+
+  // NASA Official references
+  nasaOriginalUrl       String?             @map("nasa_original_url")
+  nasaChallengeId       String?             @map("nasa_challenge_id")
+
+  // Admin controls
+  displayOrder          Int                 @default(0) @map("display_order")
+  isActive              Boolean             @default(true) @map("is_active")
+  createdAt             DateTime            @default(now()) @map("created_at")
+  updatedAt             DateTime            @updatedAt @map("updated_at")
+
+  // Relationships
+  teams                 Team[]
+  resources             ChallengeResource[]
+  interestedProfiles    Profile[]           @relation("ProfilePreferredChallenge")
+
+  @@index([year, isActive, displayOrder])
+  @@index([difficulty])
+  @@map("challenges")
+}
+
+model ChallengeResource {
+  id            String           @id @default(uuid())
+  challengeId   String           @map("challenge_id")
+
+  titleEn       String           @map("title_en")
+  titleAr       String           @map("title_ar")
+  descriptionEn String?          @db.Text @map("description_en")
+  descriptionAr String?          @db.Text @map("description_ar")
+  url           String
+
+  type          ResourceType     @default(dataset)
+  language      ResourceLanguage @default(en)
+
+  isOfficial    Boolean          @default(false) @map("is_official")
+  isCurated     Boolean          @default(true) @map("is_curated")
+  isFeatured    Boolean          @default(false) @map("is_featured")
+
+  metadata      Json?
+  order         Int              @default(0)
+
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  challenge     Challenge        @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@index([challengeId, type])
+  @@index([challengeId, isFeatured])
+  @@map("challenge_resources")
+}

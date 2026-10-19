@@ -35,6 +35,9 @@ export class ChallengesController {
   @Get('selection') selection(@CurrentUser() user: AuthenticatedUser) {
     return this.service.selection(user.id);
   }
+  @Get('subjects') subjects(@Query() query: SearchChallengesDto) {
+    return this.service.getSubjects(query.year);
+  }
   @Get('manage') @RequireRole('organizer') manage(
     @CurrentUser() user: AuthenticatedUser,
     @Query() query: SearchChallengesDto,

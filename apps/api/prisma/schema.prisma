@@ -161,6 +161,8 @@ model Profile {
   interests          String[]   @default([])
   experience         String?
   preferredChallenge String?    @map("preferred_challenge")
+  preferredChallengeId String? @map("preferred_challenge_id")
+  preferredChallengeRef Challenge? @relation("ProfilePreferredChallenge", fields: [preferredChallengeId], references: [id], onDelete: SetNull)
   teamStatus         TeamStatus @default(want_to_join_team) @map("team_status")
   desiredRole        String?    @map("desired_role")
   githubUrl          String?    @map("github_url")
@@ -176,6 +178,7 @@ model Profile {
 
   @@index([teamStatus])
   @@index([preferredChallenge])
+  @@index([preferredChallengeId])
   @@index([isPublic])
   @@index([isPublic, hideFromSearch, updatedAt(sort: Desc)], map: "profiles_matching_visibility_idx")
   @@map("profiles")
@@ -429,10 +432,35 @@ model Challenge {
   resources     ChallengeResource[]
   favorites     ChallengeFavorite[]
   teams         Team[]
+  interestedProfiles Profile[] @relation("ProfilePreferredChallenge")
+  requirementsEn String? @map("requirements_en")
+  requirementsAr String? @map("requirements_ar")
+  deliverablesEn String? @map("deliverables_en")
+  deliverablesAr String? @map("deliverables_ar")
+  subjects String[] @default([])
+  recommendedSkills String[] @default([]) @map("recommended_skills")
+  nasaChallengeId String? @map("nasa_challenge_id")
+  displayOrder Int @default(0) @map("display_order")
 
   @@index([isPublished, isArchived, year(sort: Desc)])
   @@index([category, difficulty])
   @@map("challenges")
+}
+
+enum ResourceType {
+  dataset
+  api
+  starter_code
+  video
+  tutorial
+  document
+  external_tool
+}
+
+enum ResourceLanguage {
+  ar
+  en
+  both
 }
 
 model ChallengeResource {
@@ -441,6 +469,17 @@ model ChallengeResource {
   label       String
   url         String
   position    Int @default(0)
+  titleAr String? @map("title_ar")
+  descriptionEn String? @map("description_en")
+  descriptionAr String? @map("description_ar")
+  type ResourceType @default(dataset)
+  language ResourceLanguage @default(en)
+  isOfficial Boolean @default(false) @map("is_official")
+  isCurated Boolean @default(true) @map("is_curated")
+  isFeatured Boolean @default(false) @map("is_featured")
+  metadata Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
   challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
 
   @@index([challengeId, position])

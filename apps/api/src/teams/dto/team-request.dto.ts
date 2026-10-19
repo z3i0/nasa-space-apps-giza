@@ -9,6 +9,10 @@ import {
 export class InviteMemberDto {
   @IsString()
   @IsOptional()
+  username?: string;
+
+  @IsString()
+  @IsOptional()
   userId?: string;
 
   @IsEmail()

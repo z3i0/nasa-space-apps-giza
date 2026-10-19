@@ -168,6 +168,7 @@ export class TeamsService {
           ? {
               id: m.user.id,
               name: m.user.name,
+              username: m.user.username,
               avatar: m.user.avatar,
               ...(memberView
                 ? { phone: m.user.phone ? normalizePhone(m.user.phone) : null }
@@ -623,10 +624,13 @@ export class TeamsService {
       );
     }
 
-    if (!!dto.userId === !!dto.email) {
-      throw new BadRequestException('Provide a participant email or user ID');
+    if ([dto.userId, dto.email, dto.username].filter(Boolean).length !== 1) {
+      throw new BadRequestException('Provide one participant username, email or user ID');
     }
-    const targetUser = await this.prisma.user.findUnique({
+    const targetUser = dto.username ? await this.prisma.user.findFirst({
+      where: { username: { equals: dto.username.trim().replace(/^@/, ''), mode: 'insensitive' } },
+      include: { teamMemberships: true },
+    }) : await this.prisma.user.findUnique({
       where: dto.userId
         ? { id: dto.userId }
         : { email: dto.email!.trim().toLowerCase() },
@@ -676,6 +680,18 @@ export class TeamsService {
   // -------------------------------------------------------------
   // 7. Respond to Invitation (Participant accept / reject)
   // -------------------------------------------------------------
+  async getMyInvitations(userId: string) {
+    const invitations = await this.prisma.teamInvitation.findMany({
+      where: { invitedUserId: userId, status: RequestStatus.pending },
+      include: {
+        team: { select: { id: true, name: true, track: true } },
+        invitedByUser: { select: { id: true, name: true, username: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return { invitations };
+  }
+
   async respondToInvitation(
     invitationId: string,
     userId: string,

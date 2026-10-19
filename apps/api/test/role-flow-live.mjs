@@ -194,6 +194,17 @@ try {
   );
   r = await call('/teams/me', outsider);
   check(r.data.team === null, 'An unrelated account has no inherited team');
+  const outsiderUsername = `outsider_${suffix.replaceAll('-', '')}`;
+  await db.user.update({ where: { id: outsider.id }, data: { username: outsiderUsername } });
+  r = await call(`/teams/${teamId}/invitations`, leader, 'POST', { username: outsiderUsername });
+  check(r.status === 201, 'Leader invites by username through the merged team API');
+  const usernameInvitation = r.data.invitation.id;
+  r = await call('/teams/invitations/me', outsider);
+  check(r.status === 200 && r.data.invitations.some(item => item.id === usernameInvitation), 'Participant sees their received username invitation');
+  r = await call('/teams/invitations/me', member);
+  check(r.status === 200 && !r.data.invitations.some(item => item.id === usernameInvitation), 'Invitation inbox is isolated to its recipient');
+  r = await call(`/teams/invitations/${usernameInvitation}/respond`, outsider, 'POST', { accept: false });
+  check(r.status === 201, 'Recipient can decline a username invitation');
   r = await call(`/teams/${teamId}/tasks`, leader, 'POST', {
     title: 'Analyze observations',
     assignedToId: member.id,

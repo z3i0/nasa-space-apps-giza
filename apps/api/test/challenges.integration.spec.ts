@@ -70,11 +70,16 @@ describe('Challenge explorer (live PostgreSQL)', () => {
         })
       ).total,
     ).toBe(0);
+    await db.challengeResource.updateMany({
+      where: { challengeId: challenge.id },
+      data: { titleAr: 'Preserved Arabic resource', type: 'api', isOfficial: true, metadata: { provider: 'NASA' } },
+    });
     const published = await service.update(challenge.id, {
       ...dto,
       isPublished: true,
       expectedVersion: 1,
     });
+    expect(published.resources[0]).toMatchObject({ titleAr: 'Preserved Arabic resource', type: 'api', isOfficial: true, metadata: { provider: 'NASA' } });
     expect(
       (
         await service.list(leader.id, {

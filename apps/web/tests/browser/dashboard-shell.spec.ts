@@ -66,10 +66,7 @@ for (const locale of ["en", "ar"]) {
       await expect(shell).toHaveCSS("color-scheme", "dark")
       await expect(header).toHaveCSS("height", width > 760 ? "72px" : "64px")
       await expect(navigation.locator("a")).toHaveCount(9)
-      await expect(navigation.locator('[aria-current="page"]')).toHaveAttribute(
-        "href",
-        "/dashboard/participant/team"
-      )
+      await expect(navigation.locator('[aria-current="page"]')).toHaveCount(0)
       const dimensions = await page.evaluate(() => ({
         viewport: document.documentElement.clientWidth,
         page: document.documentElement.scrollWidth,

@@ -66,6 +66,8 @@ export class SaveChallengeDto {
 export class SearchChallengesDto {
   @IsOptional() @IsString() @MaxLength(100) search?: string;
   @IsOptional() @IsString() @MaxLength(60) category?: string;
+  @IsOptional() @IsString() @MaxLength(100) subject?: string;
+  @IsOptional() @IsString() @MaxLength(100) skill?: string;
   @IsOptional() @IsEnum(ChallengeDifficulty) difficulty?: ChallengeDifficulty;
   @IsOptional()
   @Type(() => Number)

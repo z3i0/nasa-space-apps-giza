@@ -51,6 +51,8 @@ export class ChallengesService {
       ];
     }
     if (query.category) where.category = query.category;
+    if (query.subject) where.subjects = { has: query.subject };
+    if (query.skill) where.recommendedSkills = { has: query.skill };
     if (query.difficulty) where.difficulty = query.difficulty;
     if (query.year) where.year = query.year;
     if (query.view === 'saved') where.favorites = { some: { userId } };
@@ -100,6 +102,17 @@ export class ChallengesService {
       categories: categories.map((item) => item.category),
       years: years.map((item) => item.year),
     };
+  }
+
+  async getSubjects(year?: number) {
+    const records = await this.db.challenge.findMany({
+      where: { isPublished: true, isArchived: false, ...(year ? { year } : {}) },
+      select: { subjects: true },
+    });
+    const counts = new Map<string, number>();
+    for (const record of records) for (const subject of new Set(record.subjects))
+      counts.set(subject, (counts.get(subject) || 0) + 1);
+    return [...counts].map(([subject, count]) => ({ subject, count })).sort((a, b) => b.count - a.count);
   }
 
   async detail(key: string, userId: string, management = false) {
@@ -170,14 +183,23 @@ export class ChallengesService {
       });
       if (!saved.count)
         throw new ConflictException('Challenge changed; reload before saving');
+      const existingResources = await tx.challengeResource.findMany({ where: { challengeId: id } });
       await tx.challengeResource.deleteMany({ where: { challengeId: id } });
       if (dto.resources.length)
         await tx.challengeResource.createMany({
-          data: dto.resources.map((resource, position) => ({
-            ...resource,
-            challengeId: id,
-            position,
-          })),
+          data: dto.resources.map((resource, position) => {
+            const previous = existingResources.find(item => item.url === resource.url);
+            return {
+              ...(previous ? {
+                titleAr: previous.titleAr, descriptionEn: previous.descriptionEn,
+                descriptionAr: previous.descriptionAr, type: previous.type,
+                language: previous.language, isOfficial: previous.isOfficial,
+                isCurated: previous.isCurated, isFeatured: previous.isFeatured,
+                metadata: previous.metadata === null ? Prisma.DbNull : previous.metadata as Prisma.InputJsonValue,
+              } : {}),
+              ...resource, challengeId: id, position,
+            };
+          }),
         });
       return tx.challenge.findUniqueOrThrow({
         where: { id },

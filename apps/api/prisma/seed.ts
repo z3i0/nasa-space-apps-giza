@@ -7,11 +7,16 @@ import {
   RequestStatus,
 } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { seedChallenges } from './seed-challenges.ts';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Starting database seeding for auth & authorization...');
+
+  // -------------------------------------------------------------
+  // 0. Seed Official NASA Space Apps 2026 Challenges
+  // -------------------------------------------------------------
 
   // -------------------------------------------------------------
   // 1. Seed Roles
@@ -101,6 +106,7 @@ async function main() {
   }
 
   console.log(`✅ Seeded default organizer account: ${organizerEmail}`);
+  await seedChallenges(prisma, organizerUser.id);
 
   // -------------------------------------------------------------
   // 3. Seed Demo Accounts for Each Role (Easy Testing)

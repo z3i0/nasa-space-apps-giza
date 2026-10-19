@@ -1,13 +1,17 @@
 import { notFound } from "next/navigation"
-import { cookies } from "next/headers"
 import { Noto_Sans_Arabic, Inter, Geist_Mono } from "next/font/google"
-import { getMessages, getTranslations, setRequestLocale } from "next-intl/server"
+import {
+  getMessages,
+  getTranslations,
+  setRequestLocale,
+} from "next-intl/server"
 import { NextIntlClientProvider } from "next-intl"
 
 import "../globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { DirectionProvider } from "@/components/ui/direction"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { Toaster } from "@/components/ui/sonner"
 import { routing } from "@/i18n/routing"
 import { cn } from "@/lib/utils"
 import { SmoothScroll } from "@/components/smooth-scroll"
@@ -62,10 +66,6 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale)
 
-  const cookieStore = await cookies()
-  const themeCookie = cookieStore.get("theme")?.value
-  const isDarkFromCookie = themeCookie === "dark"
-
   const messages = await getMessages()
   const dir = locale === "ar" ? "rtl" : "ltr"
 
@@ -75,8 +75,7 @@ export default async function LocaleLayout({
       dir={dir}
       suppressHydrationWarning
       className={cn(
-        "antialiased",
-        isDarkFromCookie && "dark",
+        "dark antialiased",
         notoSansArabic.variable,
         inter.variable,
         fontMono.variable,
@@ -88,10 +87,11 @@ export default async function LocaleLayout({
       <body>
         <SmoothScroll />
         <DirectionProvider direction={dir}>
-          <ThemeProvider defaultTheme={(themeCookie as "light" | "dark" | "system") || "system"}>
+          <ThemeProvider>
             <TooltipProvider>
               <NextIntlClientProvider locale={locale} messages={messages}>
                 {children}
+                <Toaster position={dir === "rtl" ? "top-left" : "top-right"} />
               </NextIntlClientProvider>
             </TooltipProvider>
           </ThemeProvider>

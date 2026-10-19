@@ -33,6 +33,7 @@ describe('Teams Module Integration Flow (Live DB)', () => {
       phone: '+201000000001',
       email: leaderEmail,
       password: 'Password123!',
+      phone: '+201012345678',
       preferredChallenge: 'Planetary Defense',
       teamStatus: TeamStatus.want_to_create_team,
     });
@@ -43,6 +44,7 @@ describe('Teams Module Integration Flow (Live DB)', () => {
       phone: '+201000000002',
       email: memberEmail,
       password: 'Password123!',
+      phone: '+201098765432',
       preferredChallenge: 'Planetary Defense',
       teamStatus: TeamStatus.want_to_join_team,
     });
