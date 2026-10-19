@@ -99,10 +99,7 @@ export async function requestProfile(
   draft?: ProfileDraft,
   version?: string
 ): Promise<ParticipantProfile> {
-  const base = (
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
-  ).replace(/\/$/, "")
-  const response = await fetch(`${base}/profiles/me`, {
+  const response = await fetch(`/api/profiles/me`, {
     method: draft ? "PATCH" : "GET",
     credentials: "include",
     cache: "no-store",

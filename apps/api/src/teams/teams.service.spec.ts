@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TeamsService } from './teams.service.js';
-import {
-  ConflictException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { ConflictException, ForbiddenException } from '@nestjs/common';
 import type { PrismaService } from '../prisma/prisma.service.js';
-import { TeamMemberRole, TeamStatus, RequestStatus, TaskStatus } from '@prisma/client';
+import {
+  TeamMemberRole,
+  TeamStatus,
+  RequestStatus,
+  TaskStatus,
+} from '@prisma/client';
 
 describe('TeamsService', () => {
   let service: TeamsService;
@@ -13,6 +15,9 @@ describe('TeamsService', () => {
 
   beforeEach(() => {
     mockPrisma = {
+      $queryRaw: vi.fn().mockResolvedValue([]),
+      challenge: { findFirst: vi.fn().mockResolvedValue(null) },
+      teamSubmission: { findUnique: vi.fn().mockResolvedValue(null) },
       team: {
         findUnique: vi.fn(),
         findMany: vi.fn(),
@@ -111,7 +116,12 @@ describe('TeamsService', () => {
         id: 't-1',
         name: 'Super Novas',
         members: [
-          { id: 'm-1', userId: 'u-1', role: TeamMemberRole.leader, assignedRole: 'Captain' },
+          {
+            id: 'm-1',
+            userId: 'u-1',
+            role: TeamMemberRole.leader,
+            assignedRole: 'Captain',
+          },
         ],
         tasks: [],
         invitations: [],
@@ -181,20 +191,42 @@ describe('TeamsService', () => {
     it('rejects assignment outside the team', async () => {
       mockPrisma.teamMember.findUnique.mockResolvedValue({ teamId: 't-1' });
       mockPrisma.teamMember.findFirst.mockResolvedValue(null);
-      await expect(service.createTask('t-1', 'u-1', { title: 'Map', assignedToId: 'outsider' })).rejects.toThrow('Assigned user');
+      await expect(
+        service.createTask('t-1', 'u-1', {
+          title: 'Map',
+          assignedToId: 'outsider',
+        }),
+      ).rejects.toThrow('Assigned user');
       expect(mockPrisma.teamTask.create).not.toHaveBeenCalled();
     });
 
     it('allows clearing assignee and due date, but rejects outsider edits', async () => {
-      mockPrisma.teamTask.findUnique.mockResolvedValue({ team: { members: [{ userId: 'u-1', role: 'member' }] } });
-      await service.updateTask('task-1', 'u-1', { assignedToId: null, dueDate: null });
-      expect(mockPrisma.teamTask.update).toHaveBeenCalledWith(expect.objectContaining({ data: { assignedToId: null, dueDate: null } }));
-      await expect(service.updateTask('task-1', 'outsider', { title: 'Changed' })).rejects.toThrow(ForbiddenException);
-      await expect(service.deleteTask('task-1', 'u-1')).rejects.toThrow(ForbiddenException);
+      mockPrisma.teamTask.findUnique.mockResolvedValue({
+        team: { members: [{ userId: 'u-1', role: 'member' }] },
+      });
+      await service.updateTask('task-1', 'u-1', {
+        assignedToId: null,
+        dueDate: null,
+      });
+      expect(mockPrisma.teamTask.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: { assignedToId: null, dueDate: null },
+        }),
+      );
+      await expect(
+        service.updateTask('task-1', 'outsider', { title: 'Changed' }),
+      ).rejects.toThrow(ForbiddenException);
+      await expect(service.deleteTask('task-1', 'u-1')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('prevents changing submission status through general team edits', async () => {
-      await expect(service.updateTeam('t-1', 'u-1', ['participant'], { submissionStatus: 'submitted' })).rejects.toThrow('submission endpoint');
+      await expect(
+        service.updateTeam('t-1', 'u-1', ['participant'], {
+          submissionStatus: 'submitted',
+        }),
+      ).rejects.toThrow('submission endpoint');
       expect(mockPrisma.team.update).not.toHaveBeenCalled();
     });
     it('creates a task in the team', async () => {

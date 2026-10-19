@@ -33,19 +33,16 @@ export class AuthGuard implements CanActivate {
     // Validate session via Better Auth (supports both cookies and Authorization: Bearer <token>)
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(request.headers),
+      query: { disableCookieCache: true },
     });
 
     if (!session || !session.user) {
-      throw new UnauthorizedException('Authentication token missing or invalid');
+      throw new UnauthorizedException(
+        'Authentication token missing or invalid',
+      );
     }
 
     const user = session.user as any;
-
-    if (!user.isActive || user.deletedAt !== null) {
-      throw new UnauthorizedException('Account is deactivated or deleted');
-    }
-
-    const primaryRole = user.role || 'participant';
 
     // Fetch user roles and profile
     const dbUser = await this.prisma.user.findUnique({
@@ -60,16 +57,20 @@ export class AuthGuard implements CanActivate {
       },
     });
 
+    if (!dbUser?.isActive || dbUser.deletedAt !== null) {
+      throw new UnauthorizedException('Account is deactivated or deleted');
+    }
+
     const roles: string[] =
       dbUser?.roles && dbUser.roles.length > 0
         ? dbUser.roles.map((r) => r.role.name)
-        : [primaryRole];
+        : [dbUser.role || 'participant'];
 
     const authUser: AuthenticatedUser = {
       id: user.id,
-      name: user.name || '',
-      email: user.email,
-      phone: user.phone || null,
+      name: dbUser.name || '',
+      email: dbUser.email,
+      phone: dbUser.phone || null,
       roles,
       profile: dbUser?.profile || null,
     };

@@ -60,9 +60,12 @@ export default function proxy(request: NextRequest) {
     }
 
     const requestedRole = dashboardMatch[2]
+    // Mentor/judge shells also host pending/denied applications. Their layout
+    // verifies current server approval before mounting any protected content.
     if (
       dashboardRoles.includes(requestedRole) &&
       !roles.includes("organizer") &&
+      !["mentor", "judge"].includes(requestedRole) &&
       !roles.includes(requestedRole)
     ) {
       // Choose only a role the user actually has; missing roles must never

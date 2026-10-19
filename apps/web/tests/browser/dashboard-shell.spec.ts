@@ -35,7 +35,10 @@ async function setUser(context: BrowserContext, role = "participant") {
 }
 
 async function openProfile(page: Page, locale = "en") {
-  await page.route("**/api/profiles/me", route => route.fulfill({ json: profileFixture }))
+  await page.route("**/api/account/challenge-options",r=>r.fulfill({json:[]}))
+  await page.route("**/api/profiles/me", (route) =>
+    route.fulfill({ json: profileFixture })
+  )
   await page.goto(`/${locale}/dashboard/participant/profile`)
   await expect(page.locator("[data-dashboard-shell]")).toBeVisible()
   await page.evaluate(() => document.fonts.ready)
@@ -65,7 +68,7 @@ for (const locale of ["en", "ar"]) {
       await expect(navigation.locator("a")).toHaveCount(9)
       await expect(navigation.locator('[aria-current="page"]')).toHaveAttribute(
         "href",
-        `/${locale}/dashboard/participant/team`
+        "/dashboard/participant/team"
       )
       const dimensions = await page.evaluate(() => ({
         viewport: document.documentElement.clientWidth,
@@ -137,13 +140,14 @@ test("account menu, language switching and keyboard search stay dark and usable"
   await expect(menu).toHaveCSS("color-scheme", "dark")
   await expect(menu.getByText("Switch View")).toHaveCount(0)
   await page.getByRole("menuitem", { name: "العربية" }).click()
-  await expect(page).toHaveURL(/\/ar\/dashboard\/participant\/profile$/)
+  await expect(page).toHaveURL(/\/dashboard\/participant\/profile$/)
+  await expect(page.locator("html")).toHaveAttribute("lang", "ar")
   await page.keyboard.press("Control+k")
   const dialog = page.getByRole("dialog")
   await expect(dialog).toBeVisible()
   await expect(dialog).toHaveAttribute("dir", "rtl")
   await expect(dialog).toHaveCSS("color-scheme", "dark")
-  await dialog.getByRole("combobox").fill("الموارد")
+  await dialog.getByRole("combobox").fill("الفريق")
   await expect(dialog.getByRole("option").first()).toBeVisible()
   await page.keyboard.press("Escape")
   await expect(dialog).not.toBeVisible()
@@ -186,7 +190,7 @@ test("dark dashboard does not change the landing page or saved theme on client n
   })
   await openProfile(page)
   await page.getByRole("link", { name: "NASA Space Apps Giza home" }).click()
-  await expect(page).toHaveURL(/\/en$/)
+  await expect(page).toHaveURL(/\/(?:en)?$/)
   await expect(page.locator("[data-dashboard-shell]")).toHaveCount(0)
   const after = await landing.evaluate((element) => {
     const style = getComputedStyle(element)
@@ -210,11 +214,11 @@ for (const role of ["organizer", "mentor", "judge"]) {
     context,
   }) => {
     await setUser(context, role)
-    await page.goto(`/en/dashboard/${role}`)
+    await page.goto(`/dashboard/${role}`)
     await expect(page.locator("[data-dashboard-shell]")).toBeVisible()
     await expect(
       page.locator('[data-dashboard-navigation] [aria-current="page"]')
-    ).toHaveAttribute("href", `/en/dashboard/${role}`)
+    ).toHaveAttribute("href", `/dashboard/${role}`)
     expect(
       await page.locator("[data-dashboard-navigation] a").count()
     ).toBeGreaterThan(5)

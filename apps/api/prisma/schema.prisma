@@ -40,6 +40,14 @@ model User {
   receivedInvitations TeamInvitation[]     @relation("ReceivedInvitations")
   sentInvitations     TeamInvitation[]     @relation("SentInvitations")
   joinRequests        TeamJoinRequest[]    @relation("UserJoinRequests")
+  mentorProfile       MentorProfile?
+  mentorRequests      MentorshipRequest[] @relation("MentorRequests")
+  sentMentorMessages  MentorshipMessage[]
+  mentorSlots         MentorSlot[]
+  favoriteChallenges  ChallengeFavorite[]
+  createdChallenges   Challenge[] @relation("ChallengeCreator")
+  judgingAssignments JudgingAssignment[]
+  roleApplications RoleApplication[]
 
   @@index([email])
   @@index([deletedAt])
@@ -206,6 +214,8 @@ model Team {
   name             String               @unique
   description      String?
   challenge        String?              @map("challenge")
+  challengeId      String?              @map("challenge_id")
+  selectedChallenge Challenge? @relation(fields: [challengeId], references: [id], onDelete: SetNull)
   track            String?              @map("track")
   createdById      String               @map("created_by_id")
   maxMembers       Int                  @default(5) @map("max_members")
@@ -219,9 +229,13 @@ model Team {
   submission       TeamSubmission?
   invitations      TeamInvitation[]
   joinRequests     TeamJoinRequest[]
+  mentorshipRequests MentorshipRequest[]
+  bookedMentorSlots MentorSlot[]
+  judgingAssignments JudgingAssignment[]
 
   @@index([createdById])
   @@index([challenge])
+  @@index([challengeId])
   @@index([submissionStatus])
   @@map("teams")
 }
@@ -316,6 +330,185 @@ model TeamJoinRequest {
   @@index([userId])
   @@index([status])
   @@map("team_join_requests")
+}
+
+model MentorProfile {
+  userId       String   @id @map("user_id")
+  expertise    String[] @default([])
+  availability String   @default("")
+  bio          String   @default("")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("mentor_profiles")
+}
+
+enum MentorshipStatus {
+  pending
+  accepted
+  declined
+  canceled
+  completed
+}
+
+model MentorshipRequest {
+  id        String           @id @default(uuid())
+  teamId    String           @map("team_id")
+  mentorId  String           @map("mentor_id")
+  topic     String
+  sessionNotes String? @map("session_notes")
+  status    MentorshipStatus @default(pending)
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+  team      Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  mentor    User             @relation("MentorRequests", fields: [mentorId], references: [id], onDelete: Cascade)
+  messages  MentorshipMessage[]
+  slot      MentorSlot?
+
+  @@index([mentorId, status, createdAt(sort: Desc)])
+  @@index([teamId, createdAt(sort: Desc)])
+  @@map("mentorship_requests")
+}
+
+model MentorshipMessage {
+  id        String   @id @default(uuid())
+  requestId String   @map("request_id")
+  senderId  String   @map("sender_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  request   MentorshipRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt(sort: Desc), id(sort: Desc)])
+  @@map("mentorship_messages")
+}
+
+model MentorSlot {
+  id        String   @id @default(uuid())
+  mentorId  String   @map("mentor_id")
+  teamId    String?  @map("team_id")
+  requestId String?  @unique @map("request_id")
+  startTime DateTime @map("start_time")
+  endTime   DateTime @map("end_time")
+  mentor    User     @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  team      Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  request   MentorshipRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+
+  @@index([mentorId, startTime])
+  @@map("mentor_slots")
+}
+
+enum ChallengeDifficulty {
+  beginner
+  intermediate
+  advanced
+}
+
+model Challenge {
+  id            String @id @default(uuid())
+  slug          String @unique
+  title         String
+  titleAr       String? @map("title_ar")
+  summary       String
+  summaryAr     String? @map("summary_ar")
+  description   String
+  descriptionAr String? @map("description_ar")
+  category      String
+  difficulty    ChallengeDifficulty
+  year          Int
+  tags          String[] @default([])
+  sourceUrl     String? @map("source_url")
+  isPublished   Boolean @default(false) @map("is_published")
+  isArchived    Boolean @default(false) @map("is_archived")
+  isDemo        Boolean @default(false) @map("is_demo")
+  version       Int @default(1)
+  createdById   String @map("created_by_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  createdBy     User @relation("ChallengeCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  resources     ChallengeResource[]
+  favorites     ChallengeFavorite[]
+  teams         Team[]
+
+  @@index([isPublished, isArchived, year(sort: Desc)])
+  @@index([category, difficulty])
+  @@map("challenges")
+}
+
+model ChallengeResource {
+  id          String @id @default(uuid())
+  challengeId String @map("challenge_id")
+  label       String
+  url         String
+  position    Int @default(0)
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@index([challengeId, position])
+  @@map("challenge_resources")
+}
+
+model ChallengeFavorite {
+  userId      String @map("user_id")
+  challengeId String @map("challenge_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, challengeId])
+  @@index([challengeId])
+  @@map("challenge_favorites")
+}
+
+model JudgingRubric {
+  id String @id @default(uuid())
+  name String
+  criteria Json
+  createdAt DateTime @default(now())
+  assignments JudgingAssignment[]
+  @@map("judging_rubrics")
+}
+
+model JudgingAssignment {
+  id String @id @default(uuid())
+  judgeId String
+  teamId String
+  rubricId String
+  submissionVersion Int
+  snapshot Json
+  scores Json @default("{}")
+  feedback String @default("")
+  completed Boolean @default(false)
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  judge User @relation(fields: [judgeId], references: [id], onDelete: Restrict)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  rubric JudgingRubric @relation(fields: [rubricId], references: [id], onDelete: Restrict)
+  @@unique([judgeId, teamId])
+  @@index([judgeId, completed])
+  @@map("judging_assignments")
+}
+
+model JudgingPublication {
+  id String @id
+  results Json
+  publishedAt DateTime @default(now())
+  @@map("judging_publications")
+}
+
+model RoleApplication {
+  id String @id @default(uuid())
+  userId String
+  role String
+  status String @default("pending")
+  createdAt DateTime @default(now())
+  reviewedAt DateTime?
+  reviewedById String?
+  reason String @default("")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, role])
+  @@index([status, createdAt])
+  @@map("role_applications")
 }
 
 

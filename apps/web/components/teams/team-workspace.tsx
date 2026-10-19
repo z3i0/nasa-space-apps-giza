@@ -340,6 +340,16 @@ export function TeamWorkspace({ discover = false }: { discover?: boolean }) {
                       <span>{team.challenge || t("noChallenge")}</span>
                       {team.track && <span>{team.track}</span>}
                     </div>
+                    <Link
+                      href={
+                        team.challengeId
+                          ? `/dashboard/participant/challenges/${team.challengeId}`
+                          : "/dashboard/participant/challenges"
+                      }
+                      className="text-sm text-cyan-200 underline underline-offset-4"
+                    >
+                      {t("browseChallenges")}
+                    </Link>
                     {leader && (
                       <Button
                         variant="secondary"

@@ -2,9 +2,11 @@
 
 import { useState, type FormEvent } from "react"
 import { useTranslations } from "next-intl"
+import { Link } from "@/i18n/routing"
 import { Button } from "@/components/ui/button"
 import type { TeamDraft } from "@/lib/teams"
 import styles from "./team-workspace.module.css"
+import { ChallengeSelect } from "@/components/profile/challenge-select"
 
 export function TeamEditor({
   initial,
@@ -63,14 +65,18 @@ export function TeamEditor({
         <div className={styles.twoFields}>
           <label className={styles.field}>
             {t("challenge")}
-            <input
+            <ChallengeSelect
+              id="team-challenge"
               className={styles.control}
-              maxLength={200}
               value={draft.challenge}
-              onChange={(e) =>
-                setDraft({ ...draft, challenge: e.target.value })
-              }
+              onChange={(value) => setDraft({ ...draft, challenge: value })}
             />
+            <Link
+              href="/dashboard/participant/challenges"
+              className="text-xs text-cyan-200 underline underline-offset-4"
+            >
+              {t("browseChallenges")}
+            </Link>
           </label>
           <label className={styles.field}>
             {t("track")}

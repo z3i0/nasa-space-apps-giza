@@ -126,7 +126,8 @@
       "nasaCriteria": "معايير ناسا الرسمية",
       "requestsTracking": "تتبع الطلبات والاستجابة",
       "judgingScores": "درجات ونتائج التحكيم",
-      "communityManagement": "إدارة المجتمع والأسئلة"
+      "communityManagement": "إدارة المجتمع والأسئلة",
+      "roleRequests": "موافقات المرشدين والمحكمين"
     },
     "badges": {
       "new": "جديد",

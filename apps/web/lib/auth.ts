@@ -1,98 +1,107 @@
-import { authClient } from './auth-client'
+import { authClient } from "./auth-client"
 
 export interface UserSession {
-  id: string;
-  name: string;
-  fullName?: string;
-  email: string;
-  role?: string;
-  phone?: string | null;
-  roles: string[];
-  avatar?: string | null;
+  id: string
+  name: string
+  fullName?: string
+  email: string
+  // Selected dashboard, which may be awaiting approval. API permissions use
+  // current database roles; this browser hint never grants protected access.
+  role?: string
+  phone?: string | null
+  roles: string[]
+  avatar?: string | null
 }
 
 export interface AuthTokens {
-  accessToken: string;
-  refreshToken?: string;
+  accessToken: string
+  refreshToken?: string
 }
 
-const TOKEN_KEY = 'hackathon_access_token';
-const REFRESH_TOKEN_KEY = 'hackathon_refresh_token';
-const USER_KEY = 'hackathon_user';
+const TOKEN_KEY = "hackathon_access_token"
+const REFRESH_TOKEN_KEY = "hackathon_refresh_token"
+const USER_KEY = "hackathon_user"
 
-export function setAuth(tokens: { accessToken?: string; refreshToken?: string }, user: UserSession): void {
-  if (typeof window === 'undefined') return;
+export function setAuth(
+  tokens: { accessToken?: string; refreshToken?: string },
+  user: UserSession
+): void {
+  if (typeof window === "undefined") return
   if (tokens.accessToken) {
-    localStorage.setItem(TOKEN_KEY, tokens.accessToken);
-    document.cookie = `auth_token=${tokens.accessToken}; path=/; max-age=604800; SameSite=Lax`;
+    localStorage.setItem(TOKEN_KEY, tokens.accessToken)
+    document.cookie = `auth_token=${tokens.accessToken}; path=/; max-age=604800; SameSite=Lax`
+  } else if (getAuthUser()?.id !== user.id) {
+    localStorage.removeItem(TOKEN_KEY)
+    document.cookie = "auth_token=; path=/; max-age=0"
   }
   if (tokens.refreshToken) {
-    localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
+    localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken)
   }
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-  document.cookie = `auth_user=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=604800; SameSite=Lax`;
-  document.cookie = `auth_roles=${encodeURIComponent(JSON.stringify(user.roles))}; path=/; max-age=604800; SameSite=Lax`;
-  const primaryRole = user.role || user.roles[0] || 'participant';
-  document.cookie = `auth_role=${primaryRole}; path=/; max-age=604800; SameSite=Lax`;
-  window.dispatchEvent(new Event('auth-user-changed'));
+  localStorage.setItem(USER_KEY, JSON.stringify(user))
+  document.cookie = `auth_user=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=604800; SameSite=Lax`
+  document.cookie = `auth_roles=${encodeURIComponent(JSON.stringify(user.roles))}; path=/; max-age=604800; SameSite=Lax`
+  const primaryRole = user.role || user.roles[0] || "participant"
+  document.cookie = `auth_role=${primaryRole}; path=/; max-age=604800; SameSite=Lax`
+  window.dispatchEvent(new Event("auth-user-changed"))
 }
 
 export function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(TOKEN_KEY);
+  if (typeof window === "undefined") return null
+  return localStorage.getItem(TOKEN_KEY)
 }
 
 export function getAuthUser(): UserSession | null {
-  if (typeof window === 'undefined') return null;
-  const raw = localStorage.getItem(USER_KEY);
+  if (typeof window === "undefined") return null
+  const raw = localStorage.getItem(USER_KEY)
   if (raw) {
     try {
-      return JSON.parse(raw) as UserSession;
+      return JSON.parse(raw) as UserSession
     } catch {}
   }
-  const match = document.cookie.match(/(?:^|;\s*)auth_user=([^;]*)/);
+  const match = document.cookie.match(/(?:^|;\s*)auth_user=([^;]*)/)
   if (match && match[1]) {
     try {
-      return JSON.parse(decodeURIComponent(match[1])) as UserSession;
+      return JSON.parse(decodeURIComponent(match[1])) as UserSession
     } catch {}
   }
-  return null;
+  return null
 }
 
-export { useAuthUser, AuthProvider } from "@/components/auth-provider";
+export { useAuthUser, AuthProvider } from "@/components/auth-provider"
 
 export function clearLocalAuth(): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
-  document.cookie = 'auth_token=; path=/; max-age=0';
-  document.cookie = 'auth_user=; path=/; max-age=0';
-  document.cookie = 'auth_roles=; path=/; max-age=0';
-  document.cookie = 'auth_role=; path=/; max-age=0';
-  window.dispatchEvent(new Event('auth-user-changed'));
+  if (typeof window === "undefined") return
+  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(REFRESH_TOKEN_KEY)
+  localStorage.removeItem(USER_KEY)
+  document.cookie = "auth_token=; path=/; max-age=0"
+  document.cookie = "auth_user=; path=/; max-age=0"
+  document.cookie = "auth_roles=; path=/; max-age=0"
+  document.cookie = "auth_role=; path=/; max-age=0"
+  window.dispatchEvent(new Event("auth-user-changed"))
 }
 
 export async function clearAuth(): Promise<void> {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return
   try {
-    await authClient.signOut();
+    await authClient.signOut()
   } catch {
     // Clear local hints even if the API is unavailable.
   }
-  clearLocalAuth();
-  document.cookie = 'better-auth.session_token=; path=/; max-age=0';
+  clearLocalAuth()
+  document.cookie = "better-auth.session_token=; path=/; max-age=0"
+  document.cookie = "better-auth.session_data=; path=/; max-age=0"
 }
 
 export function getRedirectPathByRole(roles: string[] = []): string {
-  if (roles.includes('organizer')) {
-    return '/dashboard/organizer';
+  if (roles.includes("organizer")) {
+    return "/dashboard/organizer"
   }
-  if (roles.includes('judge')) {
-    return '/dashboard/judge';
+  if (roles.includes("judge")) {
+    return "/dashboard/judge"
   }
-  if (roles.includes('mentor')) {
-    return '/dashboard/mentor';
+  if (roles.includes("mentor")) {
+    return "/dashboard/mentor"
   }
-  return '/dashboard/participant';
+  return "/dashboard/participant"
 }

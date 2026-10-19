@@ -33,6 +33,8 @@ export interface Team {
   name: string
   description: string | null
   challenge: string | null
+  challengeId?: string | null
+  challengeNeedsReview?: boolean
   track: string | null
   maxMembers: number
   membersCount: number

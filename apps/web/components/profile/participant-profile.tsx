@@ -35,6 +35,7 @@ import {
   type ProfileDraft,
 } from "@/lib/profile"
 import styles from "./participant-profile.module.css"
+import { ChallengeSelect } from "./challenge-select"
 
 export function ParticipantProfilePage() {
   const t = useTranslations("Dashboard.profilePage")
@@ -373,13 +374,11 @@ export function ParticipantProfilePage() {
               )}
               <label className={styles.field} htmlFor="profile-challenge">
                 {t("challengeLabel")}
-                <Input
+                <ChallengeSelect
                   id="profile-challenge"
                   className={styles.control}
                   value={draft.preferredChallenge}
-                  placeholder={t("challengePlaceholder")}
-                  maxLength={200}
-                  onChange={(e) => change("preferredChallenge", e.target.value)}
+                  onChange={(value) => change("preferredChallenge", value)}
                 />
               </label>
             </section>

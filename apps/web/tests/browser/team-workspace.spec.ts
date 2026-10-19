@@ -59,6 +59,7 @@ async function fixture(
   page: Page,
   initial: Team | null = structuredClone(crew)
 ) {
+  await page.route("**/api/account/challenge-options",r=>r.fulfill({json:[{id:"earth",title:"Earth observation",titleAr:null}]}))
   let mine = initial
   const inbox: TeamInbox = { invitations: [], joinRequests: [] }
   const writes: { path: string; body: Record<string, string | boolean> }[] = []
@@ -410,7 +411,7 @@ test("missing contact directs participants to their profile without losing the t
   await expect(alert).toContainText("Add a valid contact number")
   await expect(
     alert.getByRole("link", { name: "Update my profile" })
-  ).toHaveAttribute("href", "/en/dashboard/participant/profile")
+  ).toHaveAttribute("href", "/dashboard/participant/profile")
   await expect(page.getByLabel("Team name", { exact: true })).toHaveValue(
     "My new crew"
   )

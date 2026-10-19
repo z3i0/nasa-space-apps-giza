@@ -30,6 +30,7 @@ describe('Teams Module Integration Flow (Live DB)', () => {
     // Register 2 test participants
     const leaderRes = await authService.register({
       name: 'Leader Test',
+      phone: '+201000000001',
       email: leaderEmail,
       password: 'Password123!',
       preferredChallenge: 'Planetary Defense',
@@ -39,6 +40,7 @@ describe('Teams Module Integration Flow (Live DB)', () => {
 
     const memberRes = await authService.register({
       name: 'Member Test',
+      phone: '+201000000002',
       email: memberEmail,
       password: 'Password123!',
       preferredChallenge: 'Planetary Defense',

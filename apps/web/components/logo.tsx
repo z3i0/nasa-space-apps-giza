@@ -6,14 +6,12 @@ import { cn } from "@/lib/utils"
 
 export interface LogoProps extends React.ComponentProps<"div"> {
   imageClassName?: string
-  showPing?: boolean
   size?: "sm" | "md" | "lg" | "xl"
 }
 
 export function Logo({
   className,
   imageClassName,
-  showPing = true,
   size = "md",
   ...props
 }: LogoProps) {

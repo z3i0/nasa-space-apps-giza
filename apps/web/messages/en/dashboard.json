@@ -126,7 +126,8 @@
       "nasaCriteria": "Official NASA Criteria",
       "requestsTracking": "Requests & Response Tracking",
       "judgingScores": "Judging Scores & Results",
-      "communityManagement": "Community Management"
+      "communityManagement": "Community Management",
+      "roleRequests": "Mentor & judge approvals"
     },
     "badges": {
       "new": "New",

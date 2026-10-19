@@ -1,41 +1,83 @@
 import { expect, test, type BrowserContext } from "@playwright/test"
-
 for (const locale of ["en", "ar"]) {
-  for (const outcome of ["success", "lost-response", "invalid", "other-user", "offline"]) {
-    test(`${locale} submitted login handles ${outcome}`, async ({ page }) => {
-      let submitted = false
-      const user = { id: "login-user", name: "Login User", email: "login@example.test", role: "participant" }
-      const session = { token: "login-session", expiresAt: "2099-01-01T00:00:00.000Z" }
-      await page.route("**/api/auth/get-session**", route => {
-        if (submitted && outcome === "offline") return route.abort("failed")
-        return route.fulfill({ json: submitted ? {
-          user: outcome === "other-user" ? { ...user, email: "other@example.test" } : user,
-          session,
-        } : null })
+  for (const outcome of [
+    "success",
+    "lost-response",
+    "invalid",
+    "other-user",
+    "offline",
+  ]) {
+    test(`${locale} login requires a verified matching identity: ${outcome}`, async ({
+      page,
+    }) => {
+      const user = {
+        id: "login-user",
+        name: "Login User",
+        email: "login@example.test",
+        role: "participant",
+        roles: ["participant"],
+      }
+      await page.route("**/api/auth/sign-out", (r) =>
+        r.fulfill({ json: { success: true } })
+      )
+      await page.route("**/api/auth/sign-in/email", (r) => {
+        if (["lost-response", "offline"].includes(outcome))
+          return r.abort("failed")
+        if (outcome === "invalid")
+          return r.fulfill({
+            status: 401,
+            json: { message: "Invalid credentials" },
+          })
+        return r.fulfill({ json: { user, token: "signed-in" } })
       })
-      await page.route("**/api/auth/sign-in/email", route => {
-        expect(new URL(route.request().url()).origin).toBe("http://localhost:3000")
-        submitted = true
-        if (["lost-response", "other-user", "offline"].includes(outcome)) return route.abort("failed")
-        if (outcome === "invalid") return route.fulfill({ status: 401, json: { message: "Invalid credentials" } })
-        return route.fulfill({ json: { user, token: session.token } })
-      })
+      await page.route("**/api/auth/me", (r) =>
+        r.fulfill({
+          json:
+            outcome === "other-user"
+              ? { ...user, email: "other@example.test" }
+              : user,
+        })
+      )
+      await page.route("**/api/account/role-selection", (r) =>
+        r.fulfill({
+          json: {
+            role: "participant",
+            roles: ["participant"],
+            status: "approved",
+          },
+        })
+      )
+      await page.route("**/api/account/overview", (r) =>
+        r.fulfill({
+          json: {
+            skills: [],
+            challenge: null,
+            profileComplete: false,
+            team: null,
+            mentorshipCount: 0,
+            submitted: false,
+            applications: [],
+          },
+        })
+      )
       await page.goto(`/${locale}/login`)
       await page.locator('input[type="email"]').fill(user.email)
       await page.locator('input[type="password"]').fill("test-password")
       await page.locator('button[type="submit"]').click()
-      if (["success", "lost-response"].includes(outcome)) {
-        await expect(page).toHaveURL(new RegExp(`/${locale}/dashboard/participant$`))
+      if (outcome === "success") {
+        await expect(page).toHaveURL(/\/dashboard\/participant$/)
         await expect(page.locator("[data-dashboard-shell]")).toBeVisible()
       } else {
+        await expect(page.getByRole("main").getByRole("alert")).toBeVisible()
         await expect(page.locator('button[type="submit"]')).toBeEnabled()
-        await expect(page).toHaveURL(new RegExp(`/${locale}/login$`))
-        expect(await page.evaluate(() => localStorage.getItem("hackathon_user"))).toBeNull()
+        await expect(page).toHaveURL(/\/login$/)
+        expect(
+          await page.evaluate(() => localStorage.getItem("hackathon_user"))
+        ).toBeNull()
       }
     })
   }
 }
-
 async function setCookies(
   context: BrowserContext,
   values: Record<string, string>
@@ -48,7 +90,6 @@ async function setCookies(
     }))
   )
 }
-
 for (const roles of [
   undefined,
   "[]",
@@ -61,93 +102,43 @@ for (const roles of [
     context,
   }) => {
     await setCookies(context, {
-      auth_token: "expired-session-fixture",
+      auth_token: "expired",
       ...(roles === undefined ? {} : { auth_roles: roles }),
     })
-    // Use the context request so the saved browser cookies are included.
     const response = await context.request.get("/en/dashboard/participant", {
       maxRedirects: 5,
     })
     expect(response.status()).toBe(200)
-    expect(new URL(response.url()).pathname).toBe("/en/login")
+    expect(new URL(response.url()).pathname).toMatch(/\/login$/)
   })
 }
-
-for (const locale of ["en", "ar"]) {
-  test(`${locale} sign-in recovers from expired cookies and cached user data`, async ({
-    page,
-    context,
-  }) => {
-    await setCookies(context, {
-      auth_token: "expired-session-fixture",
-      auth_roles: '["participant"]',
-      auth_role: "participant",
-    })
-    await page.addInitScript(() => {
-      localStorage.setItem(
-        "hackathon_user",
-        JSON.stringify({
-          id: "expired-user",
-          name: "Expired User",
-          roles: ["participant"],
-        })
-      )
-    })
-    await page.route("**/auth/get-session**", (route) =>
-      route.fulfill({ json: null })
-    )
-    await page.goto(`/${locale}/login`)
-    await expect(page.locator('input[type="email"]')).toBeVisible()
-    await expect(page).toHaveURL(new RegExp(`/${locale}/login$`))
-    expect(
-      await page.evaluate(() => localStorage.getItem("hackathon_user"))
-    ).toBeNull()
-    expect(
-      (await context.cookies()).find((cookie) => cookie.name === "auth_token")
-    ).toBeUndefined()
-  })
-}
-
-test("verified session restores missing role cookies before dashboard navigation", async ({
+test("an existing session does not skip choosing a role or force the previous account", async ({
   page,
   context,
 }) => {
-  await setCookies(context, { "better-auth.session_token": "session-fixture" })
-  await page.route("**/auth/get-session**", (route) =>
-    route.fulfill({
-      json: {
-        user: {
-          id: "verified-user",
-          name: "Verified User",
-          email: "verified@example.test",
-          role: "participant",
-        },
-        session: {
-          token: "verified-session-fixture",
-          expiresAt: "2099-01-01T00:00:00.000Z",
-        },
-      },
-    })
-  )
+  await setCookies(context, {
+    "better-auth.session_token": "previous-session",
+    auth_user: JSON.stringify({
+      id: "old",
+      name: "Old User",
+      roles: ["mentor"],
+    }),
+  })
   await page.goto("/en/login")
-  await expect(page).toHaveURL(/\/en\/dashboard\/participant$/)
-  await expect(page.locator("[data-dashboard-shell]")).toBeVisible()
-  expect(
-    (await context.cookies()).find((cookie) => cookie.name === "auth_role")
-      ?.value
-  ).toBe("participant")
+  await expect(page.locator('input[type="email"]')).toBeVisible()
+  await expect(page.getByRole("combobox")).toBeVisible()
+  await expect(page).toHaveURL(/\/login$/)
 })
-
-test("role restrictions redirect to the user's own dashboard", async ({
+test("role restrictions redirect to an authorized workspace", async ({
   context,
 }) => {
   await setCookies(context, {
-    auth_token: "session-fixture",
+    auth_token: "fixture",
     auth_roles: '["participant"]',
   })
   const response = await context.request.get("/ar/dashboard/organizer", {
     maxRedirects: 5,
   })
   expect(response.status()).toBe(200)
-  expect(new URL(response.url()).pathname).toBe("/ar/dashboard/participant")
+  expect(new URL(response.url()).pathname).toMatch(/\/dashboard\/participant$/)
 })

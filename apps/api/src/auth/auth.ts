@@ -23,7 +23,13 @@ export const auth = betterAuth({
       hash: async (password: string) => {
         return bcrypt.hash(password, 10);
       },
-      verify: async ({ password, hash }: { password: string; hash: string }) => {
+      verify: async ({
+        password,
+        hash,
+      }: {
+        password: string;
+        hash: string;
+      }) => {
         return bcrypt.compare(password, hash);
       },
     },
@@ -40,6 +46,7 @@ export const auth = betterAuth({
       },
       role: {
         type: 'string',
+        input: false,
         required: false,
         defaultValue: 'participant',
       },
@@ -49,19 +56,23 @@ export const auth = betterAuth({
       },
       isActive: {
         type: 'boolean',
+        input: false,
         required: false,
         defaultValue: true,
       },
       lastLoginAt: {
         type: 'date',
+        input: false,
         required: false,
       },
       lastSeenAt: {
         type: 'date',
+        input: false,
         required: false,
       },
       deletedAt: {
         type: 'date',
+        input: false,
         required: false,
       },
     },

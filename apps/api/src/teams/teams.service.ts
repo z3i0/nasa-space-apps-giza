@@ -26,12 +26,20 @@ import {
 export class TeamsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private async requireContact(userId: string, db: Pick<Prisma.TransactionClient, 'user'> = this.prisma, applicant = false) {
-    const user = await db.user.findUnique({ where: { id: userId }, select: { phone: true } });
+  private async requireContact(
+    userId: string,
+    db: Pick<Prisma.TransactionClient, 'user'> = this.prisma,
+    applicant = false,
+  ) {
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { phone: true },
+    });
     if (!user?.phone || !phonePattern.test(normalizePhone(user.phone))) {
       throw new BadRequestException({
         code: applicant ? 'APPLICANT_CONTACT_REQUIRED' : 'CONTACT_REQUIRED',
-        message: 'A valid participant contact number is required in the profile',
+        message:
+          'A valid participant contact number is required in the profile',
       });
     }
   }
@@ -42,12 +50,17 @@ export class TeamsService {
       select: { user: { select: { id: true, name: true, phone: true } } },
     });
     if (!member) throw new NotFoundException('Team leader not found');
-    return { ...member.user, phone: member.user.phone ? normalizePhone(member.user.phone) : null };
+    return {
+      ...member.user,
+      phone: member.user.phone ? normalizePhone(member.user.phone) : null,
+    };
   }
 
   // Membership checks and writes must share one serializable snapshot. Retry
   // conflicting approvals so the last available seat can only be filled once.
-  private async membershipTransaction<T>(operation: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+  private async membershipTransaction<T>(
+    operation: (tx: Prisma.TransactionClient) => Promise<T>,
+  ): Promise<T> {
     for (let attempt = 0; ; attempt++) {
       try {
         return await this.prisma.$transaction(operation, {
@@ -57,7 +70,9 @@ export class TeamsService {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
           if (error.code === 'P2034' && attempt < 3) continue;
           if (error.code === 'P2002' || error.code === 'P2034') {
-            throw new ConflictException('Team membership changed. Refresh and try again.');
+            throw new ConflictException(
+              'Team membership changed. Refresh and try again.',
+            );
           }
         }
         throw error;
@@ -69,31 +84,55 @@ export class TeamsService {
     const [invitations, joinRequests] = await Promise.all([
       this.prisma.teamInvitation.findMany({
         where: { invitedUserId: userId, status: RequestStatus.pending },
-        select: { id: true, teamId: true, status: true, team: { select: { name: true } } },
+        select: {
+          id: true,
+          teamId: true,
+          status: true,
+          team: { select: { name: true } },
+        },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.teamJoinRequest.findMany({
         where: { userId, status: RequestStatus.pending },
-        select: { id: true, teamId: true, status: true, team: { select: { name: true } } },
+        select: {
+          id: true,
+          teamId: true,
+          status: true,
+          team: { select: { name: true } },
+        },
         orderBy: { createdAt: 'desc' },
       }),
     ]);
     return { invitations, joinRequests };
   }
 
-  async transferLeadership(teamId: string, userId: string, targetUserId: string) {
+  async transferLeadership(
+    teamId: string,
+    userId: string,
+    targetUserId: string,
+  ) {
     return this.membershipTransaction(async (tx) => {
       const leader = await tx.teamMember.findUnique({ where: { userId } });
       if (leader?.teamId !== teamId || leader.role !== TeamMemberRole.leader) {
-        throw new ForbiddenException('Only the team leader can transfer leadership');
+        throw new ForbiddenException(
+          'Only the team leader can transfer leadership',
+        );
       }
-      const target = await tx.teamMember.findUnique({ where: { userId: targetUserId } });
+      const target = await tx.teamMember.findUnique({
+        where: { userId: targetUserId },
+      });
       if (target?.teamId !== teamId || targetUserId === userId) {
         throw new BadRequestException('Choose another member of your team');
       }
       await this.requireContact(targetUserId, tx, true);
-      await tx.teamMember.update({ where: { userId }, data: { role: TeamMemberRole.member } });
-      await tx.teamMember.update({ where: { userId: targetUserId }, data: { role: TeamMemberRole.leader } });
+      await tx.teamMember.update({
+        where: { userId },
+        data: { role: TeamMemberRole.member },
+      });
+      await tx.teamMember.update({
+        where: { userId: targetUserId },
+        data: { role: TeamMemberRole.leader },
+      });
       return { success: true };
     });
   }
@@ -108,13 +147,17 @@ export class TeamsService {
       name: team.name,
       description: team.description,
       challenge: team.challenge,
+      challengeId: team.challengeId ?? null,
+      challengeNeedsReview: Boolean(team.challenge && !team.challengeId),
       track: team.track,
       createdById: team.createdById,
       maxMembers: Math.min(team.maxMembers, 5),
       submissionStatus: team.submissionStatus,
       createdAt: team.createdAt,
       updatedAt: team.updatedAt,
-      membersCount: team.members ? team.members.length : (team._count?.members ?? 0),
+      membersCount: team.members
+        ? team.members.length
+        : (team._count?.members ?? 0),
       members: team.members?.map((m: any) => ({
         id: m.id,
         userId: m.userId,
@@ -126,7 +169,9 @@ export class TeamsService {
               id: m.user.id,
               name: m.user.name,
               avatar: m.user.avatar,
-              ...(memberView ? { phone: m.user.phone ? normalizePhone(m.user.phone) : null } : {}),
+              ...(memberView
+                ? { phone: m.user.phone ? normalizePhone(m.user.phone) : null }
+                : {}),
               profile: publicProfile(m.user.profile),
             }
           : undefined,
@@ -149,17 +194,43 @@ export class TeamsService {
           : null,
       })),
       invitations: team.invitations?.map((invitation: any) => ({
-        id: invitation.id, teamId: invitation.teamId, invitedUserId: invitation.invitedUserId,
-        status: invitation.status, message: invitation.message, createdAt: invitation.createdAt,
-        invitedUser: invitation.invitedUser ? { id: invitation.invitedUser.id, name: invitation.invitedUser.name, avatar: invitation.invitedUser.avatar, profile: publicProfile(invitation.invitedUser.profile) } : undefined,
+        id: invitation.id,
+        teamId: invitation.teamId,
+        invitedUserId: invitation.invitedUserId,
+        status: invitation.status,
+        message: invitation.message,
+        createdAt: invitation.createdAt,
+        invitedUser: invitation.invitedUser
+          ? {
+              id: invitation.invitedUser.id,
+              name: invitation.invitedUser.name,
+              avatar: invitation.invitedUser.avatar,
+              profile: publicProfile(invitation.invitedUser.profile),
+            }
+          : undefined,
       })),
       joinRequests: team.joinRequests?.map((request: any) => ({
-        id: request.id, teamId: request.teamId, userId: request.userId, status: request.status,
-        message: request.message, createdAt: request.createdAt,
-        user: request.user ? {
-          id: request.user.id, name: request.user.name, avatar: request.user.avatar,
-          ...(memberView ? { phone: request.user.phone ? normalizePhone(request.user.phone) : null, profile: applicationProfile(request.user.profile) } : { profile: publicProfile(request.user.profile) }),
-        } : undefined,
+        id: request.id,
+        teamId: request.teamId,
+        userId: request.userId,
+        status: request.status,
+        message: request.message,
+        createdAt: request.createdAt,
+        user: request.user
+          ? {
+              id: request.user.id,
+              name: request.user.name,
+              avatar: request.user.avatar,
+              ...(memberView
+                ? {
+                    phone: request.user.phone
+                      ? normalizePhone(request.user.phone)
+                      : null,
+                    profile: applicationProfile(request.user.profile),
+                  }
+                : { profile: publicProfile(request.user.profile) }),
+            }
+          : undefined,
       })),
       createdBy: team.createdBy
         ? {
@@ -197,11 +268,22 @@ export class TeamsService {
     await this.requireContact(userId);
 
     const team = await this.prisma.$transaction(async (tx) => {
+      const choice = dto.challenge?.trim()
+        ? await tx.challenge.findFirst({
+            where: {
+              title: dto.challenge.trim(),
+              isPublished: true,
+              isArchived: false,
+            },
+            select: { id: true },
+          })
+        : null;
       const created = await tx.team.create({
         data: {
           name: dto.name.trim(),
           description: dto.description?.trim() || null,
           challenge: dto.challenge?.trim() || null,
+          challengeId: choice?.id || null,
           track: dto.track?.trim() || null,
           createdById: userId,
           members: {
@@ -295,11 +377,17 @@ export class TeamsService {
     return {
       myRole: membership.role,
       myAssignedRole: membership.assignedRole,
-      ...this.formatTeam({
-        ...membership.team,
-        // Applications, including contact details, are for the reviewing leader.
-        joinRequests: membership.role === TeamMemberRole.leader ? membership.team.joinRequests : [],
-      }, true),
+      ...this.formatTeam(
+        {
+          ...membership.team,
+          // Applications, including contact details, are for the reviewing leader.
+          joinRequests:
+            membership.role === TeamMemberRole.leader
+              ? membership.team.joinRequests
+              : [],
+        },
+        true,
+      ),
     };
   }
 
@@ -396,61 +484,121 @@ export class TeamsService {
   // -------------------------------------------------------------
   // 5. Update Team (Leader or Organizer)
   // -------------------------------------------------------------
-  async updateTeam(teamId: string, userId: string, userRoles: string[], dto: UpdateTeamDto) {
+  async updateTeam(
+    teamId: string,
+    userId: string,
+    userRoles: string[],
+    dto: UpdateTeamDto,
+  ) {
     if (dto.submissionStatus !== undefined) {
-      throw new BadRequestException('Use the submission endpoint to change submission status');
+      throw new BadRequestException(
+        'Use the submission endpoint to change submission status',
+      );
     }
-    const team = await this.prisma.team.findUnique({
-      where: { id: teamId },
-      include: { members: true },
-    });
-
-    if (!team) {
-      throw new NotFoundException('Team not found');
-    }
-
-    const isLeader = team.members.some(
-      (m) => m.userId === userId && m.role === TeamMemberRole.leader,
-    );
-    const isOrganizer = userRoles.includes('organizer');
-
-    if (!isLeader && !isOrganizer) {
-      throw new ForbiddenException('Only the team leader or organizers can update team details');
-    }
-
-    if (dto.name && dto.name.trim() !== team.name) {
-      const conflict = await this.prisma.team.findUnique({
-        where: { name: dto.name.trim() },
+    return this.membershipTransaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM teams WHERE id = ${teamId} FOR UPDATE`;
+      const team = await tx.team.findUnique({
+        where: { id: teamId },
+        include: { members: true },
       });
-      if (conflict) {
-        throw new ConflictException('A team with this name already exists.');
+
+      if (!team) {
+        throw new NotFoundException('Team not found');
       }
-    }
 
-    const updated = await this.prisma.team.update({
-      where: { id: teamId },
-      data: {
-        ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
-        ...(dto.description !== undefined ? { description: dto.description?.trim() || null } : {}),
-        ...(dto.challenge !== undefined ? { challenge: dto.challenge?.trim() || null } : {}),
-        ...(dto.track !== undefined ? { track: dto.track?.trim() || null } : {}),
-        ...(dto.submissionStatus !== undefined ? { submissionStatus: dto.submissionStatus } : {}),
-      },
-      include: {
-        members: {
-          include: { user: true },
+      const isLeader = team.members.some(
+        (m) => m.userId === userId && m.role === TeamMemberRole.leader,
+      );
+      const isOrganizer = userRoles.includes('organizer');
+
+      if (!isLeader && !isOrganizer) {
+        throw new ForbiddenException(
+          'Only the team leader or organizers can update team details',
+        );
+      }
+
+      if (dto.name && dto.name.trim() !== team.name) {
+        const conflict = await tx.team.findUnique({
+          where: { name: dto.name.trim() },
+        });
+        if (conflict) {
+          throw new ConflictException('A team with this name already exists.');
+        }
+      }
+
+      let challengeId = team.challengeId;
+      if (
+        dto.challenge !== undefined &&
+        (dto.challenge.trim() || null) !== team.challenge
+      ) {
+        const deadline = process.env.SUBMISSION_DEADLINE;
+        if (
+          !isOrganizer &&
+          deadline &&
+          /(Z|[+-]\d{2}:\d{2})$/.test(deadline) &&
+          Number.isFinite(Date.parse(deadline)) &&
+          Date.now() >= Date.parse(deadline)
+        )
+          throw new ForbiddenException({
+            code: 'SUBMISSION_CLOSED',
+            message: 'The submission deadline has passed',
+          });
+        if (await tx.teamSubmission.findUnique({ where: { teamId } }))
+          throw new ConflictException(
+            'A project is already saved for this team. Its challenge cannot be changed.',
+          );
+        const choice = dto.challenge.trim()
+          ? await tx.challenge.findFirst({
+              where: {
+                title: dto.challenge.trim(),
+                isPublished: true,
+                isArchived: false,
+              },
+              select: { id: true },
+            })
+          : null;
+        challengeId = choice?.id || null;
+      }
+      const updated = await tx.team.update({
+        where: { id: teamId },
+        data: {
+          ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
+          ...(dto.description !== undefined
+            ? { description: dto.description?.trim() || null }
+            : {}),
+          ...(dto.challenge !== undefined
+            ? {
+                challenge: dto.challenge?.trim() || null,
+                challengeId,
+              }
+            : {}),
+          ...(dto.track !== undefined
+            ? { track: dto.track?.trim() || null }
+            : {}),
+          ...(dto.submissionStatus !== undefined
+            ? { submissionStatus: dto.submissionStatus }
+            : {}),
         },
-        createdBy: true,
-      },
-    });
+        include: {
+          members: {
+            include: { user: true },
+          },
+          createdBy: true,
+        },
+      });
 
-    return this.formatTeam(updated);
+      return this.formatTeam(updated);
+    });
   }
 
   // -------------------------------------------------------------
   // 6. Invite Member (Team Leader)
   // -------------------------------------------------------------
-  async inviteMember(teamId: string, leaderUserId: string, dto: InviteMemberDto) {
+  async inviteMember(
+    teamId: string,
+    leaderUserId: string,
+    dto: InviteMemberDto,
+  ) {
     const team = await this.prisma.team.findUnique({
       where: { id: teamId },
       include: { members: true },
@@ -464,18 +612,24 @@ export class TeamsService {
       (m) => m.userId === leaderUserId && m.role === TeamMemberRole.leader,
     );
     if (!isLeader) {
-      throw new ForbiddenException('Only the team leader can invite new members');
+      throw new ForbiddenException(
+        'Only the team leader can invite new members',
+      );
     }
 
     if (team.members.length >= Math.min(team.maxMembers, 5)) {
-      throw new BadRequestException(`Team is full (max ${team.maxMembers} members)`);
+      throw new BadRequestException(
+        `Team is full (max ${team.maxMembers} members)`,
+      );
     }
 
     if (!!dto.userId === !!dto.email) {
       throw new BadRequestException('Provide a participant email or user ID');
     }
     const targetUser = await this.prisma.user.findUnique({
-      where: dto.userId ? { id: dto.userId } : { email: dto.email!.trim().toLowerCase() },
+      where: dto.userId
+        ? { id: dto.userId }
+        : { email: dto.email!.trim().toLowerCase() },
       include: { teamMemberships: true },
     });
 
@@ -484,7 +638,9 @@ export class TeamsService {
     }
 
     if (targetUser.teamMemberships.length > 0) {
-      throw new ConflictException('This participant is already a member of a team');
+      throw new ConflictException(
+        'This participant is already a member of a team',
+      );
     }
 
     const invitation = await this.prisma.teamInvitation.upsert({
@@ -520,7 +676,11 @@ export class TeamsService {
   // -------------------------------------------------------------
   // 7. Respond to Invitation (Participant accept / reject)
   // -------------------------------------------------------------
-  async respondToInvitation(invitationId: string, userId: string, accept: boolean) {
+  async respondToInvitation(
+    invitationId: string,
+    userId: string,
+    accept: boolean,
+  ) {
     return this.membershipTransaction(async (tx) => {
       const invitation = await tx.teamInvitation.findUnique({
         where: { id: invitationId },
@@ -530,7 +690,9 @@ export class TeamsService {
       });
 
       if (!invitation || invitation.invitedUserId !== userId) {
-        throw new NotFoundException('Invitation not found or not addressed to you');
+        throw new NotFoundException(
+          'Invitation not found or not addressed to you',
+        );
       }
 
       if (invitation.status !== RequestStatus.pending) {
@@ -546,7 +708,10 @@ export class TeamsService {
       }
 
       // Accepting
-      if (invitation.team.members.length >= Math.min(invitation.team.maxMembers, 5)) {
+      if (
+        invitation.team.members.length >=
+        Math.min(invitation.team.maxMembers, 5)
+      ) {
         throw new BadRequestException('This team is already full');
       }
 
@@ -586,7 +751,10 @@ export class TeamsService {
         });
       }
 
-      return { success: true, message: `Successfully joined ${invitation.team.name}!` };
+      return {
+        success: true,
+        message: `Successfully joined ${invitation.team.name}!`,
+      };
     });
   }
 
@@ -645,7 +813,11 @@ export class TeamsService {
   // -------------------------------------------------------------
   // 9. Respond to Join Request (Team Leader accepts/rejects)
   // -------------------------------------------------------------
-  async respondToJoinRequest(requestId: string, leaderUserId: string, accept: boolean) {
+  async respondToJoinRequest(
+    requestId: string,
+    leaderUserId: string,
+    accept: boolean,
+  ) {
     return this.membershipTransaction(async (tx) => {
       const joinReq = await tx.teamJoinRequest.findUnique({
         where: { id: requestId },
@@ -662,7 +834,9 @@ export class TeamsService {
         (m) => m.userId === leaderUserId && m.role === TeamMemberRole.leader,
       );
       if (!isLeader) {
-        throw new ForbiddenException('Only the team leader can respond to join requests');
+        throw new ForbiddenException(
+          'Only the team leader can respond to join requests',
+        );
       }
 
       if (joinReq.status !== RequestStatus.pending) {
@@ -686,7 +860,9 @@ export class TeamsService {
         where: { userId: joinReq.userId },
       });
       if (existingMembership) {
-        throw new ConflictException('The user is already a member of another team');
+        throw new ConflictException(
+          'The user is already a member of another team',
+        );
       }
 
       await this.requireContact(joinReq.userId, tx, true);
@@ -725,7 +901,11 @@ export class TeamsService {
   // -------------------------------------------------------------
   // 10. Remove Member / Leave Team
   // -------------------------------------------------------------
-  async removeMember(teamId: string, callerUserId: string, targetUserId: string) {
+  async removeMember(
+    teamId: string,
+    callerUserId: string,
+    targetUserId: string,
+  ) {
     return this.membershipTransaction(async (tx) => {
       const team = await tx.team.findUnique({
         where: { id: teamId },
@@ -745,12 +925,17 @@ export class TeamsService {
         throw new ForbiddenException('Only the team leader can remove members');
       }
 
-      const targetMembership = team.members.find((m) => m.userId === targetUserId);
+      const targetMembership = team.members.find(
+        (m) => m.userId === targetUserId,
+      );
       if (!targetMembership) {
         throw new NotFoundException('Target user is not a member of this team');
       }
 
-      if (targetMembership.role === TeamMemberRole.leader && team.members.length > 1) {
+      if (
+        targetMembership.role === TeamMemberRole.leader &&
+        team.members.length > 1
+      ) {
         throw new BadRequestException(
           'Team leader cannot leave while other members exist. Transfer leadership first.',
         );
@@ -795,7 +980,9 @@ export class TeamsService {
     });
 
     if (!membership || membership.teamId !== teamId) {
-      throw new ForbiddenException('You must be a member of this team to create tasks');
+      throw new ForbiddenException(
+        'You must be a member of this team to create tasks',
+      );
     }
 
     if (dto.assignedToId) {
@@ -803,7 +990,9 @@ export class TeamsService {
         where: { teamId, userId: dto.assignedToId },
       });
       if (!assignedMember) {
-        throw new BadRequestException('Assigned user must be a member of this team');
+        throw new BadRequestException(
+          'Assigned user must be a member of this team',
+        );
       }
     }
 
@@ -839,13 +1028,19 @@ export class TeamsService {
 
     const isMember = task.team.members.some((m) => m.userId === userId);
     if (!isMember) {
-      throw new ForbiddenException('You must be a member of this team to update tasks');
+      throw new ForbiddenException(
+        'You must be a member of this team to update tasks',
+      );
     }
 
     if (dto.assignedToId) {
-      const assignedMember = task.team.members.find((m) => m.userId === dto.assignedToId);
+      const assignedMember = task.team.members.find(
+        (m) => m.userId === dto.assignedToId,
+      );
       if (!assignedMember) {
-        throw new BadRequestException('Assigned user must be a member of this team');
+        throw new BadRequestException(
+          'Assigned user must be a member of this team',
+        );
       }
     }
 
@@ -853,10 +1048,16 @@ export class TeamsService {
       where: { id: taskId },
       data: {
         ...(dto.title !== undefined ? { title: dto.title.trim() } : {}),
-        ...(dto.description !== undefined ? { description: dto.description?.trim() || null } : {}),
+        ...(dto.description !== undefined
+          ? { description: dto.description?.trim() || null }
+          : {}),
         ...(dto.status !== undefined ? { status: dto.status } : {}),
-        ...(dto.assignedToId !== undefined ? { assignedToId: dto.assignedToId || null } : {}),
-        ...(dto.dueDate !== undefined ? { dueDate: dto.dueDate ? new Date(dto.dueDate) : null } : {}),
+        ...(dto.assignedToId !== undefined
+          ? { assignedToId: dto.assignedToId || null }
+          : {}),
+        ...(dto.dueDate !== undefined
+          ? { dueDate: dto.dueDate ? new Date(dto.dueDate) : null }
+          : {}),
       },
       include: {
         assignedTo: { select: { id: true, name: true, avatar: true } },

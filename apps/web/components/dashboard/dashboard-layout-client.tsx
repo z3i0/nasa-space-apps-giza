@@ -10,6 +10,7 @@ import { useAuthUser, type UserSession } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 import styles from "./dashboard-shell.module.css"
 import { DashboardThemeContext } from "./dashboard-theme-context"
+import { RoleAccessGate } from "@/components/account/role-access-gate"
 
 interface DashboardLayoutClientProps {
   children: React.ReactNode
@@ -50,7 +51,13 @@ export function DashboardLayoutClient({
           <AppSidebar currentRole={currentRole} />
           <div className={styles.content}>
             <main id="dashboard-content" tabIndex={-1} className={styles.main}>
-              {children}
+              {currentRole === "mentor" || currentRole === "judge" ? (
+                <RoleAccessGate key={currentRole} role={currentRole}>
+                  {children}
+                </RoleAccessGate>
+              ) : (
+                children
+              )}
             </main>
             <footer className={styles.footer}>{t("footer")}</footer>
           </div>

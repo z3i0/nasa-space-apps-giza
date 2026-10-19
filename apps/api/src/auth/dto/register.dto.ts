@@ -2,26 +2,38 @@ import {
   IsArray,
   IsEmail,
   IsEnum,
+  IsIn,
   IsOptional,
   IsString,
   MinLength,
+  MaxLength,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { TeamStatus } from '@prisma/client';
 
 export class RegisterDto {
+  @IsOptional()
+  @IsIn(['participant', 'mentor', 'judge'])
+  requestedRole?: 'participant' | 'mentor' | 'judge';
   @IsString()
   @IsOptional()
+  @MaxLength(120)
   name?: string;
 
   @IsString()
   @IsOptional()
+  @MaxLength(120)
   fullName?: string;
 
   @IsEmail({}, { message: 'Must be a valid email address' })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : value,
+  )
   email!: string;
 
   @IsString()
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  @MaxLength(128)
   password!: string;
 
   @IsString()

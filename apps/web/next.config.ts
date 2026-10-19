@@ -3,10 +3,32 @@ import path from "node:path"
 
 const nextConfig: NextConfig = {
   async rewrites() {
-    const apiURL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api").replace(/\/$/, "")
+    const apiURL = (
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
+    ).replace(/\/$/, "")
     return [
+      {
+        source: "/api/account/:path*",
+        destination: `${apiURL}/account/:path*`,
+      },
+      {
+        source: "/api/profiles/:path*",
+        destination: `${apiURL}/profiles/:path*`,
+      },
       { source: "/api/auth/:path*", destination: `${apiURL}/auth/:path*` },
       { source: "/api/teams/:path*", destination: `${apiURL}/teams/:path*` },
+      {
+        source: "/api/mentorship/:path*",
+        destination: `${apiURL}/mentorship/:path*`,
+      },
+      {
+        source: "/api/challenges/:path*",
+        destination: `${apiURL}/challenges/:path*`,
+      },
+      {
+        source: "/api/judging/:path*",
+        destination: `${apiURL}/judging/:path*`,
+      },
     ]
   },
   turbopack: {

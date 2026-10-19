@@ -1,5 +1,6 @@
 {
   "Teams": {
+    "browseChallenges": "Browse and select a published challenge",
     "contactNumber": "Contact number",
     "contactHelp": "Include your country code. Your number is shared with your teammates and the leader when you apply. As a leader, signed-in participants considering your team can contact you.",
     "contactMissing": "Not added yet",

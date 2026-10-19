@@ -97,6 +97,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             icon: LayoutDashboard,
           },
           {
+            titleKey: "nav.roleRequests",
+            url: "/dashboard/organizer/role-requests",
+            icon: Shield,
+          },
+          {
             titleKey: "nav.analytics",
             url: "/dashboard/organizer/analytics",
             icon: BarChart3,

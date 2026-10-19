@@ -3,6 +3,7 @@ import { AuthService } from './auth.service.js';
 import {
   ConflictException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import type { PrismaService } from '../prisma/prisma.service.js';
 import bcrypt from 'bcryptjs';
@@ -44,15 +45,75 @@ describe('AuthService', () => {
       $transaction: vi.fn((ops) => Promise.all(ops)),
     };
 
-    service = new AuthService(
-      mockPrisma as unknown as PrismaService,
-    );
+    service = new AuthService(mockPrisma as unknown as PrismaService);
   });
 
   describe('Registration (Participant Self-Registration)', () => {
+    it('creates credentials, profile, participant role and session in one atomic write', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+      mockPrisma.user.create.mockResolvedValue({
+        id: 'new-user',
+        name: 'New User',
+        email: 'new@example.test',
+        role: 'participant',
+      });
+      await service.register({
+        name: ' New User ',
+        email: 'NEW@example.test',
+        password: 'newPassword123',
+      });
+      expect(mockPrisma.user.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            name: 'New User',
+            email: 'new@example.test',
+            role: 'participant',
+            accounts: {
+              create: expect.objectContaining({
+                providerId: 'credential',
+                password: expect.any(String),
+              }),
+            },
+            sessions: {
+              create: expect.objectContaining({
+                token: expect.any(String),
+                expiresAt: expect.any(Date),
+              }),
+            },
+            roles: {
+              create: {
+                role: {
+                  connectOrCreate: {
+                    where: { name: 'participant' },
+                    create: { name: 'participant' },
+                  },
+                },
+              },
+            },
+            profile: expect.objectContaining({ create: expect.any(Object) }),
+          }),
+        }),
+      );
+      expect(mockPrisma.account.create).not.toHaveBeenCalled();
+      expect(mockPrisma.session.create).not.toHaveBeenCalled();
+    });
+
+    it('rejects an empty participant name before any database write', async () => {
+      await expect(
+        service.register({
+          name: '   ',
+          email: 'new@example.test',
+          password: 'newPassword123',
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(mockPrisma.user.create).not.toHaveBeenCalled();
+    });
     it('successfully registers participant and returns tokens without password_hash', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(null);
-      mockPrisma.role.findUnique.mockResolvedValue({ id: 'role-participant', name: 'participant' });
+      mockPrisma.role.findUnique.mockResolvedValue({
+        id: 'role-participant',
+        name: 'participant',
+      });
 
       mockPrisma.user.create.mockResolvedValue({
         id: 'user-1',
@@ -91,7 +152,10 @@ describe('AuthService', () => {
 
     it('successfully registers participant with complete profile details', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(null);
-      mockPrisma.role.findUnique.mockResolvedValue({ id: 'role-participant', name: 'participant' });
+      mockPrisma.role.findUnique.mockResolvedValue({
+        id: 'role-participant',
+        name: 'participant',
+      });
 
       mockPrisma.user.create.mockResolvedValue({
         id: 'user-profile-1',
@@ -143,7 +207,10 @@ describe('AuthService', () => {
     });
 
     it('rejects registration if email already exists', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue({ id: 'existing-id', email: 'test@example.com' });
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'existing-id',
+        email: 'test@example.com',
+      });
 
       await expect(
         service.register({

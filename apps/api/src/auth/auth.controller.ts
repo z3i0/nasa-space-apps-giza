@@ -6,11 +6,15 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto, RefreshTokenDto } from './dto/login.dto.js';
-import { ForgotPasswordDto, ResetPasswordDto } from './dto/password-reset.dto.js';
+import {
+  ForgotPasswordDto,
+  ResetPasswordDto,
+} from './dto/password-reset.dto.js';
 import { AuthGuard } from './guards/auth.guard.js';
 import { CurrentUser } from './decorators/current-user.decorator.js';
 import { Public } from './decorators/public.decorator.js';
@@ -46,8 +50,8 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('logout')
-  async logout() {
-    return this.authService.logout();
+  async logout(@Req() request: { session: { token: string } }) {
+    return this.authService.logout(request.session.token);
   }
 
   @UseGuards(AuthGuard)

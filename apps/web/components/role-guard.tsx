@@ -61,8 +61,11 @@ export function RoleGuard({ allowedRoles, children }: RoleGuardProps) {
         return
       }
 
-      const isOrganizer = user.roles?.includes("organizer") || user.role === "organizer"
-      const hasAllowedRole = allowedRoles.some((role) => user.roles?.includes(role) || user.role === role)
+      const isOrganizer =
+        user.roles?.includes("organizer") || user.role === "organizer"
+      const hasAllowedRole = allowedRolesKey
+        .split(",")
+        .some((role) => user.roles?.includes(role) || user.role === role)
 
       if (!isOrganizer && !hasAllowedRole) {
         setIsAuthorized(false)

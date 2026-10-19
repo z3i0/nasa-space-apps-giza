@@ -9,16 +9,33 @@ export default getRequestConfig(async ({ requestLocale }) => {
   }
 
   // Load active translation files
-  const [home, metadata, auth, roleGuard, dashboard, teams, teamWork] =
-    await Promise.all([
-      import(`../messages/${locale}/home.json`),
-      import(`../messages/${locale}/metadata.json`),
-      import(`../messages/${locale}/auth.json`),
-      import(`../messages/${locale}/role_guard.json`),
-      import(`../messages/${locale}/dashboard.json`),
-      import(`../messages/${locale}/teams.json`),
-      import(`../messages/${locale}/team-work.json`),
-    ])
+  const [
+    home,
+    metadata,
+    auth,
+    roleGuard,
+    dashboard,
+    teams,
+    teamWork,
+    mentorship,
+    challenges,
+    judging,
+    account,
+    operations,
+  ] = await Promise.all([
+    import(`../messages/${locale}/home.json`),
+    import(`../messages/${locale}/metadata.json`),
+    import(`../messages/${locale}/auth.json`),
+    import(`../messages/${locale}/role_guard.json`),
+    import(`../messages/${locale}/dashboard.json`),
+    import(`../messages/${locale}/teams.json`),
+    import(`../messages/${locale}/team-work.json`),
+    import(`../messages/${locale}/mentorship.json`),
+    import(`../messages/${locale}/challenges.json`),
+    import(`../messages/${locale}/judging.json`),
+    import(`../messages/${locale}/account.json`),
+    import(`../messages/${locale}/operations.json`),
+  ])
 
   return {
     locale,
@@ -30,6 +47,11 @@ export default getRequestConfig(async ({ requestLocale }) => {
       ...dashboard.default,
       ...teams.default,
       ...teamWork.default,
+      ...mentorship.default,
+      ...challenges.default,
+      ...judging.default,
+      ...account.default,
+      ...operations.default,
     },
   }
 })
