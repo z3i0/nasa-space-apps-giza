@@ -90,8 +90,7 @@ export default function MentorDashboard() {
             <Link
               href="/dashboard/mentor/requests"
               className={cn(
-                buttonVariants(),
-                "gap-2 rounded-xl shadow-xs bg-sky-500 hover:bg-sky-600 text-sky-950 font-semibold text-xs sm:text-sm h-9 px-3.5 cursor-pointer"
+                buttonVariants()
               )}
             >
               <MessageSquareCode className="size-4" />

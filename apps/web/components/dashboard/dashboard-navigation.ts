@@ -38,7 +38,6 @@ const participantNavigation = [
     label: "team",
     asset: "team",
     activeAsset: "team-active",
-    matchPaths: ["/dashboard/participant/profile"],
   },
   { route: "/tasks", label: "tasks", asset: "tasks" },
   { route: "/community", label: "community", asset: "community" },

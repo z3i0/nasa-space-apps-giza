@@ -160,7 +160,6 @@ export default function FindTeamPage() {
               <Button
                 type="button"
                 onClick={() => setCreateOpen(true)}
-                className="rounded-xl text-xs sm:text-sm font-semibold h-9 px-4 gap-2 cursor-pointer shadow-xs"
               >
                 <Plus className="size-4" />
                 <span>{t("createTeamBtn")}</span>
@@ -168,8 +167,7 @@ export default function FindTeamPage() {
               <Link
                 href="/dashboard/participant/team"
                 className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                  "rounded-xl text-xs sm:text-sm h-9 px-4 gap-2 cursor-pointer shadow-xs"
+                  buttonVariants({ variant: "outline" }),
                 )}
               >
                 <Users className="size-4 text-primary" />
@@ -237,7 +235,6 @@ export default function FindTeamPage() {
             </div>
             <Button
               onClick={() => setCreateOpen(true)}
-              className="rounded-xl text-xs h-9 font-semibold gap-1.5 cursor-pointer shadow-xs"
             >
               <Plus className="size-3.5" />
               <span>{t("createTeamBtn")}</span>
@@ -270,7 +267,6 @@ export default function FindTeamPage() {
                       size="sm"
                       disabled={respondingId === inv.id}
                       onClick={() => void handleInvitation(inv.id, true)}
-                      className="rounded-xl text-xs h-8 px-3 font-semibold cursor-pointer gap-1.5"
                     >
                       {respondingId === inv.id ? (
                         <Loader2 className="size-3.5 animate-spin" />
@@ -285,7 +281,6 @@ export default function FindTeamPage() {
                       variant="outline"
                       disabled={respondingId === inv.id}
                       onClick={() => void handleInvitation(inv.id, false)}
-                      className="rounded-xl text-xs h-8 px-3 font-medium cursor-pointer"
                     >
                       <span>{t("invitationDecline")}</span>
                     </Button>
@@ -378,7 +373,6 @@ export default function FindTeamPage() {
                       <Button
                         disabled
                         variant="ghost"
-                        className="w-full rounded-xl h-9 text-xs font-medium cursor-not-allowed opacity-60"
                       >
                         <Lock className="size-3.5 me-1" />
                         <span>{t("teamFull")}</span>
@@ -390,7 +384,7 @@ export default function FindTeamPage() {
                           setJoinTeamId(tm.id)
                           setJoinMessage("")
                         }}
-                        className="w-full rounded-xl h-9 text-xs font-semibold cursor-pointer gap-1.5 shadow-xs"
+                        className="w-full"
                       >
                         <Send className="size-3.5" />
                         <span>{t("requestJoinBtn")}</span>
@@ -444,14 +438,12 @@ export default function FindTeamPage() {
                   variant="outline"
                   onClick={() => setJoinTeamId(null)}
                   disabled={sendingJoin}
-                  className="rounded-xl text-xs sm:text-sm cursor-pointer"
                 >
                   {t("cancel")}
                 </Button>
                 <Button
                   type="submit"
                   disabled={sendingJoin}
-                  className="rounded-xl text-xs sm:text-sm font-semibold cursor-pointer gap-1.5"
                 >
                   {sendingJoin ? (
                     <Loader2 className="size-3.5 animate-spin" />

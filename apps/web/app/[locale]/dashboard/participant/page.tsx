@@ -84,7 +84,6 @@ export default function ParticipantDashboard() {
                 href="/dashboard/participant/submit"
                 className={cn(
                   buttonVariants(),
-                  "gap-2 rounded-xl shadow-xs bg-emerald-500 hover:bg-emerald-600 text-emerald-950 font-semibold text-xs sm:text-sm h-9 px-3.5 cursor-pointer"
                 )}
               >
                 <UploadCloud className="size-4" />
@@ -93,11 +92,10 @@ export default function ParticipantDashboard() {
               <Link
                 href="/dashboard/participant/mentorship"
                 className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                  "gap-2 rounded-xl text-xs sm:text-sm h-9 px-3.5 border-emerald-500/30 hover:bg-emerald-500/10 cursor-pointer shadow-xs"
+                  buttonVariants({ variant: "outline" })
                 )}
               >
-                <Compass className="size-4 text-emerald-500" />
+                <Compass className="size-4 text-primary" />
                 <span>{t("participant.requestMentorship")}</span>
               </Link>
             </div>
@@ -154,11 +152,10 @@ export default function ParticipantDashboard() {
                 >
                   <div className="flex items-center gap-2.5">
                     <span
-                      className={`flex size-5 shrink-0 items-center justify-center rounded-full text-xs ${
-                        item.done
-                          ? "bg-emerald-500/20 text-emerald-500"
-                          : "border border-border text-muted-foreground"
-                      }`}
+                      className={`flex size-5 shrink-0 items-center justify-center rounded-full text-xs ${item.done
+                        ? "bg-emerald-500/20 text-emerald-500"
+                        : "border border-border text-muted-foreground"
+                        }`}
                     >
                       {item.done ? "✓" : (i + 1)}
                     </span>

@@ -173,9 +173,9 @@ export function MyTeamClient({ initialTeam }: MyTeamClientProps) {
 
   const isLeader = Boolean(
     team &&
-      currentUser?.id &&
-      (team.createdById === currentUser.id ||
-        team.members?.some((m) => m.userId === currentUser.id && m.role === "leader"))
+    currentUser?.id &&
+    (team.createdById === currentUser.id ||
+      team.members?.some((m) => m.userId === currentUser.id && m.role === "leader"))
   )
 
   const handleCopyLink = () => {
@@ -352,7 +352,6 @@ export function MyTeamClient({ initialTeam }: MyTeamClientProps) {
                 <Button
                   type="button"
                   onClick={() => setCreateOpen(true)}
-                  className="rounded-xl text-xs sm:text-sm font-semibold h-9 px-4 gap-2 cursor-pointer shadow-xs"
                 >
                   <Plus className="size-4" />
                   <span>{t("createTeamBtn")}</span>
@@ -360,8 +359,7 @@ export function MyTeamClient({ initialTeam }: MyTeamClientProps) {
                 <Link
                   href="/dashboard/participant/find-team"
                   className={cn(
-                    buttonVariants({ variant: "outline", size: "sm" }),
-                    "rounded-xl text-xs sm:text-sm h-9 px-4 gap-2 cursor-pointer shadow-xs"
+                    buttonVariants({ variant: "outline" })
                   )}
                 >
                   <Compass className="size-4 text-primary" />

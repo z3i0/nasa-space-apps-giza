@@ -13,14 +13,6 @@ const dashboardInter = localFont({
   adjustFontFallback: false,
 })
 
-const dashboardHeading = localFont({
-  src: "../../../public/dashboard/fonts/space-grotesk.woff2",
-  variable: "--font-dashboard-heading",
-  weight: "300 700",
-  display: "swap",
-  adjustFontFallback: false,
-})
-
 export default async function DashboardLayout({
   children,
 }: {
@@ -32,7 +24,7 @@ export default async function DashboardLayout({
     <AuthProvider initialUser={user}>
       <DashboardLayoutClient
         initialUser={user}
-        fontClassName={`${dashboardInter.variable} ${dashboardHeading.variable}`}
+        fontClassName={dashboardInter.variable}
       >
         {children}
       </DashboardLayoutClient>

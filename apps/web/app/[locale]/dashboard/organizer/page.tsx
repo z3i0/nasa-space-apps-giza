@@ -219,8 +219,7 @@ export default function OrganizerDashboard() {
               <Link
                 href="/dashboard/organizer/announcements"
                 className={cn(
-                  buttonVariants(),
-                  "gap-2 rounded-xl shadow-xs bg-amber-500 hover:bg-amber-600 text-amber-950 font-semibold text-xs sm:text-sm h-9 px-3.5 cursor-pointer"
+                  buttonVariants()
                 )}
               >
                 <Megaphone className="size-4" />

@@ -106,8 +106,7 @@ export default function JudgeDashboard() {
             <Link
               href="/dashboard/judge/projects"
               className={cn(
-                buttonVariants(),
-                "gap-2 rounded-xl shadow-xs bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs sm:text-sm h-9 px-3.5 cursor-pointer"
+                buttonVariants()
               )}
             >
               <FileCheck className="size-4" />

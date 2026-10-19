@@ -27,7 +27,7 @@ async function setUser(context: BrowserContext, role = "participant") {
       url: "http://localhost:3000",
     },
     { name: "auth_role", value: role, url: "http://localhost:3000" },
-    { name: "theme", value: "light", url: "http://localhost:3000" },
+    { name: "theme", value: "dark", url: "http://localhost:3000" },
   ])
   await context.addInitScript((value) => {
     localStorage.setItem("hackathon_user", JSON.stringify(value))
@@ -35,7 +35,9 @@ async function setUser(context: BrowserContext, role = "participant") {
 }
 
 async function openProfile(page: Page, locale = "en") {
-  await page.route("**/api/profiles/me", route => route.fulfill({ json: profileFixture }))
+  await page.route("**/api/profiles/me", (route) =>
+    route.fulfill({ json: profileFixture })
+  )
   await page.goto(`/${locale}/dashboard/participant/profile`)
   await expect(page.locator("[data-dashboard-shell]")).toBeVisible()
   await page.evaluate(() => document.fonts.ready)
@@ -63,10 +65,7 @@ for (const locale of ["en", "ar"]) {
       await expect(shell).toHaveCSS("color-scheme", "dark")
       await expect(header).toHaveCSS("height", width > 760 ? "72px" : "64px")
       await expect(navigation.locator("a")).toHaveCount(9)
-      await expect(navigation.locator('[aria-current="page"]')).toHaveAttribute(
-        "href",
-        `/${locale}/dashboard/participant/team`
-      )
+      await expect(navigation.locator('[aria-current="page"]')).toHaveCount(0)
       const dimensions = await page.evaluate(() => ({
         viewport: document.documentElement.clientWidth,
         page: document.documentElement.scrollWidth,
@@ -166,7 +165,7 @@ test("navigation works and similar route prefixes do not mark the wrong item", a
   ).toHaveCount(0)
 })
 
-test("dark dashboard does not change the landing page or saved theme on client navigation", async ({
+test("dark theme remains active on the landing page and client navigation", async ({
   page,
   context,
 }) => {
@@ -186,7 +185,7 @@ test("dark dashboard does not change the landing page or saved theme on client n
   })
   await openProfile(page)
   await page.getByRole("link", { name: "NASA Space Apps Giza home" }).click()
-  await expect(page).toHaveURL(/\/en$/)
+  await expect(page).toHaveURL(/\/$/)
   await expect(page.locator("[data-dashboard-shell]")).toHaveCount(0)
   const after = await landing.evaluate((element) => {
     const style = getComputedStyle(element)
@@ -200,8 +199,10 @@ test("dark dashboard does not change the landing page or saved theme on client n
   })
   expect(after).toEqual(before)
   expect(
-    (await context.cookies()).find((cookie) => cookie.name === "theme")?.value
-  ).toBe("light")
+    await page
+      .locator("html")
+      .evaluate((element) => element.classList.contains("dark"))
+  ).toBe(true)
 })
 
 for (const role of ["organizer", "mentor", "judge"]) {

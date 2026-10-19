@@ -51,7 +51,7 @@ All routes remain localized through `next-intl`.
 | `submission` | `/dashboard/participant/submit` |
 | `profile` | `/dashboard/participant/profile`, accessed from the account menu |
 
-The profile screen highlights My team, matching the published reference. Route matching uses segment boundaries so `team-library` does not accidentally activate `team`. Organizer, judge, and mentor navigation retains the existing configuration. Secondary participant destinations remain available through keyboard search.
+The profile screen does not highlight any sidebar items as it is accessed from the account menu. Route matching uses segment boundaries so `team-library` does not accidentally activate `team`. Organizer, judge, and mentor navigation retains the existing configuration. Secondary participant destinations remain available through keyboard search.
 
 ## Intentional adaptations
 

@@ -106,8 +106,7 @@ export function PageHeader({
             <Link
               href={backHref}
               className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "gap-2 rounded-xl text-xs font-semibold cursor-pointer shadow-xs transition-colors"
+                buttonVariants({ variant: "outline" })
               )}
             >
               <BackIcon className="size-3.5 shrink-0" />
