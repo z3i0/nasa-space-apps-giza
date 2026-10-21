@@ -1,19 +1,24 @@
 import catalogue from '../src/challenges/nasa-2026.json' with { type: 'json' };
+import arabicCatalogue from '../src/challenges/nasa-2026.ar.json' with { type: 'json' };
 
 // Only the checked-in snapshot of NASA's published event catalogue populates it.
 // No application role can write challenge content or control publication.
 export async function syncOfficialCatalogue(db) {
   if (catalogue.challenges.length !== 14 || new Set(catalogue.challenges.map(c => c.nasaChallengeId)).size !== 14)
     throw new Error('The verified NASA 2026 catalogue must contain exactly 14 unique challenges.');
+  const slugs = new Set(catalogue.challenges.map(challenge => challenge.slug));
+  if (Object.keys(arabicCatalogue).length !== slugs.size || Object.keys(arabicCatalogue).some(slug => !slugs.has(slug)))
+    throw new Error('Every official NASA challenge must have exactly one Arabic translation.');
   return db.$transaction(async tx => {
     const byTitle = new Map();
     const ids = [];
     for (const [displayOrder, challenge] of catalogue.challenges.entries()) {
       const { slug, summary, subjects, difficulty, ...official } = challenge;
+      const arabic = arabicCatalogue[slug];
       const data = {
         ...official, summary, description: summary, subjects, difficulty,
         category: subjects[0] || 'Space Exploration', year: catalogue.year,
-        titleAr: null, summaryAr: null, descriptionAr: null,
+        titleAr: arabic.titleAr, summaryAr: arabic.summaryAr, descriptionAr: arabic.summaryAr,
         requirementsEn: null, requirementsAr: null, deliverablesEn: null, deliverablesAr: null,
         recommendedSkills: [], tags: subjects, displayOrder,
         isPublished: true, isArchived: false, isDemo: false,

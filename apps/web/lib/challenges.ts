@@ -86,10 +86,32 @@ export function challengeError(error: unknown) {
     )[error.status] || "error"
   )
 }
+const localizedSubjects: Record<string, string> = {
+  Astrophysics: "الفيزياء الفلكية",
+  "Planets & Moons": "الكواكب والأقمار",
+  "Space Exploration": "استكشاف الفضاء",
+  "Earth Science": "علوم الأرض",
+  Software: "البرمجيات",
+  Games: "الألعاب",
+  Sun: "الشمس",
+  "Human Exploration": "الاستكشاف البشري",
+  Moon: "القمر",
+  Mars: "المريخ",
+  "Arts & Multimedia": "الفنون والوسائط المتعددة",
+}
 export function localizedChallenge(record: ChallengeCard, locale: string) {
   return {
     title: locale === "ar" && record.titleAr ? record.titleAr : record.title,
     summary:
       locale === "ar" && record.summaryAr ? record.summaryAr : record.summary,
+    category: localizedSubject(record.category, locale),
+    tags:
+      locale === "ar"
+        ? record.tags.map((tag) => localizedSubject(tag, locale))
+        : record.tags,
   }
+}
+
+export function localizedSubject(subject: string, locale: string) {
+  return locale === "ar" ? localizedSubjects[subject] || subject : subject
 }
