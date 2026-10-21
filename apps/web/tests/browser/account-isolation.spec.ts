@@ -85,7 +85,6 @@ test("switching from cached old identity opens a blank participant workspace", a
   )
   await page.getByLabel("Email Address", { exact: true }).fill(user.email)
   await page.getByLabel("Password", { exact: true }).fill("NewPassword123!")
-  await page.getByLabel("Sign in as").selectOption("participant")
   await page.getByRole("button", { name: "Sign In", exact: true }).click()
   await expect(page).toHaveURL(/\/dashboard\/participant$/)
   await expect(
@@ -127,6 +126,11 @@ test("unapproved mentor sees pending status in the mentor dashboard", async ({
   page,
 }) => {
   await authRoutes(page)
+  await page.route("**/api/auth/me", (r) =>
+    r.fulfill({
+      json: { ...user, role: "mentor" },
+    })
+  )
   await page.route("**/api/account/overview", (r) =>
     r.fulfill({
       json: {
@@ -140,7 +144,6 @@ test("unapproved mentor sees pending status in the mentor dashboard", async ({
   await page.goto("/en/login")
   await page.getByLabel("Email Address", { exact: true }).fill(user.email)
   await page.getByLabel("Password", { exact: true }).fill("NewPassword123!")
-  await page.getByLabel("Sign in as").selectOption("mentor")
   await page.getByRole("button", { name: "Sign In", exact: true }).click()
   await expect(page).toHaveURL(/\/dashboard\/mentor$/)
   await expect(

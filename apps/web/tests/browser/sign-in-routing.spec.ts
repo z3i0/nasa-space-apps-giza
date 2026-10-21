@@ -112,7 +112,7 @@ for (const roles of [
     expect(new URL(response.url()).pathname).toMatch(/\/login$/)
   })
 }
-test("an existing session does not skip choosing a role or force the previous account", async ({
+test("an existing session does not skip login or force the previous account", async ({
   page,
   context,
 }) => {
@@ -126,7 +126,7 @@ test("an existing session does not skip choosing a role or force the previous ac
   })
   await page.goto("/en/login")
   await expect(page.locator('input[type="email"]')).toBeVisible()
-  await expect(page.getByRole("combobox")).toBeVisible()
+  await expect(page.locator('input[type="password"]')).toBeVisible()
   await expect(page).toHaveURL(/\/login$/)
 })
 test("role restrictions redirect to an authorized workspace", async ({

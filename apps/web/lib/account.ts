@@ -51,9 +51,11 @@ export async function accountApi<T>(
   return response.json()
 }
 export async function selectAccountRole(
-  role: string,
-  expectedEmail: string
+  roleOrEmail?: string,
+  expectedEmail?: string
 ): Promise<UserSession> {
+  const role = expectedEmail !== undefined ? roleOrEmail : undefined
+  const email = (expectedEmail !== undefined ? expectedEmail : roleOrEmail) || ""
   const response = await fetch("/api/auth/me", {
     credentials: "include",
     cache: "no-store",
@@ -61,14 +63,25 @@ export async function selectAccountRole(
   })
   if (!response.ok) throw new Error("Unable to verify your signed-in account.")
   const user: UserSession = await response.json()
-  if (user.email.toLowerCase() !== expectedEmail.trim().toLowerCase())
+  if (email && user.email.toLowerCase() !== email.trim().toLowerCase())
     throw new Error(
       "The signed-in account does not match this email. Please sign in again."
     )
+  const targetRole =
+    role ||
+    (user.roles?.includes("organizer")
+      ? "organizer"
+      : user.roles?.includes("judge")
+        ? "judge"
+        : user.roles?.includes("mentor")
+          ? "mentor"
+          : user.role && user.role !== "participant"
+            ? user.role
+            : user.roles?.[0] || "participant")
   const selection = await accountApi<{
     role: string
     roles: string[]
     status: string
-  }>("/role-selection", { role })
+  }>("/role-selection", { role: targetRole })
   return { ...user, role: selection.role, roles: selection.roles }
 }

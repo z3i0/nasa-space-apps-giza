@@ -4,7 +4,6 @@ import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { Button } from "@/components/ui/button"
-import { RoleSelect } from "@/components/role-select"
 import { authClient } from "@/lib/auth-client"
 import { clearLocalAuth, setAuth } from "@/lib/auth"
 import { selectAccountRole } from "@/lib/account"
@@ -13,7 +12,6 @@ export default function LoginPage() {
     locale = useLocale()
   const [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
-    [role, setRole] = useState("participant"),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("")
   async function login(event: React.FormEvent<HTMLFormElement>) {
@@ -34,7 +32,7 @@ export default function LoginPage() {
         result.data.user.email.toLowerCase() !== email.trim().toLowerCase()
       )
         throw new Error(result.error?.message || t("errors.invalidCredentials"))
-      const user = await selectAccountRole(role, email)
+      const user = await selectAccountRole(email)
       setAuth({ accessToken: result.data.token }, user)
       window.location.replace(`/${locale}/dashboard/${user.role}`)
     } catch (e) {
@@ -91,12 +89,6 @@ export default function LoginPage() {
                 disabled={busy}
               />
             </label>
-            <RoleSelect
-              value={role}
-              onChange={setRole}
-              organizer
-              disabled={busy}
-            />
             <Button type="submit" disabled={busy} className="h-11 w-full">
               {t(busy ? "signingIn" : "submit")}
             </Button>

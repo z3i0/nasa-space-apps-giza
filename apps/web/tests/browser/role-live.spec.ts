@@ -122,7 +122,6 @@ test("real participant, mentor, judge and organizer browser journey", async ({
       .getByLabel("Email Address", { exact: true })
       .fill(organizer.email)
     await organizerPage.getByLabel("Password", { exact: true }).fill(password)
-    await organizerPage.getByRole("combobox").selectOption("organizer")
     await organizerPage
       .getByRole("button", { name: "Sign In", exact: true })
       .click()
