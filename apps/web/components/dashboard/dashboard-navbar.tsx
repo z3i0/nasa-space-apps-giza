@@ -35,6 +35,11 @@ import { getAvailableRoles } from "./dashboard-navigation"
 import { clearAuth, useAuthUser } from "@/lib/auth"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
+import {
+  accountApi,
+  type NotificationItem,
+  type NotificationsResponse,
+} from "@/lib/account"
 
 interface DashboardNavbarProps {
   currentRole: DashboardRole
@@ -53,6 +58,8 @@ export function DashboardNavbar({
   const [openSearch, setOpenSearch] = React.useState(false)
   const [openNotifications, setOpenNotifications] = React.useState(false)
   const [signingOut, setSigningOut] = React.useState(false)
+  const [notifications, setNotifications] = React.useState<NotificationItem[]>([])
+  const [unreadCount, setUnreadCount] = React.useState(0)
   const notificationsRef = React.useRef<HTMLDivElement>(null)
   const availableRoles = getAvailableRoles(user)
   const roleConfig = DASHBOARD_ROLES_CONFIG[currentRole]
@@ -96,6 +103,51 @@ export function DashboardNavbar({
       document.removeEventListener("keydown", closeOnEscape)
     }
   }, [openNotifications])
+
+  const loadNotifications = React.useCallback(async () => {
+    if (!user) return
+    try {
+      const res = await accountApi<NotificationsResponse>("/notifications")
+      setNotifications(res.notifications || [])
+      setUnreadCount(res.unreadCount || 0)
+    } catch {
+      // ignore
+    }
+  }, [user])
+
+  React.useEffect(() => {
+    void loadNotifications()
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        void loadNotifications()
+      }
+    }, 12000)
+    return () => clearInterval(timer)
+  }, [loadNotifications])
+
+  const handleMarkAllRead = async () => {
+    try {
+      await accountApi("/notifications/mark-read", {})
+      setUnreadCount(0)
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
+    } catch {
+      // ignore
+    }
+  }
+
+  const handleNotificationClick = async (notif: NotificationItem) => {
+    if (!notif.isRead) {
+      void accountApi("/notifications/mark-read", { id: notif.id })
+      setUnreadCount((c) => Math.max(0, c - 1))
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n))
+      )
+    }
+    setOpenNotifications(false)
+    if (notif.link) {
+      router.push(notif.link)
+    }
+  }
 
   const handleLogout = async () => {
     if (signingOut) return
@@ -152,10 +204,18 @@ export function DashboardNavbar({
               aria-haspopup="dialog"
               aria-expanded={openNotifications}
               aria-controls="dashboard-notifications-popover"
-              onClick={() => setOpenNotifications((open) => !open)}
-              className="inline-flex size-9 items-center justify-center rounded-lg border border-transparent bg-transparent text-muted-foreground transition-colors hover:border-border hover:bg-secondary hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-expanded:border-border aria-expanded:bg-secondary aria-expanded:text-foreground [&_svg]:size-4"
+              onClick={() => {
+                setOpenNotifications((open) => !open)
+                if (!openNotifications) void loadNotifications()
+              }}
+              className="relative inline-flex size-9 items-center justify-center rounded-lg border border-transparent bg-transparent text-muted-foreground transition-colors hover:border-border hover:bg-secondary hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-expanded:border-border aria-expanded:bg-secondary aria-expanded:text-foreground [&_svg]:size-4"
             >
               <Bell className="size-4" aria-hidden="true" />
+              {unreadCount > 0 && (
+                <span className="absolute -end-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-xs">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </Button>
             {openNotifications && (
               <section
@@ -165,24 +225,107 @@ export function DashboardNavbar({
                 dir={direction}
                 className={cn(
                   themeClassName,
-                  "absolute end-0 top-11 z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-xl"
+                  "absolute end-0 top-11 z-50 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl backdrop-blur-xl"
                 )}
               >
-                <div className="border-b border-border px-4 py-3">
-                  <h2 className="text-sm font-semibold">
-                    {t("header.notifications")}
-                  </h2>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {t("header.notificationsDescription")}
-                  </p>
+                <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                  <div>
+                    <h2 className="text-sm font-semibold">
+                      {t("header.notifications")}
+                    </h2>
+                    <p className="text-[11px] text-muted-foreground">
+                      {unreadCount > 0
+                        ? `${unreadCount} ${t("header.unread")}`
+                        : t("header.allRead")}
+                    </p>
+                  </div>
+                  {unreadCount > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleMarkAllRead}
+                      className="h-7 text-xs text-primary hover:bg-primary/10"
+                    >
+                      {t("header.markAllAsRead")}
+                    </Button>
+                  )}
                 </div>
-                <div className="flex min-h-36 flex-col items-center justify-center gap-3 px-5 py-7 text-center">
-                  <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary">
-                    <Bell className="size-[18px]" aria-hidden="true" />
-                  </span>
-                  <p className="text-sm text-muted-foreground">
-                    {t("header.noNotifications")}
-                  </p>
+                {notifications.length > 0 ? (
+                  <div className="max-h-[360px] divide-y divide-border/60 overflow-y-auto">
+                    {notifications.map((item) => {
+                      const title =
+                        locale === "ar" && item.titleAr
+                          ? item.titleAr
+                          : item.title
+                      const message =
+                        locale === "ar" && item.messageAr
+                          ? item.messageAr
+                          : item.message
+
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => void handleNotificationClick(item)}
+                          className={cn(
+                            "flex cursor-pointer items-start gap-3 p-3.5 transition-colors hover:bg-muted/40",
+                            !item.isRead && "bg-primary/5"
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full text-xs",
+                              item.type === "mentorship"
+                                ? "bg-sky-500/15 text-sky-500"
+                                : item.type === "team_join" || item.type === "team_invite"
+                                  ? "bg-emerald-500/15 text-emerald-500"
+                                  : item.type === "role_application"
+                                    ? "bg-amber-500/15 text-amber-500"
+                                    : "bg-primary/15 text-primary"
+                            )}
+                          >
+                            <Bell className="size-3.5" />
+                          </span>
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="truncate text-xs font-semibold text-foreground">
+                                {title}
+                              </p>
+                              {!item.isRead && (
+                                <span className="size-2 shrink-0 rounded-full bg-primary" />
+                              )}
+                            </div>
+                            <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                              {message}
+                            </p>
+                            <span className="block text-[10px] text-muted-foreground/80">
+                              {new Date(item.createdAt).toLocaleTimeString(
+                                locale === "ar" ? "ar-EG" : "en-US",
+                                { hour: "2-digit", minute: "2-digit" }
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex min-h-36 flex-col items-center justify-center gap-3 px-5 py-7 text-center">
+                    <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary">
+                      <Bell className="size-[18px]" aria-hidden="true" />
+                    </span>
+                    <p className="text-sm text-muted-foreground">
+                      {t("header.noNotifications")}
+                    </p>
+                  </div>
+                )}
+                <div className="border-t border-border bg-muted/20 p-2 text-center">
+                  <Link
+                    href="/dashboard/notifications"
+                    onClick={() => setOpenNotifications(false)}
+                    className="block rounded-lg py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
+                  >
+                    {t("header.viewAllNotifications")}
+                  </Link>
                 </div>
               </section>
             )}

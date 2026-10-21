@@ -48,6 +48,7 @@ model User {
   createdChallenges   Challenge[] @relation("ChallengeCreator")
   judgingAssignments JudgingAssignment[]
   roleApplications RoleApplication[]
+  notifications    Notification[]
 
   @@index([email])
   @@index([deletedAt])
@@ -548,6 +549,24 @@ model RoleApplication {
   @@unique([userId, role])
   @@index([status, createdAt])
   @@map("role_applications")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  title     String
+  titleAr   String?  @map("title_ar")
+  message   String
+  messageAr String?  @map("message_ar")
+  type      String   @default("info")
+  link      String?
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt(sort: Desc)])
+  @@map("notifications")
 }
 
 

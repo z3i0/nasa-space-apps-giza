@@ -721,6 +721,19 @@ export class TeamsService {
           where: { id: invitationId },
           data: { status: RequestStatus.rejected },
         });
+
+        await tx.notification.create({
+          data: {
+            userId: invitation.invitedByUserId,
+            title: 'Team Invitation Declined',
+            titleAr: 'تم رفض دعوة الفريق',
+            message: `The user declined your invitation to join ${invitation.team.name}.`,
+            messageAr: `تم رفض دعوتك للانضمام إلى فريق ${invitation.team.name}.`,
+            type: 'team_invite',
+            link: '/dashboard/participant/team',
+          },
+        });
+
         return { success: true, message: 'Invitation declined' };
       }
 
@@ -753,6 +766,18 @@ export class TeamsService {
         await tx.teamInvitation.update({
           where: { id: invitationId },
           data: { status: RequestStatus.accepted },
+        });
+
+        await tx.notification.create({
+          data: {
+            userId: invitation.invitedByUserId,
+            title: 'Team Invitation Accepted',
+            titleAr: 'تم قبول دعوة الفريق',
+            message: `A new member has accepted your invitation and joined team ${invitation.team.name}!`,
+            messageAr: `قبل العضو دعوتك وانضم رسمياً إلى فريق ${invitation.team.name}!`,
+            type: 'team_invite',
+            link: '/dashboard/participant/team',
+          },
         });
 
         await tx.profile.upsert({
@@ -865,6 +890,19 @@ export class TeamsService {
           where: { id: requestId },
           data: { status: RequestStatus.rejected },
         });
+
+        await tx.notification.create({
+          data: {
+            userId: joinReq.userId,
+            title: 'Team Join Request Declined',
+            titleAr: 'تم رفض طلب الانضمام للفريق',
+            message: `Your request to join team ${joinReq.team.name} was not accepted.`,
+            messageAr: `تم رفض طلب انضمامك إلى فريق ${joinReq.team.name}.`,
+            type: 'team_join',
+            link: '/dashboard/participant/find-team',
+          },
+        });
+
         return { success: true, message: 'Join request declined' };
       }
 
@@ -896,6 +934,18 @@ export class TeamsService {
         await tx.teamJoinRequest.update({
           where: { id: requestId },
           data: { status: RequestStatus.accepted },
+        });
+
+        await tx.notification.create({
+          data: {
+            userId: joinReq.userId,
+            title: 'Team Join Request Accepted',
+            titleAr: 'تم قبول طلب الانضمام للفريق',
+            message: `Congratulations! You have been accepted into team ${joinReq.team.name}.`,
+            messageAr: `تهانينا! تم قبولك كعضو في فريق ${joinReq.team.name}.`,
+            type: 'team_join',
+            link: '/dashboard/participant/team',
+          },
         });
 
         await tx.profile.upsert({

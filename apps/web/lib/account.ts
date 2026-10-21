@@ -86,3 +86,75 @@ export async function selectAccountRole(
   }>("/role-selection", { role: targetRole })
   return { ...user, role: selection.role, roles: selection.roles }
 }
+
+export interface UnifiedRequestItem {
+  id: string
+  type: "mentorship" | "team_join" | "team_invitation" | "role_application"
+  status: "pending" | "accepted" | "rejected" | "canceled" | "completed"
+  rawStatus: string
+  requester: {
+    id: string
+    name: string
+    email?: string
+    teamName?: string
+    role?: string
+  }
+  responder: {
+    id?: string
+    name: string
+    email?: string
+    teamName?: string
+    role?: string
+  } | null
+  title: string
+  summary: string
+  notes?: string | null
+  createdAt: string
+  respondedAt: string | null
+  durationMinutes: number | null
+  messagesCount?: number
+}
+
+export interface RequestsTrackingStats {
+  totalRequests: number
+  pendingCount: number
+  acceptedCount: number
+  rejectedCount: number
+  completedCount: number
+  canceledCount: number
+  avgResponseTimeMinutes: number
+  breakdown: {
+    mentorship: number
+    team_join: number
+    team_invitation: number
+    role_application: number
+  }
+}
+
+export interface RequestsTrackingResponse {
+  items: UnifiedRequestItem[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+  stats: RequestsTrackingStats
+}
+
+export interface NotificationItem {
+  id: string
+  userId: string
+  title: string
+  titleAr?: string | null
+  message: string
+  messageAr?: string | null
+  type: string
+  link?: string | null
+  isRead: boolean
+  createdAt: string
+}
+
+export interface NotificationsResponse {
+  notifications: NotificationItem[]
+  unreadCount: number
+}
+

@@ -202,6 +202,43 @@ export class MentorshipService {
           where: { requestId: id },
           data: { teamId: null, requestId: null },
         });
+
+      if (['accepted', 'declined'].includes(status) && request.mentorId === userId) {
+        const mentor = await tx.user.findUnique({
+          where: { id: userId },
+          select: { name: true },
+        });
+        const mentorName = mentor?.name || 'Mentor';
+        const teamMembers = await tx.teamMember.findMany({
+          where: { teamId: request.teamId },
+          select: { userId: true },
+        });
+        const isAccepted = status === 'accepted';
+        for (const member of teamMembers) {
+          await tx.notification.create({
+            data: {
+              userId: member.userId,
+              title: isAccepted
+                ? 'Mentorship Request Accepted'
+                : 'Mentorship Request Declined',
+              titleAr: isAccepted
+                ? 'تم قبول طلب التوجيه'
+                : 'اعتذار عن طلب التوجيه',
+              message: isAccepted
+                ? `${mentorName} accepted your team's mentorship request.`
+                : `${mentorName} declined your mentorship request.`,
+              messageAr: isAccepted
+                ? `وافق الموجه ${mentorName} على طلب التوجيه الخاص بفريقكم.`
+                : `اعتذر الموجه ${mentorName} عن تلبية طلب التوجيه.`,
+              type: 'mentorship',
+              link: isAccepted
+                ? '/dashboard/participant/sessions'
+                : '/dashboard/participant/mentorship',
+            },
+          });
+        }
+      }
+
       return tx.mentorshipRequest.findUnique({ where: { id } });
     });
   }

@@ -52,6 +52,9 @@
       "notificationsDescription": "آخر التحديثات والتنبيهات المتعلقة بمساحة الهاكاثون الخاصة بك.",
       "noNotifications": "لا توجد إشعارات جديدة حالياً",
       "viewAllNotifications": "عرض كل الإشعارات",
+      "markAllAsRead": "تحديد الكل كمقروء",
+      "unread": "غير مقروء",
+      "allRead": "جميع الإشعارات مقروءة",
       "userMenu": "قائمة الحساب",
       "online": "متصل الآن",
       "notif1Title": "تحديث مسار تحدي علوم الأرض",
@@ -692,6 +695,88 @@
         "4": "الأعمال",
         "5": "الأجهزة"
       }
+    },
+    "requestsTracking": {
+      "title": "تتبع الطلبات والاستجابات",
+      "subtitle": "متابعة مركزية لجميع طلبات التوجيه، طلبات الانضمام للفرق، الدعوات، وموافقات الأدوار مع مدة وحالة كل استجابة.",
+      "refresh": "تحديث",
+      "searchPlaceholder": "ابحث باسم مقدم الطلب، الفريق، المستجيب، أو نص الطلب...",
+      "searchBtn": "بحث",
+      "resetFilters": "إعادة تعيين",
+      "loading": "جارٍ تحميل سجل الطلبات والاستجابات...",
+      "retry": "إعادة المحاولة",
+      "noRequestsFound": "لم يتم العثور على أي طلبات",
+      "noRequestsHint": "جرّب تغيير معايير التصفية أو مسح عبارة البحث للعثور على الطلبات.",
+      "team": "الفريق",
+      "justNow": "الآن",
+      "minutes": "دقيقة",
+      "hours": "ساعة",
+      "notAssignedYet": "لم يتم الرد بعد",
+      "awaitingResponse": "بانتظار الرد",
+      "viewDetails": "عرض التفاصيل",
+      "showingResults": "عرض {from} إلى {to} من أصل {total} طلب",
+      "previousPage": "السابق",
+      "nextPage": "التالي",
+      "metrics": {
+        "totalRequests": "إجمالي الطلبات",
+        "allTypesCombined": "مجموع كافة الطلبات بالنظام",
+        "pendingRequests": "طلبات معلقة",
+        "awaitingAction": "بانتظار اتخاذ قرار",
+        "acceptedRequests": "طلبات مقبولة",
+        "approvedAndAccepted": "تمت الموافقة عليها",
+        "rejectedRequests": "طلبات مرفوضة",
+        "declinedOrRejected": "تم الاعتذار أو الرفض",
+        "avgResponseTime": "متوسط سرعة الرد",
+        "avgTurnaround": "معدل زمن الاستجابة"
+      },
+      "filters": {
+        "allTypes": "جميع الأنواع",
+        "allStatuses": "جميع الحالات"
+      },
+      "types": {
+        "mentorship": "طلب إرشاد",
+        "teamJoin": "طلب انضمام لفريق",
+        "teamInvitation": "دعوة انضمام",
+        "roleApplication": "طلب ترقية دور"
+      },
+      "statuses": {
+        "pending": "قيد الانتظار",
+        "accepted": "مقبول / معتمد",
+        "rejected": "مرفوض / معتذر",
+        "completed": "مكتمل",
+        "canceled": "ملغي"
+      },
+      "table": {
+        "type": "النوع والموضوع",
+        "requester": "مقدم الطلب",
+        "responder": "المستجيب / المراجع",
+        "submittedAt": "تاريخ التقديم",
+        "respondedAt": "تاريخ الرد",
+        "turnaround": "سرعة الاستجابة",
+        "status": "الحالة",
+        "actions": "تفاصيل"
+      },
+      "dialog": {
+        "requesterDetails": "بيانات مقدم الطلب",
+        "responderDetails": "بيانات المستجيب / المراجع",
+        "notesOrTopic": "محتوى الطلب أو الملاحظات",
+        "close": "إغلاق"
+      }
+    },
+    "notificationsCenter": {
+      "title": "مركز الإشعارات والتنبيهات",
+      "subtitle": "سجل بجميع الإشعارات والقرارات الخاصة بطلباتك وفرقك في الهاكاثون.",
+      "refresh": "تحديث",
+      "markAllAsRead": "تحديد الكل كمقروء",
+      "all": "الكل",
+      "unread": "غير المقروءة",
+      "loading": "جارٍ تحميل الإشعارات...",
+      "retry": "إعادة المحاولة",
+      "emptyTitle": "لا توجد إشعارات هنا",
+      "emptyDesc": "ستصلك هنا إشعارات فورية عند قبول أو الرد على أي من طلبات التوجيه أو الفرق أو الأدوار.",
+      "viewAction": "انتقال إلى الصفحة",
+      "markRead": "تحديد كمقروء",
+      "delete": "حذف الإشعار"
     }
   }
 }

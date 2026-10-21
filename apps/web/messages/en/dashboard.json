@@ -52,6 +52,9 @@
       "notificationsDescription": "Updates and alerts related to your hackathon workspace.",
       "noNotifications": "No new notifications right now",
       "viewAllNotifications": "View all notifications",
+      "markAllAsRead": "Mark all as read",
+      "unread": "unread",
+      "allRead": "All notifications read",
       "userMenu": "User Menu",
       "online": "Online",
       "notif1Title": "Earth Science Track Update",
@@ -692,6 +695,89 @@
         "4": "Business",
         "5": "Hardware"
       }
+    },
+    "requestsTracking": {
+      "title": "Request & Response Tracking",
+      "subtitle": "Centralized oversight for mentorship requests, team join requests, invitations, and role approvals with response times and statuses.",
+      "refresh": "Refresh",
+      "searchPlaceholder": "Search by requester, team, responder, or topic...",
+      "searchBtn": "Search",
+      "resetFilters": "Reset",
+      "loading": "Loading requests and response tracking log...",
+      "retry": "Retry",
+      "noRequestsFound": "No requests found",
+      "noRequestsHint": "Try adjusting your filter options or clearing your search term to find requests.",
+      "team": "Team",
+      "justNow": "Just now",
+      "minutes": "min",
+      "hours": "hrs",
+      "notAssignedYet": "Awaiting response",
+      "awaitingResponse": "Pending response",
+      "viewDetails": "View Details",
+      "showingResults": "Showing {from} to {to} of {total} requests",
+      "previousPage": "Previous",
+      "nextPage": "Next",
+      "metrics": {
+        "totalRequests": "Total Requests",
+        "allTypesCombined": "All platform requests combined",
+        "pendingRequests": "Pending Requests",
+        "awaitingAction": "Awaiting review or decision",
+        "acceptedRequests": "Accepted Requests",
+        "approvedAndAccepted": "Approved and accepted",
+        "rejectedRequests": "Declined / Rejected",
+        "declinedOrRejected": "Declined or rejected",
+        "avgResponseTime": "Avg Response Time",
+        "avgTurnaround": "Average response turnaround"
+      },
+      "filters": {
+        "allTypes": "All Types",
+        "allStatuses": "All Statuses"
+      },
+      "types": {
+        "mentorship": "Mentorship Request",
+        "teamJoin": "Team Join Request",
+        "teamInvitation": "Team Invitation",
+        "roleApplication": "Role Application"
+      },
+      "statuses": {
+        "pending": "Pending",
+        "accepted": "Accepted / Approved",
+        "rejected": "Rejected / Declined",
+        "completed": "Completed",
+        "canceled": "Canceled"
+      },
+      "table": {
+        "type": "Type & Subject",
+        "requester": "Requester",
+        "responder": "Responder / Reviewer",
+        "submittedAt": "Submitted",
+        "respondedAt": "Responded",
+        "turnaround": "Turnaround",
+        "status": "Status",
+        "actions": "Details"
+      },
+      "dialog": {
+        "requesterDetails": "Requester Information",
+        "responderDetails": "Responder Information",
+        "notesOrTopic": "Request Content / Topic Notes",
+        "close": "Close"
+      }
+    },
+    "notificationsCenter": {
+      "title": "Notifications & Alerts Center",
+      "subtitle": "Complete log of all notifications, team updates, and decisions regarding your hackathon requests.",
+      "refresh": "Refresh",
+      "markAllAsRead": "Mark all as read",
+      "all": "All",
+      "unread": "Unread",
+      "loading": "Loading notifications...",
+      "retry": "Retry",
+      "emptyTitle": "No notifications yet",
+      "emptyDesc": "You will receive real-time notifications here when your team, mentorship, or role requests are accepted or updated.",
+      "viewAction": "Go to page",
+      "markRead": "Mark as read",
+      "delete": "Delete notification"
     }
   }
 }
+
