@@ -59,6 +59,9 @@ export class AccountController {
   @Get('organizer-summary') @RequireRole('organizer') summary() {
     return this.service.organizerSummary();
   }
+  @Get('competition-analytics') @RequireRole('organizer') competitionAnalytics() {
+    return this.service.competitionAnalytics();
+  }
   @Get('directory') @RequireRole('organizer') directory(
     @Query() query: DirectoryQuery,
   ) {

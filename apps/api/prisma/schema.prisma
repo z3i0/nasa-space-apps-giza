@@ -49,6 +49,8 @@ model User {
   judgingAssignments JudgingAssignment[]
   roleApplications RoleApplication[]
   notifications    Notification[]
+  communityQuestions CommunityQuestion[]
+  communityAnswers   CommunityAnswer[]
 
   @@index([email])
   @@index([deletedAt])
@@ -567,6 +569,40 @@ model Notification {
 
   @@index([userId, isRead, createdAt(sort: Desc)])
   @@map("notifications")
+}
+
+model CommunityQuestion {
+  id           String            @id @default(uuid())
+  title        String
+  content      String
+  category     String            @default("general") // technical, platform, challenge, general
+  status       String            @default("unanswered") // unanswered, answered, resolved
+  authorId     String            @map("author_id")
+  answersCount Int               @default(0) @map("answers_count")
+  viewsCount   Int               @default(0) @map("views_count")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  author       User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  answers      CommunityAnswer[]
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([category])
+  @@map("community_questions")
+}
+
+model CommunityAnswer {
+  id         String            @id @default(uuid())
+  questionId String            @map("question_id")
+  authorId   String            @map("author_id")
+  content    String
+  isAccepted Boolean           @default(false) @map("is_accepted")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
+  question   CommunityQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  author     User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([questionId, createdAt])
+  @@map("community_answers")
 }
 
 

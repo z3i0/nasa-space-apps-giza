@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
 import { Button } from "@/components/ui/button"
+import { BarChart3 } from "lucide-react"
 import { accountApi } from "@/lib/account"
 import { RoleApplications } from "./role-applications"
 interface Summary {
@@ -116,8 +117,38 @@ export function OrganizerOverview() {
             : t(data ? "deadlineMissing" : "loading")}
         </p>
       </section>
+
+      <section className={`${card} border-primary/30 bg-gradient-to-br from-primary/5 via-card to-card`}>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                <span className="relative flex size-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
+                </span>
+                Live
+              </span>
+              <h2 className="text-xl font-bold text-foreground">{t("analytics")}</h2>
+            </div>
+            <p className="text-xs text-muted-foreground sm:text-sm">
+              {t("analyticsBannerDesc")}
+            </p>
+          </div>
+          <Link
+            href="/dashboard/organizer/analytics"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-xs transition-all hover:brightness-110 sm:text-sm"
+          >
+            <BarChart3 className="size-4" />
+            <span>{t("viewAnalytics")}</span>
+          </Link>
+        </div>
+      </section>
+
       <nav aria-label={t("actions")} className="flex flex-wrap gap-3">
         {[
+          ["analytics", "analytics"],
+          ["requests-tracking", "requestsTracking"],
           ["challenges", "challenges"],
           ["judges", "assignments"],
           ["scores", "results"],

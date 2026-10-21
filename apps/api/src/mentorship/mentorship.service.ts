@@ -222,14 +222,14 @@ export class MentorshipService {
                 ? 'Mentorship Request Accepted'
                 : 'Mentorship Request Declined',
               titleAr: isAccepted
-                ? 'تم قبول طلب التوجيه'
-                : 'اعتذار عن طلب التوجيه',
+                ? 'تم قبول طلب الإرشاد'
+                : 'اعتذار عن طلب الإرشاد',
               message: isAccepted
                 ? `${mentorName} accepted your team's mentorship request.`
                 : `${mentorName} declined your mentorship request.`,
               messageAr: isAccepted
-                ? `وافق الموجه ${mentorName} على طلب التوجيه الخاص بفريقكم.`
-                : `اعتذر الموجه ${mentorName} عن تلبية طلب التوجيه.`,
+                ? `وافق المرشد ${mentorName} على طلب الإرشاد الخاص بفريقكم.`
+                : `اعتذر المرشد ${mentorName} عن تلبية طلب الإرشاد.`,
               type: 'mentorship',
               link: isAccepted
                 ? '/dashboard/participant/sessions'

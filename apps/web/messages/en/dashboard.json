@@ -777,6 +777,76 @@
       "viewAction": "Go to page",
       "markRead": "Mark as read",
       "delete": "Delete notification"
+    },
+    "competitionAnalytics": {
+      "title": "Competition & Performance Analytics",
+      "subtitle": "Real-time user monitoring, challenge team distribution, mentor turnaround, community activity, and judge progress.",
+      "liveBadge": "Live & Real-time",
+      "refresh": "Refresh Metrics",
+      "loading": "Loading comprehensive analytics...",
+      "tabs": {
+        "overview": "Active Users",
+        "challenges": "Challenges Distribution",
+        "community": "Community Analytics",
+        "mentors": "Mentors Performance",
+        "judges": "Judges Performance"
+      },
+      "activeUsers": {
+        "title": "Live Active Users Right Now",
+        "onlineNow": "Online Currently",
+        "participants": "Participants",
+        "mentors": "Mentors",
+        "judges": "Judges",
+        "organizers": "Organizers",
+        "hourlyActivity": "Activity Timeline (Past 12 Hours)",
+        "peak": "Peak Online Presence"
+      },
+      "challenges": {
+        "title": "Teams & Participants per Challenge",
+        "totalTeams": "Total Registered Teams",
+        "assigned": "Teams with Challenge",
+        "unassigned": "Teams without Challenge",
+        "teamsCount": "{count} teams",
+        "participantsCount": "{count} participants",
+        "difficulty": "Difficulty Level"
+      },
+      "community": {
+        "title": "Hackathon Community Q&A",
+        "totalQuestions": "Total Community Queries",
+        "answeredQuestions": "Answered Questions",
+        "unansweredQuestions": "Pending Questions",
+        "responseRate": "Resolution Rate",
+        "categories": "Category Breakdown",
+        "topContributors": "Top Active Contributors",
+        "score": "{score} activity points"
+      },
+      "mentors": {
+        "title": "Mentorship Sessions & Acceptance",
+        "totalRequests": "Total Mentorship Requests",
+        "acceptedRequests": "Accepted Requests",
+        "rejectedRequests": "Declined Requests",
+        "acceptanceRate": "Acceptance Rate",
+        "rejectionRate": "Decline Rate",
+        "satisfaction": "Average Team Satisfaction",
+        "bookedSlots": "Booked & Completed Sessions",
+        "topMentors": "Top Active Mentors",
+        "sessions": "{count} sessions",
+        "rating": "{rating} of 5"
+      },
+      "judges": {
+        "title": "Judging Progress & Scorecards",
+        "totalAssignments": "Total Judging Assignments",
+        "completed": "Completed Evaluations",
+        "pending": "Pending Evaluations",
+        "completionRate": "Evaluation Progress",
+        "overallAvgScore": "Average Score Awarded",
+        "judgeScorecard": "Judge Scorecard & Completion Table",
+        "judgeName": "Judge",
+        "assigned": "Assigned",
+        "status": "Completion Status",
+        "avgScore": "Avg Score Given",
+        "scoreRanges": "Score Distribution Ranges"
+      }
     }
   }
 }

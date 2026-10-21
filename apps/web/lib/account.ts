@@ -158,3 +158,100 @@ export interface NotificationsResponse {
   unreadCount: number
 }
 
+export interface CompetitionAnalyticsResponse {
+  activeUsers: {
+    currentCount: number
+    breakdownByRole: {
+      participants: number
+      mentors: number
+      judges: number
+      organizers: number
+    }
+    hourlyTrend: {
+      hour: string
+      total: number
+      participants: number
+      mentors: number
+      judges: number
+    }[]
+  }
+  challenges: {
+    totalTeams: number
+    assignedTeams: number
+    unassignedTeams: number
+    distribution: {
+      id: string
+      slug: string
+      title: string
+      titleAr: string
+      category: string
+      difficulty: string
+      teamsCount: number
+      participantsCount: number
+      percentage: number
+    }[]
+  }
+  community: {
+    totalQuestions: number
+    answeredCount: number
+    unansweredCount: number
+    answerRate: number
+    categoryBreakdown: {
+      category: string
+      total: number
+      answered: number
+      unanswered: number
+    }[]
+    topContributors: {
+      id: string
+      name: string
+      avatar: string | null
+      role: string
+      questionsCount: number
+      answersCount: number
+      score: number
+    }[]
+  }
+  mentors: {
+    totalRequests: number
+    acceptedCount: number
+    completedCount: number
+    rejectedCount: number
+    pendingCount: number
+    bookedSlotsCount: number
+    acceptanceRate: number
+    rejectionRate: number
+    avgSatisfaction: number
+    topMentors: {
+      id: string
+      name: string
+      avatar: string | null
+      expertise: string[]
+      sessionsCount: number
+      totalRequests: number
+      acceptanceRate: number
+      rating: number
+      topics: string[]
+    }[]
+  }
+  judges: {
+    totalAssignments: number
+    completedCount: number
+    pendingCount: number
+    completionRate: number
+    averageScoreOverall: number | null
+    scoreBuckets: Record<string, number>
+    judgePerformance: {
+      id: string
+      name: string
+      email: string
+      avatar: string | null
+      assignedCount: number
+      completedCount: number
+      pendingCount: number
+      completionRate: number
+      averageScore: number | null
+    }[]
+  }
+}
+
