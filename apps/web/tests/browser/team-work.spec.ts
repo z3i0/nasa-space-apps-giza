@@ -48,7 +48,14 @@ async function fixture(
     allStatuses?: boolean
   } = {}
 ) {
-  await page.route("**/api/account/challenge-options", route => route.fulfill({json:[{id:"official",title:"Earth observation",titleAr:null},{id:"earth",title:"Earth",titleAr:null}]}))
+  await page.route("**/api/account/challenge-options", (route) =>
+    route.fulfill({
+      json: [
+        { id: "official", title: "Earth observation", titleAr: null },
+        { id: "earth", title: "Earth", titleAr: null },
+      ],
+    })
+  )
 
   const team = structuredClone(crew)
   if (options.allStatuses) {
@@ -208,7 +215,9 @@ test("project drafts persist, submit, and remain submitted after editing", async
   await page
     .getByLabel("Project summary", { exact: true })
     .fill("Flood forecasts for local communities")
-  await page.getByLabel("Challenge", { exact: true }).selectOption("Earth observation")
+  await page
+    .getByLabel("Challenge", { exact: true })
+    .selectOption("Earth observation")
   await page
     .getByLabel("Project page URL", { exact: true })
     .fill("https://example.org/flood")

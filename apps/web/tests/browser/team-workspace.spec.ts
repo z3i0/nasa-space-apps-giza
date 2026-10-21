@@ -59,7 +59,11 @@ async function fixture(
   page: Page,
   initial: Team | null = structuredClone(crew)
 ) {
-  await page.route("**/api/account/challenge-options",r=>r.fulfill({json:[{id:"earth",title:"Earth observation",titleAr:null}]}))
+  await page.route("**/api/account/challenge-options", (r) =>
+    r.fulfill({
+      json: [{ id: "earth", title: "Earth observation", titleAr: null }],
+    })
+  )
   let mine = initial
   const inbox: TeamInbox = { invitations: [], joinRequests: [] }
   const writes: { path: string; body: Record<string, string | boolean> }[] = []
@@ -423,7 +427,9 @@ test("load failures show retry and never show a false empty team", async ({
   const api = await fixture(page)
   api.fail(500)
   await page.goto("/en/dashboard/participant/team")
-  await expect(page.locator("[data-team-workspace]").getByRole("alert")).toBeVisible()
+  await expect(
+    page.locator("[data-team-workspace]").getByRole("alert")
+  ).toBeVisible()
   await expect(
     page.getByRole("button", { name: "Create team", exact: true })
   ).toHaveCount(0)

@@ -16,7 +16,10 @@ function Progress({
   indicatorClassName,
   ...props
 }: ProgressProps) {
-  const percentage = Math.min(100, Math.max(0, ((value ?? 0) / (max || 100)) * 100))
+  const percentage = Math.min(
+    100,
+    Math.max(0, ((value ?? 0) / (max || 100)) * 100)
+  )
 
   return (
     <div
@@ -34,7 +37,7 @@ function Progress({
       <div
         data-slot="progress-indicator"
         className={cn(
-          "h-full bg-primary transition-all duration-500 ease-out rounded-full",
+          "h-full rounded-full bg-primary transition-all duration-500 ease-out",
           indicatorClassName
         )}
         style={{ width: `${percentage}%` }}

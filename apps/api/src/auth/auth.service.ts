@@ -31,6 +31,14 @@ import type {
 export class AuthService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async registrationOptions() {
+    return this.prisma.challenge.findMany({
+      where: officialChallengeWhere,
+      select: { id: true, title: true, titleAr: true },
+      orderBy: [{ year: 'desc' }, { title: 'asc' }],
+    });
+  }
+
   // -------------------------------------------------------------
   // Format / Sanitize User Profile
   // -------------------------------------------------------------

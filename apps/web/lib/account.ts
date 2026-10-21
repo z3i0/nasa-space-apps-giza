@@ -55,7 +55,8 @@ export async function selectAccountRole(
   expectedEmail?: string
 ): Promise<UserSession> {
   const role = expectedEmail !== undefined ? roleOrEmail : undefined
-  const email = (expectedEmail !== undefined ? expectedEmail : roleOrEmail) || ""
+  const email =
+    (expectedEmail !== undefined ? expectedEmail : roleOrEmail) || ""
   const response = await fetch("/api/auth/me", {
     credentials: "include",
     cache: "no-store",

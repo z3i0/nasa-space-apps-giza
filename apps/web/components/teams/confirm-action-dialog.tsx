@@ -44,14 +44,14 @@ export function ConfirmActionDialog({
   return (
     <Dialog open={open} onOpenChange={(val) => !loading && onOpenChange(val)}>
       <DialogContent
-        className="max-w-md rounded-2xl p-6 sm:p-7 gap-5"
+        className="max-w-md gap-5 rounded-2xl p-6 sm:p-7"
         dir={locale === "ar" ? "rtl" : "ltr"}
       >
         <DialogHeader className="space-y-3">
           <div className="flex items-center gap-3">
             <div
               className={cn(
-                "size-10 rounded-xl flex items-center justify-center ring-1 shrink-0",
+                "flex size-10 shrink-0 items-center justify-center rounded-xl ring-1",
                 variant === "destructive"
                   ? "bg-destructive/10 text-destructive ring-destructive/20"
                   : "bg-primary/10 text-primary ring-primary/20"
@@ -60,23 +60,23 @@ export function ConfirmActionDialog({
               <Icon className="size-5" />
             </div>
             <div>
-              <DialogTitle className="text-base sm:text-lg font-bold">
+              <DialogTitle className="text-base font-bold sm:text-lg">
                 {title}
               </DialogTitle>
             </div>
           </div>
-          <DialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+          <DialogDescription className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
             {description}
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className="gap-2 sm:gap-2 pt-2">
+        <DialogFooter className="gap-2 pt-2 sm:gap-2">
           <Button
             type="button"
             variant="outline"
             disabled={loading}
             onClick={() => onOpenChange(false)}
-            className="rounded-xl text-xs sm:text-sm h-9 cursor-pointer"
+            className="h-9 cursor-pointer rounded-xl text-xs sm:text-sm"
           >
             {cancelText}
           </Button>
@@ -85,7 +85,7 @@ export function ConfirmActionDialog({
             variant={variant}
             disabled={loading}
             onClick={onConfirm}
-            className="rounded-xl text-xs sm:text-sm h-9 font-semibold gap-1.5 cursor-pointer shadow-xs"
+            className="h-9 cursor-pointer gap-1.5 rounded-xl text-xs font-semibold shadow-xs sm:text-sm"
           >
             {loading && <Loader2 className="size-3.5 animate-spin" />}
             <span>{confirmText}</span>

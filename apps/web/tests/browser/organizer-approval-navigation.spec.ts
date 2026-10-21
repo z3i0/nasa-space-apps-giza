@@ -11,7 +11,21 @@ test("organizer sees actionable approvals on overview, mentors, and judges", asy
     role: "organizer",
     roles: ["organizer"],
   }
-  await page.route("**/api/account/organizer-summary",r=>r.fulfill({json:{participants:2,mentors:0,judges:0,teams:0,submitted:0,pending:2,assigned:0,completed:0,deadline:'2026-11-14T23:59:59+02:00'}}))
+  await page.route("**/api/account/organizer-summary", (r) =>
+    r.fulfill({
+      json: {
+        participants: 2,
+        mentors: 0,
+        judges: 0,
+        teams: 0,
+        submitted: 0,
+        pending: 2,
+        assigned: 0,
+        completed: 0,
+        deadline: "2026-11-14T23:59:59+02:00",
+      },
+    })
+  )
   await context.addCookies(
     Object.entries({
       auth_token: "fixture",

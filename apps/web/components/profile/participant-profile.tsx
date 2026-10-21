@@ -1,6 +1,13 @@
 "use client"
 
-import { useCallback, useContext, useEffect, useRef, useState, type FormEvent } from "react"
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -9,20 +16,70 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { ChallengeSelect } from "./challenge-select"
 import { DashboardThemeContext } from "@/components/dashboard/dashboard-theme-context"
 import { getAuthUser, setAuth } from "@/lib/auth"
 import { cn } from "@/lib/utils"
-import { interestOptions, participationOptions, profileDraft, ProfileRequestError, requestProfile, roleOptions, skillOptions, type ParticipantProfile, type ProfileDraft } from "@/lib/profile"
-import { User as UserIcon, Sparkles, Globe, GraduationCap, Shield, Users, Eye, Save, RotateCcw, CheckCircle2, AlertCircle, Plus, X } from "lucide-react"
+import {
+  interestOptions,
+  participationOptions,
+  profileDraft,
+  ProfileRequestError,
+  requestProfile,
+  roleOptions,
+  skillOptions,
+  type ParticipantProfile,
+  type ProfileDraft,
+} from "@/lib/profile"
+import {
+  User as UserIcon,
+  Sparkles,
+  Globe,
+  GraduationCap,
+  Shield,
+  Users,
+  Eye,
+  Save,
+  RotateCcw,
+  CheckCircle2,
+  AlertCircle,
+  Plus,
+  X,
+} from "lucide-react"
 
 export function ParticipantProfilePage() {
   const t = useTranslations("Dashboard.profilePage")
@@ -185,7 +242,12 @@ export function ParticipantProfilePage() {
       if (user)
         setAuth(
           {},
-          { ...user, name: result.user.name, fullName: result.user.name, phone: result.user.phone }
+          {
+            ...user,
+            name: result.user.name,
+            fullName: result.user.name,
+            phone: result.user.phone,
+          }
         )
     } catch (error) {
       if (!controller.signal.aborted) setError(errorKey(error))
@@ -198,11 +260,11 @@ export function ParticipantProfilePage() {
   const errorMessage = error && (
     <div
       role="alert"
-      className="w-full rounded-xl bg-destructive/10 border border-destructive/20 p-3.5 text-xs text-destructive flex items-center justify-between gap-3"
+      className="flex w-full items-center justify-between gap-3 rounded-xl border border-destructive/20 bg-destructive/10 p-3.5 text-xs text-destructive"
     >
       <p className="font-medium">{t(error)}</p>
       {error === "sessionExpired" ? (
-        <Link href="/login" className="underline font-semibold shrink-0">
+        <Link href="/login" className="shrink-0 font-semibold underline">
           {t("signIn")}
         </Link>
       ) : (
@@ -214,7 +276,7 @@ export function ParticipantProfilePage() {
             onClick={() => {
               if (window.confirm(t("discardConfirm"))) reload()
             }}
-            className="h-7 text-xs rounded-lg shrink-0 cursor-pointer"
+            className="h-7 shrink-0 cursor-pointer rounded-lg text-xs"
           >
             {t("reload")}
           </Button>
@@ -225,26 +287,30 @@ export function ParticipantProfilePage() {
 
   if (loading)
     return (
-      <div className="w-full flex flex-col gap-6" aria-busy="true">
-        <PageHeader icon={UserIcon} title={t("title")} subtitle={t("loading")} />
+      <div className="flex w-full flex-col gap-6" aria-busy="true">
+        <PageHeader
+          icon={UserIcon}
+          title={t("title")}
+          subtitle={t("loading")}
+        />
         <p role="status" className="sr-only">
           {t("loading")}
         </p>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-8 flex flex-col gap-6">
-            <Card className="rounded-2xl border-border/60 p-6 space-y-5 shadow-xs">
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+          <div className="flex flex-col gap-6 lg:col-span-8">
+            <Card className="space-y-5 rounded-2xl border-border/60 p-6 shadow-xs">
               <div className="space-y-2">
                 <Skeleton className="h-5 w-40 rounded" />
                 <Skeleton className="h-3 w-64 rounded" />
               </div>
               <Separator />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Skeleton className="h-10 rounded-xl" />
                 <Skeleton className="h-10 rounded-xl" />
               </div>
               <Skeleton className="h-24 rounded-xl" />
             </Card>
-            <Card className="rounded-2xl border-border/60 p-6 space-y-4 shadow-xs">
+            <Card className="space-y-4 rounded-2xl border-border/60 p-6 shadow-xs">
               <Skeleton className="h-5 w-32 rounded" />
               <div className="flex flex-wrap gap-2">
                 {Array.from({ length: 7 }).map((_, i) => (
@@ -253,11 +319,11 @@ export function ParticipantProfilePage() {
               </div>
             </Card>
           </div>
-          <div className="lg:col-span-4 flex flex-col gap-6">
-            <Card className="rounded-2xl border-border/60 p-6 space-y-4 shadow-xs">
+          <div className="flex flex-col gap-6 lg:col-span-4">
+            <Card className="space-y-4 rounded-2xl border-border/60 p-6 shadow-xs">
               <div className="flex items-center gap-3">
                 <Skeleton className="size-12 rounded-full" />
-                <div className="space-y-2 flex-1">
+                <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-3/4 rounded" />
                   <Skeleton className="h-3 w-1/2 rounded" />
                 </div>
@@ -271,11 +337,11 @@ export function ParticipantProfilePage() {
 
   if (!draft || !profile)
     return (
-      <div className="w-full flex flex-col gap-6">
+      <div className="flex w-full flex-col gap-6">
         <PageHeader icon={UserIcon} title={t("title")} />
-        <Card className="rounded-2xl p-8 space-y-4 max-w-md mx-auto text-center border-border/60 shadow-xs">
+        <Card className="mx-auto max-w-md space-y-4 rounded-2xl border-border/60 p-8 text-center shadow-xs">
           {errorMessage}
-          <Button onClick={reload} className="rounded-xl cursor-pointer">
+          <Button onClick={reload} className="cursor-pointer rounded-xl">
             {t("retry")}
           </Button>
         </Card>
@@ -291,7 +357,9 @@ export function ParticipantProfilePage() {
     return index >= 0 ? t(`${kind}.${index}`) : value
   }
 
-  const roleIndex = (roleOptions as readonly string[]).indexOf(draft.desiredRole)
+  const roleIndex = (roleOptions as readonly string[]).indexOf(
+    draft.desiredRole
+  )
   const roleLabel = roleIndex < 0 ? draft.desiredRole : t(`roles.${roleIndex}`)
   const hidden = !draft.isPublic || draft.hideFromSearch
 
@@ -311,13 +379,13 @@ export function ParticipantProfilePage() {
         data-matching-card=""
         className={cn(
           "relative overflow-hidden border-border/60 bg-gradient-to-b from-card via-card to-background shadow-xs",
-          inPreview && "border-0 shadow-none bg-transparent ring-0"
+          inPreview && "border-0 bg-transparent shadow-none ring-0"
         )}
       >
-        <CardHeader className="pb-3 border-b border-border/40">
+        <CardHeader className="border-b border-border/40 pb-3">
           <div className="flex items-center justify-between gap-3">
             {!inPreview && (
-              <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                 <Sparkles className="size-3.5 text-primary" />
                 {t("matchingTitle")}
               </span>
@@ -328,7 +396,7 @@ export function ParticipantProfilePage() {
                   <TooltipTrigger>
                     <Badge
                       variant="outline"
-                      className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 gap-1 text-xs"
+                      className="gap-1 border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-600 dark:text-emerald-400"
                     >
                       <CheckCircle2 className="size-3" />
                       {t("verified")}
@@ -344,15 +412,15 @@ export function ParticipantProfilePage() {
 
           <div className="flex items-center gap-3.5 pt-2">
             <Avatar className="size-12 ring-2 ring-primary/20">
-              <AvatarFallback className="bg-primary/10 text-primary font-bold text-base">
+              <AvatarFallback className="bg-primary/10 text-base font-bold text-primary">
                 {initials}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <h3 className="font-heading text-lg sm:text-xl font-bold truncate text-foreground">
+              <h3 className="truncate font-heading text-lg font-bold text-foreground sm:text-xl">
                 {draft.name || t("namePlaceholder")}
               </h3>
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="truncate text-xs text-muted-foreground">
                 {roleLabel || t("chooseRole")}
               </p>
             </div>
@@ -360,8 +428,8 @@ export function ParticipantProfilePage() {
         </CardHeader>
 
         <CardContent className="space-y-4 pt-4">
-          <div className="text-xs text-muted-foreground space-y-1.5">
-            <p className="flex items-center gap-1.5 flex-wrap">
+          <div className="space-y-1.5 text-xs text-muted-foreground">
+            <p className="flex flex-wrap items-center gap-1.5">
               {[
                 roleLabel,
                 ...draft.skills
@@ -372,11 +440,14 @@ export function ParticipantProfilePage() {
                 .filter(Boolean)
                 .join(" · ") || t("skillsEmpty")}
             </p>
-            {[profile.academicLevel, profile.institution].filter(Boolean).length > 0 && (
-              <p className="text-xs text-muted-foreground/80 flex items-center gap-1.5">
+            {[profile.academicLevel, profile.institution].filter(Boolean)
+              .length > 0 && (
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground/80">
                 <GraduationCap className="size-3.5 shrink-0 text-primary" />
                 <span>
-                  {[profile.academicLevel, profile.institution].filter(Boolean).join(" · ")}
+                  {[profile.academicLevel, profile.institution]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </span>
               </p>
             )}
@@ -388,7 +459,7 @@ export function ParticipantProfilePage() {
                 <Badge
                   key={skill}
                   variant="outline"
-                  className="rounded-full text-xs px-2.5 py-0.5 border-primary/25 bg-primary/10 text-primary font-medium"
+                  className="rounded-full border-primary/25 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
                 >
                   {optionLabel("skills", skill)}
                 </Badge>
@@ -402,7 +473,7 @@ export function ParticipantProfilePage() {
                 <Badge
                   key={interest}
                   variant="secondary"
-                  className="rounded-full text-[11px] px-2.5 py-0.5 bg-secondary text-secondary-foreground font-medium"
+                  className="rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-medium text-secondary-foreground"
                 >
                   {optionLabel("interests", interest)}
                 </Badge>
@@ -410,13 +481,13 @@ export function ParticipantProfilePage() {
             </div>
           )}
 
-          <p className="text-xs text-muted-foreground leading-relaxed">
+          <p className="text-xs leading-relaxed text-muted-foreground">
             {draft.bio || t("bioEmpty")}
           </p>
 
           {hidden && (
-            <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-2.5 text-[11px] text-amber-600 dark:text-amber-400 flex items-start gap-2">
-              <AlertCircle className="size-3.5 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 text-[11px] text-amber-600 dark:text-amber-400">
+              <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
               <span>{t("hiddenNote")}</span>
             </div>
           )}
@@ -426,7 +497,7 @@ export function ParticipantProfilePage() {
   }
 
   return (
-    <div className="w-full flex flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       {/* Page Header */}
       <PageHeader
         icon={UserIcon}
@@ -442,18 +513,15 @@ export function ParticipantProfilePage() {
         aria-label={t("title")}
         className="w-full"
       >
-        <fieldset
-          disabled={saving}
-          className="w-full border-0 p-0 m-0 min-w-0"
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <fieldset disabled={saving} className="m-0 w-full min-w-0 border-0 p-0">
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
             {/* Primary Columns: Form Inputs */}
-            <div className="lg:col-span-8 flex flex-col gap-6 min-w-0">
+            <div className="flex min-w-0 flex-col gap-6 lg:col-span-8">
               {/* Card 1: Display Name & Preferred Role & Bio */}
               <Card className="rounded-2xl border-border/60 shadow-xs">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <UserIcon className="size-4" />
                     </div>
                     <div>
@@ -465,12 +533,12 @@ export function ParticipantProfilePage() {
                   </div>
                 </CardHeader>
                 <Separator />
-                <CardContent className="pt-6 space-y-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <CardContent className="space-y-5 pt-6">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <label
                         htmlFor="profile-name"
-                        className="text-xs font-semibold text-foreground block"
+                        className="block text-xs font-semibold text-foreground"
                       >
                         {t("displayName")}
                       </label>
@@ -485,12 +553,17 @@ export function ParticipantProfilePage() {
                         required
                         placeholder={t("namePlaceholder")}
                         className={cn(
-                          "rounded-xl h-10 text-sm",
-                          nameError && "border-destructive focus-visible:ring-destructive/30"
+                          "h-10 rounded-xl text-sm",
+                          nameError &&
+                            "border-destructive focus-visible:ring-destructive/30"
                         )}
                       />
                       {nameError && (
-                        <p id="name-error" role="alert" className="text-xs text-destructive">
+                        <p
+                          id="name-error"
+                          role="alert"
+                          className="text-xs text-destructive"
+                        >
                           {t("nameRequired")}
                         </p>
                       )}
@@ -499,19 +572,26 @@ export function ParticipantProfilePage() {
                     <div className="space-y-2">
                       <label
                         htmlFor="profile-role"
-                        className="text-xs font-semibold text-foreground block"
+                        className="block text-xs font-semibold text-foreground"
                       >
                         {t("preferredRole")}
                       </label>
                       <Select
                         value={draft.desiredRole}
-                        onValueChange={(val) => change("desiredRole", val || "")}
+                        onValueChange={(val) =>
+                          change("desiredRole", val || "")
+                        }
                       >
-                        <SelectTrigger id="profile-role" className="w-full h-10 rounded-xl text-sm">
+                        <SelectTrigger
+                          id="profile-role"
+                          className="h-10 w-full rounded-xl text-sm"
+                        >
                           <SelectValue placeholder={t("chooseRole")}>
                             {(val) => {
                               if (!val) return t("chooseRole")
-                              const index = (roleOptions as readonly string[]).indexOf(val)
+                              const index = (
+                                roleOptions as readonly string[]
+                              ).indexOf(val)
                               return index >= 0 ? t(`roles.${index}`) : val
                             }}
                           </SelectValue>
@@ -531,7 +611,7 @@ export function ParticipantProfilePage() {
                     <div className="space-y-2 sm:col-span-2">
                       <label
                         htmlFor="profile-phone"
-                        className="text-xs font-semibold text-foreground block"
+                        className="block text-xs font-semibold text-foreground"
                       >
                         {contact("contactNumber")}
                       </label>
@@ -544,10 +624,13 @@ export function ParticipantProfilePage() {
                         value={draft.phone}
                         onChange={(e) => change("phone", e.target.value)}
                         placeholder="+20 123 456 7890"
-                        className="rounded-xl h-10 text-sm"
+                        className="h-10 rounded-xl text-sm"
                         aria-describedby="profile-phone-help"
                       />
-                      <p id="profile-phone-help" className="text-[11px] text-muted-foreground">
+                      <p
+                        id="profile-phone-help"
+                        className="text-[11px] text-muted-foreground"
+                      >
                         {contact("contactHelp")}
                       </p>
                     </div>
@@ -562,7 +645,7 @@ export function ParticipantProfilePage() {
                       >
                         {t("bioLabel")}
                       </label>
-                      <span className="text-[11px] text-muted-foreground font-mono">
+                      <span className="font-mono text-[11px] text-muted-foreground">
                         {draft.bio.length} / 1000
                       </span>
                     </div>
@@ -572,7 +655,7 @@ export function ParticipantProfilePage() {
                       maxLength={1000}
                       placeholder={t("bioEmpty")}
                       onChange={(e) => change("bio", e.target.value)}
-                      className="rounded-xl min-h-[96px] text-sm resize-y"
+                      className="min-h-[96px] resize-y rounded-xl text-sm"
                     />
                   </div>
                 </CardContent>
@@ -582,16 +665,16 @@ export function ParticipantProfilePage() {
               <Card className="rounded-2xl border-border/60 shadow-xs">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="size-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                       <Sparkles className="size-4" />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <CardTitle>{t("skillsLabel")}</CardTitle>
                         {draft.skills.length > 0 && (
                           <Badge
                             variant="secondary"
-                            className="rounded-full px-2 py-0 text-[11px] font-semibold bg-primary/10 text-primary border-primary/20"
+                            className="rounded-full border-primary/20 bg-primary/10 px-2 py-0 text-[11px] font-semibold text-primary"
                           >
                             {draft.skills.length}
                           </Badge>
@@ -604,14 +687,14 @@ export function ParticipantProfilePage() {
                   </div>
                 </CardHeader>
                 <Separator />
-                <CardContent className="pt-6 space-y-6">
+                <CardContent className="space-y-6 pt-6">
                   {/* Selected Skills Section */}
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                         <CheckCircle2 className="size-3.5 text-primary" />
                         <span>{t("selectedSkills")}</span>
-                        <span className="text-[11px] text-muted-foreground font-mono">
+                        <span className="font-mono text-[11px] text-muted-foreground">
                           ({draft.skills.length})
                         </span>
                       </span>
@@ -619,7 +702,7 @@ export function ParticipantProfilePage() {
                         <button
                           type="button"
                           onClick={() => change("skills", [])}
-                          className="text-[11px] text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                          className="cursor-pointer text-[11px] text-muted-foreground transition-colors hover:text-destructive"
                         >
                           {t("clearAllSkills")}
                         </button>
@@ -627,12 +710,12 @@ export function ParticipantProfilePage() {
                     </div>
 
                     {draft.skills.length > 0 ? (
-                      <div className="flex flex-wrap gap-2 p-3 rounded-xl bg-secondary/20 border border-border/40 min-h-[46px] items-center">
+                      <div className="flex min-h-[46px] flex-wrap items-center gap-2 rounded-xl border border-border/40 bg-secondary/20 p-3">
                         {draft.skills.map((skill) => (
                           <Badge
                             key={skill}
                             variant="secondary"
-                            className="rounded-full text-xs py-1 ps-3 pe-1.5 gap-1.5 bg-primary/15 text-primary border border-primary/30 font-medium inline-flex items-center shadow-2xs group"
+                            className="group inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/15 py-1 ps-3 pe-1.5 text-xs font-medium text-primary shadow-2xs"
                           >
                             <span>{optionLabel("skills", skill)}</span>
                             <button
@@ -646,7 +729,7 @@ export function ParticipantProfilePage() {
                               aria-label={t("removeSkill", {
                                 skill: optionLabel("skills", skill),
                               })}
-                              className="size-4 rounded-full inline-flex items-center justify-center hover:bg-primary/25 text-primary/70 hover:text-primary transition-colors cursor-pointer"
+                              className="inline-flex size-4 cursor-pointer items-center justify-center rounded-full text-primary/70 transition-colors hover:bg-primary/25 hover:text-primary"
                             >
                               <X className="size-3" />
                             </button>
@@ -666,11 +749,11 @@ export function ParticipantProfilePage() {
                   <div className="space-y-2">
                     <label
                       htmlFor="custom-skill-input"
-                      className="text-xs font-semibold text-foreground block"
+                      className="block text-xs font-semibold text-foreground"
                     >
                       {t("addCustomSkillLabel")}
                     </label>
-                    <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row">
                       <div className="relative flex-1">
                         <Input
                           id="custom-skill-input"
@@ -687,7 +770,7 @@ export function ParticipantProfilePage() {
                           }}
                           maxLength={64}
                           placeholder={t("customSkillPlaceholder")}
-                          className="rounded-xl h-10 text-sm pe-8"
+                          className="h-10 rounded-xl pe-8 text-sm"
                         />
                         {customSkillInput && (
                           <button
@@ -696,7 +779,7 @@ export function ParticipantProfilePage() {
                               setCustomSkillInput("")
                               setSkillError("")
                             }}
-                            className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs p-1 cursor-pointer"
+                            className="absolute end-2.5 top-1/2 -translate-y-1/2 cursor-pointer p-1 text-xs text-muted-foreground hover:text-foreground"
                             aria-label={t("close")}
                           >
                             <X className="size-3.5" />
@@ -708,14 +791,14 @@ export function ParticipantProfilePage() {
                         onClick={handleAddCustomSkill}
                         disabled={!customSkillInput.trim()}
                         variant="secondary"
-                        className="rounded-xl h-10 px-4 text-xs font-semibold gap-1.5 cursor-pointer shrink-0"
+                        className="h-10 shrink-0 cursor-pointer gap-1.5 rounded-xl px-4 text-xs font-semibold"
                       >
                         <Plus className="size-3.5" />
                         <span>{t("addSkill")}</span>
                       </Button>
                     </div>
                     {skillError && (
-                      <p className="text-xs text-destructive flex items-center gap-1">
+                      <p className="flex items-center gap-1 text-xs text-destructive">
                         <AlertCircle className="size-3" />
                         <span>{skillError}</span>
                       </p>
@@ -723,10 +806,10 @@ export function ParticipantProfilePage() {
                   </div>
 
                   {/* Popular / Suggested Skills */}
-                  <fieldset className="border-0 p-0 m-0 min-w-0 space-y-2.5 pt-2 border-t border-border/40">
+                  <fieldset className="m-0 min-w-0 space-y-2.5 border-0 border-t border-border/40 p-0 pt-2">
                     <legend className="w-full">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                        <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                           <Sparkles className="size-3.5 text-amber-500" />
                           <span>{t("popularSkills")}</span>
                         </span>
@@ -759,13 +842,16 @@ export function ParticipantProfilePage() {
                               )
                             }
                             className={cn(
-                              "rounded-full text-xs h-8 px-3.5 font-medium transition-all gap-1.5 cursor-pointer border",
+                              "h-8 cursor-pointer gap-1.5 rounded-full border px-3.5 text-xs font-medium transition-all",
                               isSelected
-                                ? "bg-primary/20 text-primary border-primary/60 font-semibold shadow-xs ring-1 ring-primary/30 hover:bg-primary/30 hover:text-primary"
+                                ? "border-primary/60 bg-primary/20 font-semibold text-primary shadow-xs ring-1 ring-primary/30 hover:bg-primary/30 hover:text-primary"
                                 : "border-border/60 bg-secondary/30 text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
                             )}
                           >
-                            <span aria-hidden="true" className="font-bold text-xs">
+                            <span
+                              aria-hidden="true"
+                              className="text-xs font-bold"
+                            >
                               {isSelected ? "✓" : "+"}
                             </span>
                             {optionLabel("skills", value)}
@@ -781,7 +867,7 @@ export function ParticipantProfilePage() {
               <Card className="rounded-2xl border-border/60 shadow-xs">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="size-8 rounded-lg bg-sky-500/10 text-sky-500 flex items-center justify-center">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-sky-500/10 text-sky-500">
                       <Globe className="size-4" />
                     </div>
                     <div>
@@ -793,17 +879,14 @@ export function ParticipantProfilePage() {
                   </div>
                 </CardHeader>
                 <Separator />
-                <CardContent className="pt-6 space-y-5">
-                  <fieldset className="border-0 p-0 m-0 min-w-0">
-                    <legend className="text-xs font-semibold text-foreground mb-2.5 block">
+                <CardContent className="space-y-5 pt-6">
+                  <fieldset className="m-0 min-w-0 border-0 p-0">
+                    <legend className="mb-2.5 block text-xs font-semibold text-foreground">
                       {t("interestsLabel")}
                     </legend>
                     <div className="flex flex-wrap gap-2">
                       {[
-                        ...new Set([
-                          ...interestOptions,
-                          ...draft.interests,
-                        ]),
+                        ...new Set([...interestOptions, ...draft.interests]),
                       ].map((value) => {
                         const isSelected = draft.interests.includes(value)
                         return (
@@ -822,13 +905,16 @@ export function ParticipantProfilePage() {
                               )
                             }
                             className={cn(
-                              "rounded-full text-xs h-8 px-3.5 font-medium transition-all gap-1.5 cursor-pointer border",
+                              "h-8 cursor-pointer gap-1.5 rounded-full border px-3.5 text-xs font-medium transition-all",
                               isSelected
-                                ? "bg-sky-500/20 text-sky-400 border-sky-500/60 font-semibold shadow-xs ring-1 ring-sky-500/30 hover:bg-sky-500/30 hover:text-sky-300"
+                                ? "border-sky-500/60 bg-sky-500/20 font-semibold text-sky-400 shadow-xs ring-1 ring-sky-500/30 hover:bg-sky-500/30 hover:text-sky-300"
                                 : "border-border/60 bg-secondary/30 text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
                             )}
                           >
-                            <span aria-hidden="true" className="font-bold text-xs">
+                            <span
+                              aria-hidden="true"
+                              className="text-xs font-bold"
+                            >
                               {isSelected ? "✓" : "+"}
                             </span>
                             {optionLabel("interests", value)}
@@ -849,7 +935,7 @@ export function ParticipantProfilePage() {
                       id="profile-challenge"
                       value={draft.preferredChallenge}
                       onChange={(value) => change("preferredChallenge", value)}
-                      className="rounded-xl h-10 text-sm"
+                      className="h-10 rounded-xl text-sm"
                     />
                   </div>
 
@@ -865,7 +951,7 @@ export function ParticipantProfilePage() {
                       value={draft.experience}
                       maxLength={3000}
                       onChange={(e) => change("experience", e.target.value)}
-                      className="rounded-xl min-h-[96px] text-sm resize-y"
+                      className="min-h-[96px] resize-y rounded-xl text-sm"
                     />
                   </div>
                 </CardContent>
@@ -874,9 +960,9 @@ export function ParticipantProfilePage() {
               {/* Card 4: Participation & Team */}
               <Card className="rounded-2xl border-border/60 shadow-xs">
                 <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-2.5">
-                      <div className="size-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                      <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
                         <Users className="size-4" />
                       </div>
                       <div>
@@ -895,7 +981,7 @@ export function ParticipantProfilePage() {
                       href={`/dashboard/participant/${profile.team || draft.teamStatus === "want_to_create_team" ? "team" : "find-team"}`}
                       className={cn(
                         buttonVariants({ variant: "outline", size: "sm" }),
-                        "rounded-xl text-xs h-8 px-3 font-medium cursor-pointer"
+                        "h-8 cursor-pointer rounded-xl px-3 text-xs font-medium"
                       )}
                     >
                       <span>
@@ -914,9 +1000,11 @@ export function ParticipantProfilePage() {
                 </CardHeader>
                 <Separator />
                 <CardContent className="pt-6">
-                  <fieldset className="border-0 p-0 m-0 min-w-0">
-                    <legend className="sr-only">{t("participationTitle")}</legend>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <fieldset className="m-0 min-w-0 border-0 p-0">
+                    <legend className="sr-only">
+                      {t("participationTitle")}
+                    </legend>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       {participationOptions.map((status) => {
                         const isSelected = draft.teamStatus === status
                         return (
@@ -927,20 +1015,24 @@ export function ParticipantProfilePage() {
                             aria-pressed={isSelected}
                             onClick={() => change("teamStatus", status)}
                             className={cn(
-                              "h-auto py-3 px-4 rounded-xl flex items-center justify-start text-start gap-2.5 transition-all cursor-pointer",
+                              "flex h-auto cursor-pointer items-center justify-start gap-2.5 rounded-xl px-4 py-3 text-start transition-all",
                               isSelected
                                 ? "border-primary/50 bg-primary/10 text-foreground ring-1 ring-primary/30"
-                                : "border-border hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+                                : "border-border text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                             )}
                           >
                             <span
                               aria-hidden="true"
                               className={cn(
                                 "flex size-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-                                isSelected ? "border-primary" : "border-muted-foreground/50"
+                                isSelected
+                                  ? "border-primary"
+                                  : "border-muted-foreground/50"
                               )}
                             >
-                              {isSelected && <span className="size-2 rounded-full bg-primary" />}
+                              {isSelected && (
+                                <span className="size-2 rounded-full bg-primary" />
+                              )}
                             </span>
                             <span className="text-xs font-semibold">
                               {t(`participation.${status}`)}
@@ -954,11 +1046,11 @@ export function ParticipantProfilePage() {
               </Card>
 
               {/* Bottom Actions Bar */}
-              <div className="flex items-center gap-3 pt-2 pb-6 flex-wrap">
+              <div className="flex flex-wrap items-center gap-3 pt-2 pb-6">
                 <Button
                   type="submit"
                   disabled={!dirty || saving}
-                  className="rounded-xl px-5 h-10 font-semibold gap-2 shadow-xs cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="h-10 cursor-pointer gap-2 rounded-xl bg-primary px-5 font-semibold text-primary-foreground shadow-xs hover:bg-primary/90"
                 >
                   <Save className="size-4" />
                   <span>{t(saving ? "saving" : "save")}</span>
@@ -974,13 +1066,16 @@ export function ParticipantProfilePage() {
                       setNameError(false)
                     }
                   }}
-                  className="rounded-xl px-4 h-10 font-medium cursor-pointer"
+                  className="h-10 cursor-pointer rounded-xl px-4 font-medium"
                 >
                   <RotateCcw className="size-4 text-muted-foreground" />
                   <span>{t("discard")}</span>
                 </Button>
 
-                <div role="status" className="text-xs text-muted-foreground ms-auto">
+                <div
+                  role="status"
+                  className="ms-auto text-xs text-muted-foreground"
+                >
                   {t(saved ? "saved" : dirty ? "unsaved" : "upToDate")}
                 </div>
 
@@ -990,7 +1085,7 @@ export function ParticipantProfilePage() {
 
             {/* Sidebar Column: Matching Card + Privacy + Next */}
             <aside
-              className="lg:col-span-4 flex flex-col gap-6 min-w-0"
+              className="flex min-w-0 flex-col gap-6 lg:col-span-4"
               aria-label={t("matchingTitle")}
             >
               {matchingCard()}
@@ -1000,11 +1095,13 @@ export function ParticipantProfilePage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
                     <Shield className="size-4 text-primary" />
-                    <CardTitle className="text-sm">{t("privacyTitle")}</CardTitle>
+                    <CardTitle className="text-sm">
+                      {t("privacyTitle")}
+                    </CardTitle>
                   </div>
                 </CardHeader>
                 <Separator />
-                <CardContent className="pt-5 space-y-4">
+                <CardContent className="space-y-4 pt-5">
                   {(
                     [
                       "isPublic",
@@ -1014,7 +1111,7 @@ export function ParticipantProfilePage() {
                   ).map((key) => (
                     <label
                       key={key}
-                      className="flex items-start gap-3 text-xs font-medium text-foreground cursor-pointer group"
+                      className="group flex cursor-pointer items-start gap-3 text-xs font-medium text-foreground"
                     >
                       <Checkbox
                         className="mt-0.5 rounded-sm"
@@ -1027,7 +1124,7 @@ export function ParticipantProfilePage() {
                     </label>
                   ))}
 
-                  <div className="rounded-xl bg-muted/50 p-3 border border-border/40 text-[11px] text-muted-foreground leading-relaxed">
+                  <div className="rounded-xl border border-border/40 bg-muted/50 p-3 text-[11px] leading-relaxed text-muted-foreground">
                     {t("privacyNote")}
                   </div>
 
@@ -1035,7 +1132,7 @@ export function ParticipantProfilePage() {
                     type="button"
                     variant="outline"
                     onClick={() => setPreview(true)}
-                    className="w-full rounded-xl h-9 text-xs font-medium cursor-pointer gap-2"
+                    className="h-9 w-full cursor-pointer gap-2 rounded-xl text-xs font-medium"
                   >
                     <Eye className="size-3.5 text-primary" />
                     <span>{t("preview")}</span>
@@ -1056,11 +1153,13 @@ export function ParticipantProfilePage() {
                     href="/dashboard/participant/challenges"
                     className={cn(
                       buttonVariants(),
-                      "w-full rounded-xl h-9 text-xs font-semibold cursor-pointer gap-2"
+                      "h-9 w-full cursor-pointer gap-2 rounded-xl text-xs font-semibold"
                     )}
                   >
                     <span>{t("explore")}</span>
-                    <span aria-hidden="true">{locale === "ar" ? "←" : "→"}</span>
+                    <span aria-hidden="true">
+                      {locale === "ar" ? "←" : "→"}
+                    </span>
                   </Link>
                 </CardContent>
               </Card>
@@ -1085,16 +1184,14 @@ export function ParticipantProfilePage() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-2">
-            {matchingCard(true)}
-          </div>
+          <div className="py-2">{matchingCard(true)}</div>
 
           <DialogFooter className="sm:justify-start">
             <DialogClose
               render={
                 <Button
                   variant="outline"
-                  className="w-full rounded-xl text-xs h-9 cursor-pointer"
+                  className="h-9 w-full cursor-pointer rounded-xl text-xs"
                 />
               }
             >

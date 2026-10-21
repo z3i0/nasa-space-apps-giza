@@ -80,7 +80,10 @@ export async function judgingApi<T>(
   const text = await response.text()
   // Older API instances return an empty 200 when results are unpublished.
   if (!text.trim() && path === "/results" && method === "GET") return null as T
-  if (!text.trim()) throw new Error("The judging API returned an empty response. Please try again.")
+  if (!text.trim())
+    throw new Error(
+      "The judging API returned an empty response. Please try again."
+    )
   return JSON.parse(text) as T
 }
 export function evaluationScore(assignment: Assignment) {

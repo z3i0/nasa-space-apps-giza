@@ -26,6 +26,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @Get('registration-options')
+  async registrationOptions() {
+    return this.authService.registrationOptions();
+  }
+
+  @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
   @Post('register')
   async register(@Body() dto: RegisterDto) {

@@ -203,7 +203,10 @@ export interface TeamSearch {
 }
 
 export class TeamsRequestError extends Error {
-  constructor(public status: number, message?: string) {
+  constructor(
+    public status: number,
+    message?: string
+  ) {
     super(message || `Teams request failed (${status})`)
   }
 }
@@ -269,12 +272,16 @@ export async function requestTeams<T>(
 }
 
 // Route browser requests through Next so the same session cookie is used everywhere.
-function getApiBase(): string { return "/api" }
+function getApiBase(): string {
+  return "/api"
+}
 function getAuthHeaders(hasBody = false): Record<string, string> {
   return hasBody ? { "Content-Type": "application/json" } : {}
 }
 
-export async function fetchMyTeam(signal?: AbortSignal): Promise<{ team: TeamDetails | null }> {
+export async function fetchMyTeam(
+  signal?: AbortSignal
+): Promise<{ team: TeamDetails | null }> {
   const base = getApiBase()
   const headers = getAuthHeaders()
 
@@ -282,7 +289,9 @@ export async function fetchMyTeam(signal?: AbortSignal): Promise<{ team: TeamDet
     method: "GET",
     credentials: "include",
     cache: "no-store",
-    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15_000)]) : AbortSignal.timeout(15_000),
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(15_000)])
+      : AbortSignal.timeout(15_000),
     headers,
   })
 
@@ -340,7 +349,9 @@ export async function fetchTeams(
     method: "GET",
     credentials: "include",
     cache: "no-store",
-    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15_000)]) : AbortSignal.timeout(15_000),
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(15_000)])
+      : AbortSignal.timeout(15_000),
     headers: getAuthHeaders(),
   })
 
@@ -366,13 +377,18 @@ export async function fetchTeams(
   }
 }
 
-export async function fetchTeamById(teamId: string, signal?: AbortSignal): Promise<TeamDetails> {
+export async function fetchTeamById(
+  teamId: string,
+  signal?: AbortSignal
+): Promise<TeamDetails> {
   const base = getApiBase()
   const response = await fetch(`${base}/teams/${encodeURIComponent(teamId)}`, {
     method: "GET",
     credentials: "include",
     cache: "no-store",
-    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15_000)]) : AbortSignal.timeout(15_000),
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(15_000)])
+      : AbortSignal.timeout(15_000),
     headers: getAuthHeaders(),
   })
 
@@ -426,7 +442,10 @@ export async function updateTeam(
   return response.json()
 }
 
-export async function requestToJoinTeam(teamId: string, message?: string): Promise<{ success: boolean }> {
+export async function requestToJoinTeam(
+  teamId: string,
+  message?: string
+): Promise<{ success: boolean }> {
   const base = getApiBase()
   const response = await fetch(`${base}/teams/${teamId}/join-requests`, {
     method: "POST",
@@ -446,7 +465,10 @@ export async function requestToJoinTeam(teamId: string, message?: string): Promi
   return response.json()
 }
 
-export async function leaveTeam(teamId: string, userId: string): Promise<{ success: boolean }> {
+export async function leaveTeam(
+  teamId: string,
+  userId: string
+): Promise<{ success: boolean }> {
   const base = getApiBase()
   const response = await fetch(`${base}/teams/${teamId}/members/${userId}`, {
     method: "DELETE",
@@ -465,11 +487,17 @@ export async function leaveTeam(teamId: string, userId: string): Promise<{ succe
   return response.json()
 }
 
-export async function removeTeamMember(teamId: string, userId: string): Promise<{ success: boolean }> {
+export async function removeTeamMember(
+  teamId: string,
+  userId: string
+): Promise<{ success: boolean }> {
   return leaveTeam(teamId, userId)
 }
 
-export async function transferLeadership(teamId: string, userId: string): Promise<{ success: boolean }> {
+export async function transferLeadership(
+  teamId: string,
+  userId: string
+): Promise<{ success: boolean }> {
   const base = getApiBase()
   const response = await fetch(
     `${base}/teams/${encodeURIComponent(teamId)}/members/${userId}/transfer-leadership`,
@@ -491,14 +519,21 @@ export async function transferLeadership(teamId: string, userId: string): Promis
   return response.json()
 }
 
-export async function inviteMember(teamId: string, username: string, role?: string): Promise<{ success: boolean }> {
+export async function inviteMember(
+  teamId: string,
+  username: string,
+  role?: string
+): Promise<{ success: boolean }> {
   const base = getApiBase()
-  const response = await fetch(`${base}/teams/${encodeURIComponent(teamId)}/invitations`, {
-    method: "POST",
-    credentials: "include",
-    headers: getAuthHeaders(true),
-    body: JSON.stringify({ username: username.trim(), role }),
-  })
+  const response = await fetch(
+    `${base}/teams/${encodeURIComponent(teamId)}/invitations`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: getAuthHeaders(true),
+      body: JSON.stringify({ username: username.trim(), role }),
+    }
+  )
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
@@ -520,13 +555,17 @@ export interface MyTeamInvitation {
   invitedByUser: { id: string; name: string; username: string | null }
 }
 
-export async function fetchMyInvitations(signal?: AbortSignal): Promise<{ invitations: MyTeamInvitation[] }> {
+export async function fetchMyInvitations(
+  signal?: AbortSignal
+): Promise<{ invitations: MyTeamInvitation[] }> {
   const base = getApiBase()
   const response = await fetch(`${base}/teams/invitations/me`, {
     method: "GET",
     credentials: "include",
     cache: "no-store",
-    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15_000)]) : AbortSignal.timeout(15_000),
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(15_000)])
+      : AbortSignal.timeout(15_000),
     headers: getAuthHeaders(),
   })
 
@@ -537,34 +576,47 @@ export async function fetchMyInvitations(signal?: AbortSignal): Promise<{ invita
   return response.json()
 }
 
-export async function respondToInvitation(invitationId: string, accept: boolean): Promise<{ success: boolean }> {
+export async function respondToInvitation(
+  invitationId: string,
+  accept: boolean
+): Promise<{ success: boolean }> {
   const base = getApiBase()
-  const response = await fetch(`${base}/teams/invitations/${invitationId}/respond`, {
-    method: "POST",
-    credentials: "include",
-    headers: getAuthHeaders(true),
-    body: JSON.stringify({ accept }),
-  })
+  const response = await fetch(
+    `${base}/teams/invitations/${invitationId}/respond`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: getAuthHeaders(true),
+      body: JSON.stringify({ accept }),
+    }
+  )
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
     throw new TeamsRequestError(
       response.status,
-      errorData.message || `Failed to respond to invitation (${response.status})`
+      errorData.message ||
+        `Failed to respond to invitation (${response.status})`
     )
   }
 
   return response.json()
 }
 
-export async function respondToJoinRequest(requestId: string, accept: boolean): Promise<{ success: boolean }> {
+export async function respondToJoinRequest(
+  requestId: string,
+  accept: boolean
+): Promise<{ success: boolean }> {
   const base = getApiBase()
-  const response = await fetch(`${base}/teams/join-requests/${requestId}/respond`, {
-    method: "POST",
-    credentials: "include",
-    headers: getAuthHeaders(true),
-    body: JSON.stringify({ accept }),
-  })
+  const response = await fetch(
+    `${base}/teams/join-requests/${requestId}/respond`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: getAuthHeaders(true),
+      body: JSON.stringify({ accept }),
+    }
+  )
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))

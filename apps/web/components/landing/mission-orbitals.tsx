@@ -107,7 +107,9 @@ function PixelCanvas({ className }: { className?: string }) {
           const targetY = pixel.baseY - Math.sin(angle) * force * 35
           pixel.x += (targetX - pixel.x) * 0.12
           pixel.y += (targetY - pixel.y) * 0.12
-          pixel.opacity += (Math.min(0.6, pixel.baseOpacity + force * 0.5) - pixel.opacity) * 0.15
+          pixel.opacity +=
+            (Math.min(0.6, pixel.baseOpacity + force * 0.5) - pixel.opacity) *
+            0.15
         } else {
           pixel.x += (pixel.baseX - pixel.x) * 0.06
           pixel.y += (pixel.baseY - pixel.y) * 0.06

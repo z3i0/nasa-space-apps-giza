@@ -112,9 +112,17 @@ test("real participant, mentor, judge and organizer browser journey", async ({
     await expect(
       participant.getByRole("heading", { name: teamName, exact: true })
     ).toBeVisible()
-    await participant.getByRole("link", { name: "Team overview", exact: true }).click()
-    await expect(participant.getByRole("heading", { name: teamName, exact: true })).toBeVisible()
-    await expect(participant.getByRole("button", { name: "Edit Team", exact: true }).first()).toBeVisible()
+    await participant
+      .getByRole("link", { name: "Team overview", exact: true })
+      .click()
+    await expect(
+      participant.getByRole("heading", { name: teamName, exact: true })
+    ).toBeVisible()
+    await expect(
+      participant
+        .getByRole("button", { name: "Edit Team", exact: true })
+        .first()
+    ).toBeVisible()
     await participant.goto("/en/dashboard/participant/challenges")
     await expect(participant.getByRole("article")).toHaveCount(14)
     await organizerPage.goto("/en/login")

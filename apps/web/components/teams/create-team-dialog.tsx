@@ -33,11 +33,31 @@ interface CreateTeamDialogProps {
 }
 
 export const TRACK_OPTIONS = [
-  { value: "earthScience", labelAr: "علوم الأرض والمناخ (Earth Science)", labelEn: "Earth Science & Climate" },
-  { value: "spaceDebris", labelAr: "الحطام الفضائي والاستكشاف (Space Debris)", labelEn: "Space Debris & Exploration" },
-  { value: "astrophysics", labelAr: "الفيزياء الفلكية والكواكب (Astrophysics)", labelEn: "Astrophysics & Planetary" },
-  { value: "solarPhysics", labelAr: "فيزياء الشمس وطقس الفضاء (Solar Physics)", labelEn: "Solar Physics & Space Weather" },
-  { value: "openData", labelAr: "البيانات المفتوحة والذكاء الاصطناعي (Open Data)", labelEn: "Open Data & AI" },
+  {
+    value: "earthScience",
+    labelAr: "علوم الأرض والمناخ (Earth Science)",
+    labelEn: "Earth Science & Climate",
+  },
+  {
+    value: "spaceDebris",
+    labelAr: "الحطام الفضائي والاستكشاف (Space Debris)",
+    labelEn: "Space Debris & Exploration",
+  },
+  {
+    value: "astrophysics",
+    labelAr: "الفيزياء الفلكية والكواكب (Astrophysics)",
+    labelEn: "Astrophysics & Planetary",
+  },
+  {
+    value: "solarPhysics",
+    labelAr: "فيزياء الشمس وطقس الفضاء (Solar Physics)",
+    labelEn: "Solar Physics & Space Weather",
+  },
+  {
+    value: "openData",
+    labelAr: "البيانات المفتوحة والذكاء الاصطناعي (Open Data)",
+    labelEn: "Open Data & AI",
+  },
 ] as const
 
 export function CreateTeamDialog({
@@ -81,7 +101,10 @@ export function CreateTeamDialog({
     setError("")
 
     try {
-      const trackLabel = tTracks(track as keyof typeof import("../../messages/en/teams.json")["Teams"]["tracks"]) || track
+      const trackLabel =
+        tTracks(
+          track as keyof (typeof import("../../messages/en/teams.json"))["Teams"]["tracks"]
+        ) || track
 
       const newTeam = await createTeam({
         name: trimmedName,
@@ -118,17 +141,20 @@ export function CreateTeamDialog({
         }
       }}
     >
-      <DialogContent className="max-w-md sm:max-w-lg rounded-2xl p-6 sm:p-7 gap-5" dir={locale === "ar" ? "rtl" : "ltr"}>
+      <DialogContent
+        className="max-w-md gap-5 rounded-2xl p-6 sm:max-w-lg sm:p-7"
+        dir={locale === "ar" ? "rtl" : "ltr"}
+      >
         <DialogHeader className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center ring-1 ring-primary/20">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
               <Users className="size-5" />
             </div>
             <div>
-              <DialogTitle className="text-lg sm:text-xl font-bold">
+              <DialogTitle className="text-lg font-bold sm:text-xl">
                 {t("createTitle")}
               </DialogTitle>
-              <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+              <DialogDescription className="text-xs text-muted-foreground sm:text-sm">
                 {t("createSubtitle")}
               </DialogDescription>
             </div>
@@ -137,7 +163,7 @@ export function CreateTeamDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
               <AlertCircle className="size-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -145,7 +171,10 @@ export function CreateTeamDialog({
 
           {/* Team Name */}
           <div className="space-y-1.5">
-            <label htmlFor="team-name" className="text-xs font-semibold text-foreground block">
+            <label
+              htmlFor="team-name"
+              className="block text-xs font-semibold text-foreground"
+            >
               {t("teamNameLabel")} <span className="text-destructive">*</span>
             </label>
             <Input
@@ -158,7 +187,7 @@ export function CreateTeamDialog({
               placeholder={t("teamNamePlaceholder")}
               maxLength={50}
               required
-              className="rounded-xl h-10 text-sm"
+              className="h-10 rounded-xl text-sm"
               disabled={loading}
               autoFocus
             />
@@ -166,11 +195,21 @@ export function CreateTeamDialog({
 
           {/* Track Selection */}
           <div className="space-y-1.5">
-            <label htmlFor="team-track" className="text-xs font-semibold text-foreground block">
+            <label
+              htmlFor="team-track"
+              className="block text-xs font-semibold text-foreground"
+            >
               {t("trackLabel")}
             </label>
-            <Select value={track} onValueChange={(val) => setTrack(val || "earthScience")} disabled={loading}>
-              <SelectTrigger id="team-track" className="w-full h-10 rounded-xl text-xs sm:text-sm">
+            <Select
+              value={track}
+              onValueChange={(val) => setTrack(val || "earthScience")}
+              disabled={loading}
+            >
+              <SelectTrigger
+                id="team-track"
+                className="h-10 w-full rounded-xl text-xs sm:text-sm"
+              >
                 <SelectValue placeholder={t("chooseTrack")} />
               </SelectTrigger>
               <SelectContent>
@@ -187,7 +226,10 @@ export function CreateTeamDialog({
 
           {/* Leader Assigned Role */}
           <div className="space-y-1.5">
-            <label htmlFor="leader-role" className="text-xs font-semibold text-foreground block">
+            <label
+              htmlFor="leader-role"
+              className="block text-xs font-semibold text-foreground"
+            >
               {t("leaderRoleLabel")}
             </label>
             <Input
@@ -196,7 +238,7 @@ export function CreateTeamDialog({
               onChange={(e) => setAssignedRole(e.target.value)}
               placeholder={t("leaderRolePlaceholder")}
               maxLength={60}
-              className="rounded-xl h-10 text-sm"
+              className="h-10 rounded-xl text-sm"
               disabled={loading}
             />
           </div>
@@ -204,10 +246,13 @@ export function CreateTeamDialog({
           {/* Description */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label htmlFor="team-desc" className="text-xs font-semibold text-foreground">
+              <label
+                htmlFor="team-desc"
+                className="text-xs font-semibold text-foreground"
+              >
                 {t("descLabel")}
               </label>
-              <span className="text-xs text-muted-foreground font-mono">
+              <span className="font-mono text-xs text-muted-foreground">
                 {description.length} / 500
               </span>
             </div>
@@ -217,25 +262,25 @@ export function CreateTeamDialog({
               onChange={(e) => setDescription(e.target.value)}
               placeholder={t("descPlaceholder")}
               maxLength={500}
-              className="rounded-xl min-h-[85px] text-sm resize-none"
+              className="min-h-[85px] resize-none rounded-xl text-sm"
               disabled={loading}
             />
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0 pt-2">
+          <DialogFooter className="gap-2 pt-2 sm:gap-0">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={loading}
-              className="rounded-xl text-xs sm:text-sm cursor-pointer"
+              className="cursor-pointer rounded-xl text-xs sm:text-sm"
             >
               {t("cancel")}
             </Button>
             <Button
               type="submit"
               disabled={loading || !name.trim()}
-              className="rounded-xl text-xs sm:text-sm font-semibold cursor-pointer gap-2"
+              className="cursor-pointer gap-2 rounded-xl text-xs font-semibold sm:text-sm"
             >
               {loading ? (
                 <>

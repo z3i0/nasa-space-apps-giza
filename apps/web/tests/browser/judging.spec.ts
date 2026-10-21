@@ -159,15 +159,24 @@ test("judge saves a draft, reloads it, finalizes, and sees real progress", async
     fullPage: true,
   })
 })
-test("judge dashboard handles an empty unpublished-results response", async ({ page, context }) => {
+test("judge dashboard handles an empty unpublished-results response", async ({
+  page,
+  context,
+}) => {
   await fixture(page, context)
   await page.route("**/api/judging/results", (route) =>
     route.fulfill({ status: 200, body: "" })
   )
   await page.goto("/en/dashboard/judge")
-  await expect(page.getByRole("heading", { name: "Judge dashboard", exact: true })).toBeVisible()
-  await expect(page.getByRole("link", { name: "Evaluate project", exact: true })).toBeVisible()
-  await expect(page.getByRole("alert").filter({ hasText: /JSON|empty response/ })).toHaveCount(0)
+  await expect(
+    page.getByRole("heading", { name: "Judge dashboard", exact: true })
+  ).toBeVisible()
+  await expect(
+    page.getByRole("link", { name: "Evaluate project", exact: true })
+  ).toBeVisible()
+  await expect(
+    page.getByRole("alert").filter({ hasText: /JSON|empty response/ })
+  ).toHaveCount(0)
 })
 
 test("organizer creates rubric and gets a publication validation error", async ({

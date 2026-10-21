@@ -70,8 +70,12 @@ export function DashboardLayoutClient({
               className="w-full min-w-0 flex-1 outline-none"
             >
               {currentRole === "mentor" || currentRole === "judge" ? (
-                <RoleAccessGate key={currentRole} role={currentRole}>{children}</RoleAccessGate>
-              ) : children}
+                <RoleAccessGate key={currentRole} role={currentRole}>
+                  {children}
+                </RoleAccessGate>
+              ) : (
+                children
+              )}
             </main>
             <footer className="mt-[26px] border-t border-border pt-[26px] text-[11px] leading-[1.55] text-muted-foreground">
               {t("footer")}

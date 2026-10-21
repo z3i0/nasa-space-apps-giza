@@ -39,7 +39,7 @@ export function ChallengeSelect({
       <select
         id={id}
         className={className}
-        value={options?.some(option => option.title === value) ? value : ""}
+        value={options?.some((option) => option.title === value) ? value : ""}
         onChange={(e) => onChange(e.target.value)}
         disabled={!options || error}
         aria-describedby={`${id}-help`}

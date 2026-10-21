@@ -19,8 +19,8 @@ export function SmoothScroll() {
     if (preference.matches) return
 
     const lenis = new Lenis({
-      lerp: 0.07,          // lower = smoother & slower catch-up
-      duration: 1.4,       // base ease duration for anchor scrolls
+      lerp: 0.07, // lower = smoother & slower catch-up
+      duration: 1.4, // base ease duration for anchor scrolls
       smoothWheel: true,
       touchMultiplier: 1.5,
     })

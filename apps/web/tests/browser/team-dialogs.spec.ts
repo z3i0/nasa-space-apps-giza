@@ -40,7 +40,9 @@ const teamFixture = {
 
 test.beforeEach(async ({ context }) => profileSession(context))
 
-test("Arabic team page opens Dialog instead of native window.confirm for leave action", async ({ page }) => {
+test("Arabic team page opens Dialog instead of native window.confirm for leave action", async ({
+  page,
+}) => {
   let nativeDialogTriggered = false
   page.on("dialog", (dialog) => {
     nativeDialogTriggered = true
@@ -73,7 +75,9 @@ test("Arabic team page opens Dialog instead of native window.confirm for leave a
   await expect(dialogModal).not.toBeVisible()
 })
 
-test("English team page opens Dialog instead of native window.confirm for leave action", async ({ page }) => {
+test("English team page opens Dialog instead of native window.confirm for leave action", async ({
+  page,
+}) => {
   let nativeDialogTriggered = false
   page.on("dialog", (dialog) => {
     nativeDialogTriggered = true
@@ -106,7 +110,9 @@ test("English team page opens Dialog instead of native window.confirm for leave 
   await expect(dialogModal).not.toBeVisible()
 })
 
-test("Arabic team page opens Dialog for member removal and transfer actions", async ({ page }) => {
+test("Arabic team page opens Dialog for member removal and transfer actions", async ({
+  page,
+}) => {
   let nativeDialogTriggered = false
   page.on("dialog", (dialog) => {
     nativeDialogTriggered = true
@@ -156,7 +162,9 @@ test("Arabic team page opens Dialog for member removal and transfer actions", as
   await expect(transferDialog).not.toBeVisible()
 })
 
-test("Team permalink [teamId] page opens Dialog for leave and leader actions", async ({ page }) => {
+test("Team permalink [teamId] page opens Dialog for leave and leader actions", async ({
+  page,
+}) => {
   let nativeDialogTriggered = false
   page.on("dialog", (dialog) => {
     nativeDialogTriggered = true
@@ -185,11 +193,16 @@ test("Team permalink [teamId] page opens Dialog for leave and leader actions", a
   await expect(dialogModal).not.toBeVisible()
 })
 
-test("ignores another account's cached team while loading the current team", async ({ page }) => {
+test("ignores another account's cached team while loading the current team", async ({
+  page,
+}) => {
   await page.addInitScript((fixture) => {
     localStorage.setItem(
       "my_team_cache",
-      JSON.stringify({ userId: "another-account", team: { ...fixture, name: "Another account team" } })
+      JSON.stringify({
+        userId: "another-account",
+        team: { ...fixture, name: "Another account team" },
+      })
     )
   }, teamFixture)
 
@@ -200,22 +213,43 @@ test("ignores another account's cached team while loading the current team", asy
   })
 
   await page.goto("/ar/dashboard/participant/team/overview")
-  await expect(page.getByRole("heading", { name: "Another account team" })).toHaveCount(0)
+  await expect(
+    page.getByRole("heading", { name: "Another account team" })
+  ).toHaveCount(0)
 
   // The verified current team replaces the loading state.
-  await expect(page.getByRole("heading", { name: "NileScope Pioneers" })).toBeVisible()
+  await expect(
+    page.getByRole("heading", { name: "NileScope Pioneers" })
+  ).toBeVisible()
 
   // The "no team" hero must NOT appear
   await expect(page.getByText("You dont have a team yet")).not.toBeVisible()
 })
 
-test("the original creator loses leader controls after transferring leadership", async ({ page }) => {
-  await page.route("**/teams/me", route => route.fulfill({ json: { team: {
-    ...teamFixture,
-    members: teamFixture.members.map(member => ({ ...member, role: member.userId === "profile-user" ? "member" : "leader" })),
-  } } }))
+test("the original creator loses leader controls after transferring leadership", async ({
+  page,
+}) => {
+  await page.route("**/teams/me", (route) =>
+    route.fulfill({
+      json: {
+        team: {
+          ...teamFixture,
+          members: teamFixture.members.map((member) => ({
+            ...member,
+            role: member.userId === "profile-user" ? "member" : "leader",
+          })),
+        },
+      },
+    })
+  )
   await page.goto("/en/dashboard/participant/team/overview")
-  await expect(page.getByRole("heading", { name: teamFixture.name })).toBeVisible()
-  await expect(page.getByRole("button", { name: "Edit Team", exact: true })).toHaveCount(0)
-  await expect(page.getByRole("button", { name: "Member actions", exact: true })).toHaveCount(0)
+  await expect(
+    page.getByRole("heading", { name: teamFixture.name })
+  ).toBeVisible()
+  await expect(
+    page.getByRole("button", { name: "Edit Team", exact: true })
+  ).toHaveCount(0)
+  await expect(
+    page.getByRole("button", { name: "Member actions", exact: true })
+  ).toHaveCount(0)
 })

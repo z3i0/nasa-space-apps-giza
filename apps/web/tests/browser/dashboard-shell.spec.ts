@@ -35,7 +35,9 @@ async function setUser(context: BrowserContext, role = "participant") {
 }
 
 async function openProfile(page: Page, locale = "en") {
-  await page.route("**/api/account/challenge-options",r=>r.fulfill({json:[]}))
+  await page.route("**/api/account/challenge-options", (r) =>
+    r.fulfill({ json: [] })
+  )
   await page.route("**/api/profiles/me", (route) =>
     route.fulfill({ json: profileFixture })
   )

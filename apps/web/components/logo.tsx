@@ -26,20 +26,20 @@ export function Logo({
     <div
       data-slot="logo"
       className={cn(
-        "relative flex aspect-square items-center justify-center shrink-0",
+        "relative flex aspect-square shrink-0 items-center justify-center",
         sizeClasses[size],
         className
       )}
       {...props}
     >
-      <div className="size-full rounded-full overflow-hidden bg-white shadow-xs ring-1 ring-black/10 dark:ring-white/20 flex items-center justify-center">
+      <div className="flex size-full items-center justify-center overflow-hidden rounded-full bg-white shadow-xs ring-1 ring-black/10 dark:ring-white/20">
         <Image
           src="/logo.jpg"
           alt="NASA Space Apps Giza"
           width={96}
           height={96}
           className={cn(
-            "size-full object-contain p-0.5 select-none transition-transform duration-300 group-hover:scale-105",
+            "size-full object-contain p-0.5 transition-transform duration-300 select-none group-hover:scale-105",
             imageClassName
           )}
           priority

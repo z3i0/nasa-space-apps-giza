@@ -35,6 +35,7 @@ async function bootstrap() {
   const betterAuthHandler = toNodeHandler(auth);
   const nestAuthRoutes = new Set([
     '/api/auth/register',
+    '/api/auth/registration-options',
     '/api/auth/login',
     '/api/auth/refresh',
     '/api/auth/logout',

@@ -13,7 +13,8 @@ export interface PageHeaderProps {
   /** Subtitle or secondary description text */
   subtitle?: React.ReactNode
   /** Lucide icon component, React component, or custom icon element */
-  icon?: LucideIcon | React.ComponentType<{ className?: string }> | React.ReactNode
+  icon?:
+    LucideIcon | React.ComponentType<{ className?: string }> | React.ReactNode
   /** Custom classes for the icon container (e.g. background and text color) */
   iconClassName?: string
   /** Destination URL for the back navigation button */
@@ -76,7 +77,7 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        "flex items-center justify-between flex-wrap gap-4 pb-3 border-b border-border/50",
+        "flex flex-wrap items-center justify-between gap-4 border-b border-border/50 pb-3",
         className
       )}
     >
@@ -84,13 +85,13 @@ export function PageHeader({
       <div className="flex items-center gap-3">
         {renderIcon()}
         <div className="space-y-0.5">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
               {title}
             </h1>
           </div>
           {subtitle && (
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
               {subtitle}
             </p>
           )}
@@ -99,15 +100,13 @@ export function PageHeader({
 
       {/* End: Actions & Back Button */}
       {(actions || backHref || children) && (
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {actions}
           {children}
           {backHref && (
             <Link
               href={backHref}
-              className={cn(
-                buttonVariants({ variant: "outline" })
-              )}
+              className={cn(buttonVariants({ variant: "outline" }))}
             >
               <BackIcon className="size-3.5 shrink-0" />
               <span>{backLabel || t("placeholder.backToOverview")}</span>

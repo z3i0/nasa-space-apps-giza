@@ -5,11 +5,39 @@ import { useTranslations, useLocale } from "next-intl"
 import { RoleGuard } from "@/components/role-guard"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { Link } from "@/i18n/routing"
-import { Users, Compass, Plus, Rocket, Sparkles, UserPlus, LogOut, Check, X, AlertTriangle, Copy, Crown, Target, Loader2, Pencil, MoreVertical } from "lucide-react"
+import {
+  Users,
+  Compass,
+  Plus,
+  Rocket,
+  Sparkles,
+  UserPlus,
+  LogOut,
+  Check,
+  X,
+  AlertTriangle,
+  Copy,
+  Crown,
+  Target,
+  Loader2,
+  Pencil,
+  MoreVertical,
+} from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -17,7 +45,16 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { useAuthUser, getAuthUser } from "@/lib/auth"
-import { fetchMyTeam, leaveTeam, removeTeamMember, transferLeadership, inviteMember, respondToJoinRequest, type TeamDetails, type TeamMember } from "@/lib/teams"
+import {
+  fetchMyTeam,
+  leaveTeam,
+  removeTeamMember,
+  transferLeadership,
+  inviteMember,
+  respondToJoinRequest,
+  type TeamDetails,
+  type TeamMember,
+} from "@/lib/teams"
 import { CreateTeamDialog } from "@/components/teams/create-team-dialog"
 import { EditTeamDialog } from "@/components/teams/edit-team-dialog"
 import { ConfirmActionDialog } from "@/components/teams/confirm-action-dialog"
@@ -28,7 +65,10 @@ export interface MyTeamClientProps {
 
 export function MyTeamClient({ initialTeam }: MyTeamClientProps) {
   const user = useAuthUser()
-  const ownTeam = user?.id && initialTeam?.members.some(member => member.userId === user.id) ? initialTeam : undefined
+  const ownTeam =
+    user?.id && initialTeam?.members.some((member) => member.userId === user.id)
+      ? initialTeam
+      : undefined
   return <MyTeamContent key={user?.id || "session"} initialTeam={ownTeam} />
 }
 
@@ -36,9 +76,12 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
   const t = useTranslations("Teams.myTeam")
   const locale = useLocale()
   const user = useAuthUser()
-  const currentUser = user || (typeof window !== "undefined" ? getAuthUser() : null)
+  const currentUser =
+    user || (typeof window !== "undefined" ? getAuthUser() : null)
 
-  const [team, setTeam] = React.useState<TeamDetails | null | undefined>(initialTeam)
+  const [team, setTeam] = React.useState<TeamDetails | null | undefined>(
+    initialTeam
+  )
   const [loading, setLoading] = React.useState<boolean>(team === undefined)
   const [error, setError] = React.useState("")
   const [createOpen, setCreateOpen] = React.useState(false)
@@ -50,7 +93,9 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
   // Confirmation dialog state
   type ConfirmModalType = "leave" | "remove" | "transfer" | null
   const [confirmType, setConfirmType] = React.useState<ConfirmModalType>(null)
-  const [targetMember, setTargetMember] = React.useState<TeamMember | null>(null)
+  const [targetMember, setTargetMember] = React.useState<TeamMember | null>(
+    null
+  )
   const [confirmLoading, setConfirmLoading] = React.useState(false)
 
   const loadTeam = React.useCallback(async (silent = false) => {
@@ -64,7 +109,9 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
     } catch (err) {
       console.error("Failed to load team:", err)
       if (!silent) {
-        setError((err instanceof Error ? err.message : "") || "Failed to load team")
+        setError(
+          (err instanceof Error ? err.message : "") || "Failed to load team"
+        )
       }
     } finally {
       if (!silent) {
@@ -75,20 +122,26 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
 
   React.useEffect(() => {
     const controller = new AbortController()
-    fetchMyTeam(controller.signal).then(data => {
-      if (!controller.signal.aborted) setTeam(data.team)
-    }).catch(error => {
-      if (!controller.signal.aborted) setError(error instanceof Error ? error.message : t("actionFailed"))
-    }).finally(() => {
-      if (!controller.signal.aborted) setLoading(false)
-    })
+    fetchMyTeam(controller.signal)
+      .then((data) => {
+        if (!controller.signal.aborted) setTeam(data.team)
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted)
+          setError(error instanceof Error ? error.message : t("actionFailed"))
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false)
+      })
     return () => controller.abort()
   }, [t])
 
   const isLeader = Boolean(
     team &&
     currentUser?.id &&
-    team.members?.some((m) => m.userId === currentUser.id && m.role === "leader")
+    team.members?.some(
+      (m) => m.userId === currentUser.id && m.role === "leader"
+    )
   )
 
   const handleCopyLink = () => {
@@ -121,7 +174,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
       if (confirmType === "leave") {
         if (!currentUser?.id) return
         await leaveTeam(team.id, currentUser.id)
-          setTeam(null)
+        setTeam(null)
         toast.success(t("leaveSuccess"))
         setConfirmType(null)
         void loadTeam(false)
@@ -139,7 +192,9 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
         void loadTeam(true)
       }
     } catch (err) {
-      toast.error((err instanceof Error ? err.message : "") || t("actionFailed"))
+      toast.error(
+        (err instanceof Error ? err.message : "") || t("actionFailed")
+      )
     } finally {
       setConfirmLoading(false)
     }
@@ -149,7 +204,9 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
     if (confirmType === "leave") {
       return {
         title: t("confirmLeaveTitle"),
-        description: isLeader ? t("leaveConfirmLeader") : t("leaveConfirmMember"),
+        description: isLeader
+          ? t("leaveConfirmLeader")
+          : t("leaveConfirmMember"),
         confirmText: t("leaveTeam"),
         variant: "destructive" as const,
         icon: LogOut,
@@ -158,7 +215,9 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
     if (confirmType === "remove" && targetMember) {
       return {
         title: t("confirmRemoveTitle"),
-        description: t("removeMemberConfirm", { name: targetMember.user?.name || "" }),
+        description: t("removeMemberConfirm", {
+          name: targetMember.user?.name || "",
+        }),
         confirmText: t("removeMemberBtn"),
         variant: "destructive" as const,
         icon: AlertTriangle,
@@ -167,7 +226,9 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
     if (confirmType === "transfer" && targetMember) {
       return {
         title: t("confirmTransferTitle"),
-        description: t("transferLeaderConfirm", { name: targetMember.user?.name || "" }),
+        description: t("transferLeaderConfirm", {
+          name: targetMember.user?.name || "",
+        }),
         confirmText: t("transferLeaderBtn"),
         variant: "default" as const,
         icon: Crown,
@@ -186,7 +247,9 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
       setInviteUsername("")
       void loadTeam(true)
     } catch (err) {
-      toast.error((err instanceof Error ? err.message : "") || t("actionFailed"))
+      toast.error(
+        (err instanceof Error ? err.message : "") || t("actionFailed")
+      )
     } finally {
       setInviting(false)
     }
@@ -198,7 +261,9 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
       toast.success(accept ? t("requestAccepted") : t("requestRejected"))
       void loadTeam(true)
     } catch (err) {
-      toast.error((err instanceof Error ? err.message : "") || t("actionFailed"))
+      toast.error(
+        (err instanceof Error ? err.message : "") || t("actionFailed")
+      )
     }
   }
 
@@ -206,14 +271,14 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
 
   return (
     <RoleGuard allowedRoles={["participant"]}>
-      <div className="w-full flex flex-col gap-6">
+      <div className="flex w-full flex-col gap-6">
         {/* Header */}
         <PageHeader
           icon={Users}
           title={team ? team.name : isInitialLoading ? "" : t("title")}
           subtitle={
             team
-              ? (team.track || t("subtitleWithTeam"))
+              ? team.track || t("subtitleWithTeam")
               : isInitialLoading
                 ? t("subtitleWithTeam")
                 : t("subtitleNoTeam")
@@ -225,14 +290,14 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                 <Skeleton className="h-9 w-28 rounded-xl" />
               </div>
             ) : team ? (
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 {isLeader && (
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => setEditOpen(true)}
-                    className="rounded-xl text-xs h-9 gap-1.5 cursor-pointer shadow-xs border-primary/30 hover:bg-primary/5 text-primary"
+                    className="h-9 cursor-pointer gap-1.5 rounded-xl border-primary/30 text-xs text-primary shadow-xs hover:bg-primary/5"
                   >
                     <Pencil className="size-3.5" />
                     <span>{t("editTeamBtn")}</span>
@@ -243,9 +308,13 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                   variant="outline"
                   size="sm"
                   onClick={handleCopyLink}
-                  className="rounded-xl text-xs h-9 gap-1.5 cursor-pointer shadow-xs"
+                  className="h-9 cursor-pointer gap-1.5 rounded-xl text-xs shadow-xs"
                 >
-                  {copied ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+                  {copied ? (
+                    <Check className="size-3.5 text-emerald-500" />
+                  ) : (
+                    <Copy className="size-3.5" />
+                  )}
                   <span>{t("shareTeam")}</span>
                 </Button>
                 <Button
@@ -253,26 +322,21 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                   variant="destructive"
                   size="sm"
                   onClick={handleOpenLeaveDialog}
-                  className="rounded-xl text-xs h-9 gap-1.5 cursor-pointer shadow-xs"
+                  className="h-9 cursor-pointer gap-1.5 rounded-xl text-xs shadow-xs"
                 >
                   <LogOut className="size-3.5" />
                   <span>{t("leaveTeam")}</span>
                 </Button>
               </div>
             ) : (
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                <Button
-                  type="button"
-                  onClick={() => setCreateOpen(true)}
-                >
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <Button type="button" onClick={() => setCreateOpen(true)}>
                   <Plus className="size-4" />
                   <span>{t("createTeamBtn")}</span>
                 </Button>
                 <Link
                   href="/dashboard/participant/find-team"
-                  className={cn(
-                    buttonVariants({ variant: "outline" })
-                  )}
+                  className={cn(buttonVariants({ variant: "outline" }))}
                 >
                   <Compass className="size-4 text-primary" />
                   <span>{t("findTeamBtn")}</span>
@@ -285,10 +349,10 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
         {/* Loading State */}
         {isInitialLoading && (
           <div className="space-y-6">
-            <Card className="rounded-2xl border-border/60 p-6 space-y-4">
+            <Card className="space-y-4 rounded-2xl border-border/60 p-6">
               <Skeleton className="h-6 w-48 rounded" />
               <Skeleton className="h-4 w-96 rounded" />
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-3">
                 <Skeleton className="h-24 rounded-xl" />
                 <Skeleton className="h-24 rounded-xl" />
                 <Skeleton className="h-24 rounded-xl" />
@@ -300,27 +364,27 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
         {/* State A: User DOES NOT have a team */}
         {!isInitialLoading && !team && (
           <div className="space-y-8">
-            <Card className="rounded-3xl border-border/60 bg-gradient-to-br from-card via-card/90 to-background p-8 sm:p-12 text-center shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 end-0 size-64 bg-primary/5 rounded-full blur-3xl -z-10" />
-              <div className="max-w-xl mx-auto space-y-6">
-                <div className="mx-auto size-16 sm:size-20 rounded-2xl bg-primary/10 text-primary flex items-center justify-center ring-1 ring-primary/25 shadow-inner">
+            <Card className="relative overflow-hidden rounded-3xl border-border/60 bg-gradient-to-br from-card via-card/90 to-background p-8 text-center shadow-sm sm:p-12">
+              <div className="absolute end-0 top-0 -z-10 size-64 rounded-full bg-primary/5 blur-3xl" />
+              <div className="mx-auto max-w-xl space-y-6">
+                <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-inner ring-1 ring-primary/25 sm:size-20">
                   <Rocket className="size-8 sm:size-10" />
                 </div>
 
                 <div className="space-y-2">
-                  <h2 className="text-xl sm:text-3xl font-bold tracking-tight text-foreground font-heading">
+                  <h2 className="font-heading text-xl font-bold tracking-tight text-foreground sm:text-3xl">
                     {t("noTeamHeroTitle")}
                   </h2>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
                     {t("noTeamHeroDesc")}
                   </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <div className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row">
                   <Button
                     size="lg"
                     onClick={() => setCreateOpen(true)}
-                    className="w-full sm:w-auto rounded-xl font-semibold gap-2 cursor-pointer shadow-xs"
+                    className="w-full cursor-pointer gap-2 rounded-xl font-semibold shadow-xs sm:w-auto"
                   >
                     <Plus className="size-4" />
                     <span>{t("createTeamHeroAction")}</span>
@@ -329,7 +393,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                     href="/dashboard/participant/find-team"
                     className={cn(
                       buttonVariants({ variant: "outline", size: "lg" }),
-                      "w-full sm:w-auto rounded-xl gap-2 cursor-pointer shadow-xs border-border/80 hover:bg-muted/50"
+                      "w-full cursor-pointer gap-2 rounded-xl border-border/80 shadow-xs hover:bg-muted/50 sm:w-auto"
                     )}
                   >
                     <Compass className="size-4 text-primary" />
@@ -340,29 +404,41 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
             </Card>
 
             {/* Why teams matter perks */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-              <Card className="rounded-2xl border-border/60 p-6 space-y-3">
-                <div className="size-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
+              <Card className="space-y-3 rounded-2xl border-border/60 p-6">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                   <Sparkles className="size-5" />
                 </div>
-                <h3 className="text-sm font-bold text-foreground">{t("perk1Title")}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{t("perk1Desc")}</p>
+                <h3 className="text-sm font-bold text-foreground">
+                  {t("perk1Title")}
+                </h3>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {t("perk1Desc")}
+                </p>
               </Card>
 
-              <Card className="rounded-2xl border-border/60 p-6 space-y-3">
-                <div className="size-10 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center">
+              <Card className="space-y-3 rounded-2xl border-border/60 p-6">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-500">
                   <Compass className="size-5" />
                 </div>
-                <h3 className="text-sm font-bold text-foreground">{t("perk2Title")}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{t("perk2Desc")}</p>
+                <h3 className="text-sm font-bold text-foreground">
+                  {t("perk2Title")}
+                </h3>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {t("perk2Desc")}
+                </p>
               </Card>
 
-              <Card className="rounded-2xl border-border/60 p-6 space-y-3">
-                <div className="size-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+              <Card className="space-y-3 rounded-2xl border-border/60 p-6">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
                   <Target className="size-5" />
                 </div>
-                <h3 className="text-sm font-bold text-foreground">{t("perk3Title")}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{t("perk3Desc")}</p>
+                <h3 className="text-sm font-bold text-foreground">
+                  {t("perk3Title")}
+                </h3>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {t("perk3Desc")}
+                </p>
               </Card>
             </div>
           </div>
@@ -370,30 +446,36 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
 
         {/* State B: User HAS a team */}
         {!isInitialLoading && team && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
             {/* Primary Column */}
-            <div className="lg:col-span-8 flex flex-col gap-6 min-w-0">
+            <div className="flex min-w-0 flex-col gap-6 lg:col-span-8">
               {/* Team Information Card */}
               <Card className="rounded-2xl border-border/60 shadow-xs">
                 <CardHeader className="pb-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2.5 flex-wrap">
-                        <CardTitle className="text-lg sm:text-xl font-bold">
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <CardTitle className="text-lg font-bold sm:text-xl">
                           {team.name}
                         </CardTitle>
                         {team.track && (
-                          <Badge variant="secondary" className="rounded-full text-xs font-medium px-2.5 py-0.5">
+                          <Badge
+                            variant="secondary"
+                            className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                          >
                             {team.track}
                           </Badge>
                         )}
                         {team.challenge && (
-                          <Badge variant="outline" className="rounded-full text-xs font-medium px-2.5 py-0.5 border-primary/20 text-primary bg-primary/5">
+                          <Badge
+                            variant="outline"
+                            className="rounded-full border-primary/20 bg-primary/5 px-2.5 py-0.5 text-xs font-medium text-primary"
+                          >
                             {team.challenge}
                           </Badge>
                         )}
                       </div>
-                      <CardDescription className="text-xs sm:text-sm pt-1">
+                      <CardDescription className="pt-1 text-xs sm:text-sm">
                         {team.description || t("noDescription")}
                       </CardDescription>
                     </div>
@@ -404,32 +486,40 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                         variant="outline"
                         size="sm"
                         onClick={() => setEditOpen(true)}
-                        className="shrink-0 rounded-xl text-xs h-8 gap-1.5 cursor-pointer shadow-xs border-border hover:border-primary/40 hover:text-primary"
+                        className="h-8 shrink-0 cursor-pointer gap-1.5 rounded-xl border-border text-xs shadow-xs hover:border-primary/40 hover:text-primary"
                       >
                         <Pencil className="size-3.5 text-primary" />
-                        <span className="hidden sm:inline">{t("editTeamBtn")}</span>
+                        <span className="hidden sm:inline">
+                          {t("editTeamBtn")}
+                        </span>
                       </Button>
                     )}
                   </div>
                 </CardHeader>
                 <Separator />
-                <CardContent className="pt-5 space-y-4">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
-                    <div className="p-3 rounded-xl bg-muted/40 border border-border/50">
-                      <span className="text-xs text-muted-foreground block">{t("membersCountLabel")}</span>
-                      <span className="text-lg font-bold text-foreground font-mono">
+                <CardContent className="space-y-4 pt-5">
+                  <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-3">
+                    <div className="rounded-xl border border-border/50 bg-muted/40 p-3">
+                      <span className="block text-xs text-muted-foreground">
+                        {t("membersCountLabel")}
+                      </span>
+                      <span className="font-mono text-lg font-bold text-foreground">
                         {team.members.length} / {team.maxMembers}
                       </span>
                     </div>
-                    <div className="p-3 rounded-xl bg-muted/40 border border-border/50">
-                      <span className="text-xs text-muted-foreground block">{t("tasksCountLabel")}</span>
-                      <span className="text-lg font-bold text-foreground font-mono">
+                    <div className="rounded-xl border border-border/50 bg-muted/40 p-3">
+                      <span className="block text-xs text-muted-foreground">
+                        {t("tasksCountLabel")}
+                      </span>
+                      <span className="font-mono text-lg font-bold text-foreground">
                         {team.tasks?.length || 0}
                       </span>
                     </div>
-                    <div className="p-3 rounded-xl bg-muted/40 border border-border/50">
-                      <span className="text-xs text-muted-foreground block">{t("yourRoleLabel")}</span>
-                      <span className="text-xs font-semibold text-primary mt-1 block">
+                    <div className="rounded-xl border border-border/50 bg-muted/40 p-3">
+                      <span className="block text-xs text-muted-foreground">
+                        {t("yourRoleLabel")}
+                      </span>
+                      <span className="mt-1 block text-xs font-semibold text-primary">
                         {isLeader ? t("roleLeader") : t("roleMember")}
                       </span>
                     </div>
@@ -442,20 +532,23 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                      <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                         <Users className="size-4" />
                       </div>
                       <div>
-                        <CardTitle className="text-base font-bold">{t("teamMembersTitle")}</CardTitle>
+                        <CardTitle className="text-base font-bold">
+                          {t("teamMembersTitle")}
+                        </CardTitle>
                         <CardDescription className="text-xs">
-                          {team.members.length} {t("outOf")} {team.maxMembers} {t("slotsFilled")}
+                          {team.members.length} {t("outOf")} {team.maxMembers}{" "}
+                          {t("slotsFilled")}
                         </CardDescription>
                       </div>
                     </div>
                   </div>
                 </CardHeader>
                 <Separator />
-                <CardContent className="pt-5 space-y-3">
+                <CardContent className="space-y-3 pt-5">
                   {team.members.map((member) => {
                     const memberName = member.user?.name || "Participant"
                     const memberInitials = memberName
@@ -469,94 +562,110 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                     return (
                       <div
                         key={member.id}
-                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 rounded-xl border border-border/60 bg-muted/30 hover:bg-muted/60 transition-colors gap-3"
+                        className="flex flex-col items-start justify-between gap-3 rounded-xl border border-border/60 bg-muted/30 p-3.5 transition-colors hover:bg-muted/60 sm:flex-row sm:items-center"
                       >
                         <div className="flex items-center gap-3">
                           <Avatar className="size-10 ring-1 ring-border">
-                            <AvatarImage src={member.user?.avatar || undefined} />
-                            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                            <AvatarImage
+                              src={member.user?.avatar || undefined}
+                            />
+                            <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
                               {memberInitials}
                             </AvatarFallback>
                           </Avatar>
                           <div className="space-y-0.5">
-                            <div className="flex items-center gap-2 flex-wrap">
+                            <div className="flex flex-wrap items-center gap-2">
                               <span className="text-sm font-bold text-foreground">
                                 {memberName}
                               </span>
                               {member.user?.username && (
-                                <span className="text-xs font-mono text-muted-foreground/80">
+                                <span className="font-mono text-xs text-muted-foreground/80">
                                   @{member.user.username}
                                 </span>
                               )}
                               {isMemberLeader && (
                                 <Badge
                                   variant="secondary"
-                                  className="rounded-full text-[10px] px-2 py-0 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-semibold gap-1 inline-flex items-center"
+                                  className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0 text-[10px] font-semibold text-amber-600 dark:text-amber-400"
                                 >
                                   <Crown className="size-2.5" />
                                   <span>{t("roleLeader")}</span>
                                 </Badge>
                               )}
                               {member.userId === user?.id && (
-                                <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                <Badge
+                                  variant="outline"
+                                  className="px-1.5 py-0 text-[10px]"
+                                >
                                   {t("youBadge")}
                                 </Badge>
                               )}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                              {member.assignedRole || member.user?.profile?.desiredRole || t("roleMember")}
+                              {member.assignedRole ||
+                                member.user?.profile?.desiredRole ||
+                                t("roleMember")}
                             </p>
                           </div>
                         </div>
 
                         {/* Member Skills Chips */}
-                        {member.user?.profile?.skills && member.user.profile.skills.length > 0 && (
-                          <div className="flex flex-wrap gap-1 sm:max-w-xs justify-start sm:justify-end">
-                            {member.user.profile.skills.slice(0, 3).map((skill) => (
-                              <Badge
-                                key={skill}
-                                variant="outline"
-                                className="text-[10px] px-2 py-0 border-primary/20 bg-primary/5 text-primary"
-                              >
-                                {skill}
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
+                        {member.user?.profile?.skills &&
+                          member.user.profile.skills.length > 0 && (
+                            <div className="flex flex-wrap justify-start gap-1 sm:max-w-xs sm:justify-end">
+                              {member.user.profile.skills
+                                .slice(0, 3)
+                                .map((skill) => (
+                                  <Badge
+                                    key={skill}
+                                    variant="outline"
+                                    className="border-primary/20 bg-primary/5 px-2 py-0 text-[10px] text-primary"
+                                  >
+                                    {skill}
+                                  </Badge>
+                                ))}
+                            </div>
+                          )}
 
                         {/* Leader Actions on other members */}
-                        {isLeader && !isMemberLeader && member.userId !== user?.id && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger
-                              render={
-                                <button
-                                  type="button"
-                                  aria-label={t("memberActions")}
-                                  className="size-8 shrink-0 inline-flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                                />
-                              }
-                            >
-                              <MoreVertical className="size-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align={locale === "ar" ? "start" : "end"}>
-                              <DropdownMenuItem
-                                className="cursor-pointer text-xs"
-                                onClick={() => handleOpenTransferDialog(member)}
+                        {isLeader &&
+                          !isMemberLeader &&
+                          member.userId !== user?.id && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger
+                                render={
+                                  <button
+                                    type="button"
+                                    aria-label={t("memberActions")}
+                                    className="inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                  />
+                                }
                               >
-                                <Crown className="size-3.5 text-amber-500" />
-                                {t("transferLeaderBtn")}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                variant="destructive"
-                                className="cursor-pointer text-xs"
-                                onClick={() => handleOpenRemoveDialog(member)}
+                                <MoreVertical className="size-4" />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align={locale === "ar" ? "start" : "end"}
                               >
-                                <X className="size-3.5" />
-                                {t("removeMemberBtn")}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
+                                <DropdownMenuItem
+                                  className="cursor-pointer text-xs"
+                                  onClick={() =>
+                                    handleOpenTransferDialog(member)
+                                  }
+                                >
+                                  <Crown className="size-3.5 text-amber-500" />
+                                  {t("transferLeaderBtn")}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  variant="destructive"
+                                  className="cursor-pointer text-xs"
+                                  onClick={() => handleOpenRemoveDialog(member)}
+                                >
+                                  <X className="size-3.5" />
+                                  {t("removeMemberBtn")}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                       </div>
                     )
                   })}
@@ -564,76 +673,81 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
               </Card>
 
               {/* Join Requests (Leader Only) */}
-              {isLeader && team.joinRequests && team.joinRequests.length > 0 && (
-                <Card className="rounded-2xl border-border/60 shadow-xs border-amber-500/30">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="size-4 text-amber-500" />
-                      <CardTitle className="text-sm font-bold">
-                        {t("pendingJoinRequestsTitle")} ({team.joinRequests.length})
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  <Separator />
-                  <CardContent className="pt-4 space-y-3">
-                    {team.joinRequests.map((req) => (
-                      <div
-                        key={req.id}
-                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 rounded-xl border border-border/60 bg-muted/40 gap-3"
-                      >
-                        <div className="space-y-1">
-                          <p className="text-xs font-bold text-foreground">
-                            {req.user?.name || "Participant"}
-                          </p>
-                          {req.message && (
-                            <p className="text-xs text-muted-foreground italic">
-                              &ldquo;{req.message}&rdquo;
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => handleJoinResponse(req.id, true)}
-                            className="rounded-lg text-xs h-8 px-3 gap-1 cursor-pointer bg-emerald-600 hover:bg-emerald-700"
-                          >
-                            <Check className="size-3" />
-                            <span>{t("acceptBtn")}</span>
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleJoinResponse(req.id, false)}
-                            className="rounded-lg text-xs h-8 px-3 gap-1 cursor-pointer text-destructive border-destructive/30 hover:bg-destructive/10"
-                          >
-                            <X className="size-3" />
-                            <span>{t("rejectBtn")}</span>
-                          </Button>
-                        </div>
+              {isLeader &&
+                team.joinRequests &&
+                team.joinRequests.length > 0 && (
+                  <Card className="rounded-2xl border-amber-500/30 border-border/60 shadow-xs">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="size-4 text-amber-500" />
+                        <CardTitle className="text-sm font-bold">
+                          {t("pendingJoinRequestsTitle")} (
+                          {team.joinRequests.length})
+                        </CardTitle>
                       </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
+                    </CardHeader>
+                    <Separator />
+                    <CardContent className="space-y-3 pt-4">
+                      {team.joinRequests.map((req) => (
+                        <div
+                          key={req.id}
+                          className="flex flex-col items-start justify-between gap-3 rounded-xl border border-border/60 bg-muted/40 p-3.5 sm:flex-row sm:items-center"
+                        >
+                          <div className="space-y-1">
+                            <p className="text-xs font-bold text-foreground">
+                              {req.user?.name || "Participant"}
+                            </p>
+                            {req.message && (
+                              <p className="text-xs text-muted-foreground italic">
+                                &ldquo;{req.message}&rdquo;
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => handleJoinResponse(req.id, true)}
+                              className="h-8 cursor-pointer gap-1 rounded-lg bg-emerald-600 px-3 text-xs hover:bg-emerald-700"
+                            >
+                              <Check className="size-3" />
+                              <span>{t("acceptBtn")}</span>
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleJoinResponse(req.id, false)}
+                              className="h-8 cursor-pointer gap-1 rounded-lg border-destructive/30 px-3 text-xs text-destructive hover:bg-destructive/10"
+                            >
+                              <X className="size-3" />
+                              <span>{t("rejectBtn")}</span>
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
             </div>
 
             {/* Sidebar Column */}
-            <div className="lg:col-span-4 flex flex-col gap-6 min-w-0">
+            <div className="flex min-w-0 flex-col gap-6 lg:col-span-4">
               {/* Invite Member Card (Leader only) */}
               {isLeader && (
                 <Card className="rounded-2xl border-border/60 shadow-xs">
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
                       <UserPlus className="size-4 text-primary" />
-                      <CardTitle className="text-sm font-bold">{t("inviteMemberTitle")}</CardTitle>
+                      <CardTitle className="text-sm font-bold">
+                        {t("inviteMemberTitle")}
+                      </CardTitle>
                     </div>
                     <CardDescription className="text-xs">
                       {t("inviteMemberDesc")}
                     </CardDescription>
                   </CardHeader>
                   <Separator />
-                  <CardContent className="pt-4 space-y-3">
+                  <CardContent className="space-y-3 pt-4">
                     <form onSubmit={handleInvite} className="space-y-2">
                       <Input
                         type="text"
@@ -641,13 +755,19 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                         onChange={(e) => setInviteUsername(e.target.value)}
                         placeholder={t("inviteUsernamePlaceholder")}
                         required
-                        disabled={inviting || team.members.length >= team.maxMembers}
-                        className="rounded-xl text-xs h-9"
+                        disabled={
+                          inviting || team.members.length >= team.maxMembers
+                        }
+                        className="h-9 rounded-xl text-xs"
                       />
                       <Button
                         type="submit"
-                        disabled={inviting || !inviteUsername.trim() || team.members.length >= team.maxMembers}
-                        className="w-full rounded-xl text-xs h-9 cursor-pointer gap-1.5 font-semibold"
+                        disabled={
+                          inviting ||
+                          !inviteUsername.trim() ||
+                          team.members.length >= team.maxMembers
+                        }
+                        className="h-9 w-full cursor-pointer gap-1.5 rounded-xl text-xs font-semibold"
                       >
                         {inviting ? (
                           <Loader2 className="size-3.5 animate-spin" />
@@ -658,7 +778,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                       </Button>
                     </form>
                     {team.members.length >= team.maxMembers && (
-                      <p className="text-xs text-amber-500 font-medium">
+                      <p className="text-xs font-medium text-amber-500">
                         {t("teamFullNotice")}
                       </p>
                     )}
@@ -671,7 +791,9 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
                     <Compass className="size-4 text-sky-500" />
-                    <CardTitle className="text-sm font-bold">{t("mentorCardTitle")}</CardTitle>
+                    <CardTitle className="text-sm font-bold">
+                      {t("mentorCardTitle")}
+                    </CardTitle>
                   </div>
                   <CardDescription className="text-xs">
                     {t("mentorCardDesc")}
@@ -682,11 +804,13 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                     href="/dashboard/participant/mentorship"
                     className={cn(
                       buttonVariants({ variant: "outline" }),
-                      "w-full rounded-xl h-9 text-xs font-semibold cursor-pointer gap-2"
+                      "h-9 w-full cursor-pointer gap-2 rounded-xl text-xs font-semibold"
                     )}
                   >
                     <span>{t("requestMentorBtn")}</span>
-                    <span aria-hidden="true">{locale === "ar" ? "←" : "→"}</span>
+                    <span aria-hidden="true">
+                      {locale === "ar" ? "←" : "→"}
+                    </span>
                   </Link>
                 </CardContent>
               </Card>
@@ -696,7 +820,9 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
                     <Rocket className="size-4 text-primary" />
-                    <CardTitle className="text-sm font-bold">{t("submitCardTitle")}</CardTitle>
+                    <CardTitle className="text-sm font-bold">
+                      {t("submitCardTitle")}
+                    </CardTitle>
                   </div>
                   <CardDescription className="text-xs">
                     {t("submitCardDesc")}
@@ -707,11 +833,13 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                     href="/dashboard/participant/submit"
                     className={cn(
                       buttonVariants(),
-                      "w-full rounded-xl h-9 text-xs font-semibold cursor-pointer gap-2 bg-primary text-primary-foreground"
+                      "h-9 w-full cursor-pointer gap-2 rounded-xl bg-primary text-xs font-semibold text-primary-foreground"
                     )}
                   >
                     <span>{t("submitProjectBtn")}</span>
-                    <span aria-hidden="true">{locale === "ar" ? "←" : "→"}</span>
+                    <span aria-hidden="true">
+                      {locale === "ar" ? "←" : "→"}
+                    </span>
                   </Link>
                 </CardContent>
               </Card>
@@ -719,7 +847,11 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
           </div>
         )}
 
-        {error && <p role="alert" className="text-destructive">{error}</p>}
+        {error && (
+          <p role="alert" className="text-destructive">
+            {error}
+          </p>
+        )}
         {/* Dialogs */}
         <CreateTeamDialog
           open={createOpen}

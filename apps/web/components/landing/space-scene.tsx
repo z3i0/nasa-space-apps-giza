@@ -4,11 +4,7 @@ import { useEffect, useRef, type ReactNode } from "react"
 import styles from "./landing.module.css"
 
 /** Animate transforms outside React; frames run only while parallax is settling. */
-export function SpaceScene({
-  children,
-}: {
-  children: ReactNode
-}) {
+export function SpaceScene({ children }: { children: ReactNode }) {
   const sceneRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -39,8 +35,7 @@ export function SpaceScene({
     let pointerX = 0
     let pointerY = 0
     let previousTime = 0
-    const enabled = () =>
-      !preference.matches && visible && !document.hidden
+    const enabled = () => !preference.matches && visible && !document.hidden
     const render = (time: number) => {
       frame = 0
       if (!enabled()) return

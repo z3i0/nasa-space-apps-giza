@@ -53,7 +53,9 @@ export async function getServerMyTeam(): Promise<{ team: TeamDetails | null }> {
   }
 }
 
-export async function getServerTeamById(teamId: string): Promise<TeamDetails | null> {
+export async function getServerTeamById(
+  teamId: string
+): Promise<TeamDetails | null> {
   const cookieStore = await cookies()
   try {
     const token =
@@ -70,15 +72,18 @@ export async function getServerTeamById(teamId: string): Promise<TeamDetails | n
       .map((c) => `${c.name}=${c.value}`)
       .join("; ")
 
-    const response = await fetch(`${base}/teams/${encodeURIComponent(teamId)}`, {
-      method: "GET",
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-      },
-      cache: "no-store",
-      signal: AbortSignal.timeout(5000),
-    })
+    const response = await fetch(
+      `${base}/teams/${encodeURIComponent(teamId)}`,
+      {
+        method: "GET",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+        },
+        cache: "no-store",
+        signal: AbortSignal.timeout(5000),
+      }
+    )
 
     if (!response.ok) {
       return null

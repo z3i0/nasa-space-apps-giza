@@ -20,10 +20,13 @@ export function MoonLanding() {
     const update = () => {
       scene.dataset.running = String(visible && !document.hidden)
     }
-    const observer = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting
-      update()
-    }, { threshold: 0.15 })
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting
+        update()
+      },
+      { threshold: 0.15 }
+    )
     observer.observe(scene)
     document.addEventListener("visibilitychange", update)
     return () => {
