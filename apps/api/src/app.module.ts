@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -10,7 +10,6 @@ import { MentorshipModule } from './mentorship/mentorship.module.js';
 import { ChallengesModule } from './challenges/challenges.module.js';
 import { JudgingModule } from './judging/judging.module.js';
 import { AccountModule } from './account/account.module.js';
-import { LastSeenMiddleware } from './auth/middleware/last-seen.middleware.js';
 
 @Module({
   imports: [
@@ -30,8 +29,4 @@ import { LastSeenMiddleware } from './auth/middleware/last-seen.middleware.js';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LastSeenMiddleware).forRoutes('{*path}');
-  }
-}
+export class AppModule {}

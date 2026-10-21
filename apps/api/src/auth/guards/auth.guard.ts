@@ -11,6 +11,31 @@ import { auth } from '../auth.js';
 import { fromNodeHeaders } from 'better-auth/node';
 import type { AuthenticatedUser } from '../types/auth-user.interface.js';
 
+/** Throttle lastSeenAt DB writes to once per minute per user */
+const lastSeenThrottle = new Map<string, number>();
+const LAST_SEEN_THROTTLE_MS = 60 * 1000;
+
+function touchLastSeen(prisma: PrismaService, userId: string): void {
+  const now = Date.now();
+  const prev = lastSeenThrottle.get(userId) ?? 0;
+  if (now - prev < LAST_SEEN_THROTTLE_MS) return;
+
+  lastSeenThrottle.set(userId, now);
+
+  // Fire-and-forget — never blocks the response
+  prisma.user
+    .update({ where: { id: userId }, data: { lastSeenAt: new Date() } })
+    .catch(() => { /* silently ignore */ });
+
+  // Periodic cleanup: evict stale entries when map grows large
+  if (lastSeenThrottle.size > 10_000) {
+    const cutoff = now - LAST_SEEN_THROTTLE_MS * 5;
+    for (const [id, ts] of lastSeenThrottle) {
+      if (ts < cutoff) lastSeenThrottle.delete(id);
+    }
+  }
+}
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
@@ -77,6 +102,10 @@ export class AuthGuard implements CanActivate {
 
     request.user = authUser;
     request.session = session.session;
+
+    // Track presence — throttled, non-blocking
+    touchLastSeen(this.prisma, user.id);
+
     return true;
   }
 }
