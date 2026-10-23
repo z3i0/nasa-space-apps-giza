@@ -11,11 +11,20 @@ import {
 } from "@/components/ui/sidebar"
 import { DASHBOARD_ROLES_CONFIG, type DashboardRole } from "./dashboard-config"
 import { getShellNavigation, isNavigationActive } from "./dashboard-navigation"
+import { useAuthUser } from "@/lib/auth"
+import { Trophy } from "lucide-react"
 
 export function AppSidebar({ currentRole }: { currentRole: DashboardRole }) {
   const pathname = usePathname()
   const t = useTranslations("Dashboard")
+  const user = useAuthUser()
   const RoleIcon = DASHBOARD_ROLES_CONFIG[currentRole].icon
+
+  const isCompetitionOnly =
+    currentRole === "organizer" &&
+    (user?.roles?.includes("competition") || user?.role === "competition") &&
+    !user?.roles?.includes("organizer") &&
+    user?.role !== "organizer"
 
   return (
     <aside className="sticky top-[72px] z-10 min-w-0 flex-[0_0_224px] max-[760px]:static">
@@ -24,7 +33,9 @@ export function AppSidebar({ currentRole }: { currentRole: DashboardRole }) {
         className="h-[calc(100dvh-72px)] w-56 [scrollbar-width:thin] [scrollbar-color:var(--border)_transparent] overflow-y-auto border-e border-sidebar-border bg-sidebar px-4 py-6 shadow-[6px_0_24px_#00000061] max-[760px]:h-auto max-[760px]:w-full max-[760px]:overflow-visible max-[760px]:border-e-0 max-[760px]:border-b max-[760px]:border-sidebar-border max-[760px]:px-4 max-[760px]:py-3.5 max-[760px]:shadow-none rtl:shadow-[-6px_0_24px_#00000061]"
       >
         <div className="flex w-full items-center gap-1.5 rounded-lg border border-sidebar-border bg-sidebar-accent px-2.5 py-1.5 text-[10px] leading-4 font-semibold text-sidebar-accent-foreground opacity-80">
-          {currentRole === "participant" ? (
+          {isCompetitionOnly ? (
+            <Trophy size={10} aria-hidden="true" />
+          ) : currentRole === "participant" ? (
             <Image
               src="/dashboard/participant.svg"
               width={10}
@@ -34,14 +45,18 @@ export function AppSidebar({ currentRole }: { currentRole: DashboardRole }) {
           ) : (
             <RoleIcon size={10} aria-hidden="true" />
           )}
-          <span>{t(`shell.roles.${currentRole}`)}</span>
+          <span>
+            {isCompetitionOnly
+              ? t("shell.roles.competition")
+              : t(`shell.roles.${currentRole}`)}
+          </span>
         </div>
         <nav
           aria-label={t("shell.navigation")}
           className="mt-4 mb-6 [scrollbar-width:thin] [scrollbar-color:var(--border)_transparent] max-[760px]:mt-3 max-[760px]:mb-0 max-[760px]:flex max-[760px]:gap-3 max-[760px]:overflow-x-auto max-[760px]:py-0.5 max-[760px]:pb-1"
           data-dashboard-navigation=""
         >
-          {getShellNavigation(currentRole).map((section, index) => (
+          {getShellNavigation(currentRole, user).map((section, index) => (
             <div
               className="max-[760px]:shrink-0 [&+&]:mt-5 [&+&]:max-[760px]:mt-0"
               key={section.titleKey ?? index}

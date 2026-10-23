@@ -94,7 +94,7 @@ export async function clearAuth(): Promise<void> {
 }
 
 export function getRedirectPathByRole(roles: string[] = []): string {
-  if (roles.includes("organizer")) {
+  if (roles.includes("organizer") || roles.includes("competition")) {
     return "/dashboard/organizer"
   }
   if (roles.includes("judge")) {

@@ -69,10 +69,38 @@ const participantNavigation = [
   }
 })
 
-export function getShellNavigation(role: DashboardRole): ShellNavSection[] {
-  return role === "participant"
-    ? [{ items: participantNavigation }]
-    : DASHBOARD_ROLES_CONFIG[role].sections
+import { LayoutDashboard } from "lucide-react"
+
+export function getShellNavigation(
+  role: DashboardRole,
+  user?: UserSession | null
+): ShellNavSection[] {
+  if (role === "participant") {
+    return [{ items: participantNavigation }]
+  }
+
+  const isCompetitionOnly =
+    role === "organizer" &&
+    (user?.roles?.includes("competition") || user?.role === "competition") &&
+    !user?.roles?.includes("organizer") &&
+    user?.role !== "organizer"
+
+  if (isCompetitionOnly) {
+    return [
+      {
+        titleKey: "sections.main",
+        items: [
+          {
+            titleKey: "nav.overview",
+            url: "/dashboard/organizer",
+            icon: LayoutDashboard,
+          },
+        ],
+      },
+    ]
+  }
+
+  return DASHBOARD_ROLES_CONFIG[role].sections
 }
 
 export function isNavigationActive(
@@ -95,6 +123,9 @@ export function getDashboardRole(
   const routeRole = pathname.split("/")[2]
   if (routeRole && Object.hasOwn(DASHBOARD_ROLES_CONFIG, routeRole))
     return routeRole as DashboardRole
+  if (user?.roles?.includes("competition") || user?.role === "competition") {
+    return "organizer"
+  }
   return (
     (["organizer", "judge", "mentor", "participant"] as const).find(
       (role) => user?.roles?.includes(role) || user?.role === role
@@ -108,6 +139,9 @@ export function getAvailableRoles(user: UserSession | null): DashboardRole[] {
     (role) =>
       user?.roles?.includes("organizer") ||
       user?.role === "organizer" ||
+      (role === "organizer" &&
+        (user?.roles?.includes("competition") ||
+          user?.role === "competition")) ||
       user?.roles?.includes(role) ||
       user?.role === role
   )

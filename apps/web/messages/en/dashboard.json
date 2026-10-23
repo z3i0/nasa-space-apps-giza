@@ -12,6 +12,7 @@
       "roles": {
         "participant": "PARTICIPANT / CAMP",
         "organizer": "ORGANIZER / MISSION CONTROL",
+        "competition": "COMPETITION",
         "mentor": "MENTOR / CAMP",
         "judge": "JUDGE / EVALUATION"
       },
@@ -69,9 +70,14 @@
     },
     "titles": {
       "organizer": "Organizer Dashboard",
+      "competition": "Competition Dashboard",
       "judge": "Judge Dashboard",
       "mentor": "Mentor Dashboard",
       "participant": "Participant Dashboard"
+    },
+    "competitionRole": {
+      "title": "Competition Dashboard",
+      "description": "Signed in successfully with the competition role. This page is dedicated to assigned permissions and competition tasks."
     },
     "sections": {
       "main": "Overview",

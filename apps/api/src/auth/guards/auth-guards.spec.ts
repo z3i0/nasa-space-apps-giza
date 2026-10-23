@@ -126,6 +126,7 @@ describe('Auth & Authorization Guards & Policies', () => {
             email: 'revoked@example.test',
             name: 'Participant',
           }),
+        update: vi.fn().mockReturnValue(Promise.resolve({})),
       },
     };
     const request = {
@@ -184,6 +185,69 @@ describe('Auth & Authorization Guards & Policies', () => {
       };
 
       expect(rolesGuard.canActivate(ctx)).toBe(true);
+    });
+
+    it('blocks competition role from organizer-only admin routes', () => {
+      vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['organizer']);
+
+      const ctx: any = {
+        getHandler: vi.fn(),
+        getClass: vi.fn(),
+        switchToHttp: () => ({
+          getRequest: () => ({
+            user: {
+              id: 'comp-1',
+              roles: ['competition'],
+            },
+          }),
+        }),
+      };
+
+      expect(() => rolesGuard.canActivate(ctx)).toThrow(ForbiddenException);
+    });
+
+    it('allows competition role to access community and support routes (requireRole organizer, competition)', () => {
+      vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue([
+        'organizer',
+        'competition',
+      ]);
+
+      const ctx: any = {
+        getHandler: vi.fn(),
+        getClass: vi.fn(),
+        switchToHttp: () => ({
+          getRequest: () => ({
+            user: {
+              id: 'comp-1',
+              roles: ['competition'],
+            },
+          }),
+        }),
+      };
+
+      expect(rolesGuard.canActivate(ctx)).toBe(true);
+    });
+
+    it('blocks participant role from community management overview (requireRole organizer, competition)', () => {
+      vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue([
+        'organizer',
+        'competition',
+      ]);
+
+      const ctx: any = {
+        getHandler: vi.fn(),
+        getClass: vi.fn(),
+        switchToHttp: () => ({
+          getRequest: () => ({
+            user: {
+              id: 'part-1',
+              roles: ['participant'],
+            },
+          }),
+        }),
+      };
+
+      expect(() => rolesGuard.canActivate(ctx)).toThrow(ForbiddenException);
     });
   });
 
