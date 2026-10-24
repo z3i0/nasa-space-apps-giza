@@ -23,6 +23,7 @@ async function main() {
   // -------------------------------------------------------------
   const rolesData = [
     { name: 'organizer', description: 'Platform organizer with complete administrative access' },
+    { name: 'competition', description: 'Competition Coordinator - Community, Announcements and Technical Support Lead' },
     { name: 'judge', description: 'Evaluator and judge for hackathon team submissions' },
     { name: 'mentor', description: 'Subject matter expert mentoring teams' },
     { name: 'participant', description: 'Hackathon competitor' },
@@ -111,6 +112,13 @@ async function main() {
   // 3. Seed Demo Accounts for Each Role (Easy Testing)
   // -------------------------------------------------------------
   const demoUsers = [
+    {
+      email: 'competition@hackathon.local',
+      username: 'competition',
+      name: 'Competition Coordinator',
+      role: 'competition',
+      password: 'CompetitionSecure2026!',
+    },
     {
       email: 'judge@hackathon.local',
       username: 'judge',

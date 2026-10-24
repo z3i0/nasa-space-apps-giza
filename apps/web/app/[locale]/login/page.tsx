@@ -5,7 +5,7 @@ import { Link } from "@/i18n/routing"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { Button } from "@/components/ui/button"
 import { authClient } from "@/lib/auth-client"
-import { clearLocalAuth, setAuth } from "@/lib/auth"
+import { clearLocalAuth, getRedirectPathByRole, setAuth } from "@/lib/auth"
 import { selectAccountRole } from "@/lib/account"
 export default function LoginPage() {
   const t = useTranslations("Auth.login"),
@@ -34,7 +34,10 @@ export default function LoginPage() {
         throw new Error(result.error?.message || t("errors.invalidCredentials"))
       const user = await selectAccountRole(email)
       setAuth({ accessToken: result.data.token }, user)
-      window.location.replace(`/${locale}/dashboard/${user.role}`)
+      const redirectPath = getRedirectPathByRole(
+        user.roles?.length ? user.roles : [user.role || "participant"]
+      )
+      window.location.replace(`/${locale}${redirectPath}`)
     } catch (e) {
       clearLocalAuth()
       setError(e instanceof Error ? e.message : t("errors.serverError"))

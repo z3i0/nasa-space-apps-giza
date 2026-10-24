@@ -3,7 +3,13 @@ import { routing } from "./i18n/routing"
 import { NextRequest, NextResponse } from "next/server"
 
 const intlMiddleware = createMiddleware(routing)
-const dashboardRoles = ["organizer", "judge", "mentor", "participant"]
+const dashboardRoles = [
+  "organizer",
+  "judge",
+  "mentor",
+  "participant",
+  "competition",
+]
 
 function getSessionToken(request: NextRequest): string | undefined {
   return (
@@ -60,17 +66,43 @@ export default function proxy(request: NextRequest) {
     }
 
     const requestedRole = dashboardMatch[2]
+    const hasOrganizerBypass = roles.includes("organizer")
+    const isCompetition = roles.includes("competition")
+
+    // Scoped access control for competition role inside organizer dashboard
+    if (requestedRole === "organizer" && isCompetition && !hasOrganizerBypass) {
+      const subpathMatch = pathname.match(
+        /^(?:\/(?:ar|en))?\/dashboard\/organizer(?:\/([^/]+))?/
+      )
+      const subpath = subpathMatch?.[1] || ""
+      if (subpath) {
+        return NextResponse.redirect(
+          new URL(`/${locale}/dashboard/organizer`, request.url)
+        )
+      }
+    }
+
+    // Direct access to /dashboard/competition redirects to /dashboard/organizer
+    if (requestedRole === "competition") {
+      return NextResponse.redirect(
+        new URL(`/${locale}/dashboard/organizer`, request.url)
+      )
+    }
+
     // Mentor/judge shells also host pending/denied applications. Their layout
     // verifies current server approval before mounting any protected content.
     if (
       dashboardRoles.includes(requestedRole) &&
-      !roles.includes("organizer") &&
+      !hasOrganizerBypass &&
+      !(requestedRole === "organizer" && isCompetition) &&
       !["mentor", "judge"].includes(requestedRole) &&
       !roles.includes(requestedRole)
     ) {
       // Choose only a role the user actually has; missing roles must never
       // bounce between participant and organizer dashboards.
-      const targetRole = dashboardRoles.find((role) => roles.includes(role))!
+      const targetRole = isCompetition
+        ? "organizer"
+        : (dashboardRoles.find((role) => roles.includes(role)) || "participant")
       return NextResponse.redirect(
         new URL(`/${locale}/dashboard/${targetRole}`, request.url)
       )

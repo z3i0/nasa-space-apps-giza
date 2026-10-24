@@ -25,7 +25,8 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/auth-user.interface.js';
 import { AccountService } from './account.service.js';
 class SelectRoleDto {
-  @IsIn(['participant', 'mentor', 'judge', 'organizer']) role: string;
+  @IsIn(['participant', 'mentor', 'judge', 'organizer', 'competition'])
+  role: string;
 }
 class ReviewRoleDto {
   @IsOptional()
