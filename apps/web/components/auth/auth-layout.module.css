@@ -1,0 +1,244 @@
+.page,
+.selectMenu {
+  /* Match the landing page locally, including portalled auth menus. */
+  --background: #0d0c13;
+  --foreground: #f6f4ff;
+  --card: #14121b;
+  --card-foreground: #f6f4ff;
+  --primary: #b8a5ff;
+  --primary-foreground: #19122f;
+  --muted: #24212e;
+  --muted-foreground: #b3adca;
+  --secondary: #24212e;
+  --secondary-foreground: #e4deef;
+  --accent: #2e283e;
+  --accent-foreground: #f6f4ff;
+  --border: #34303f;
+  --input: #413b50;
+  --ring: #d1c4ff;
+  --popover: #1b1824;
+  --popover-foreground: #f6f4ff;
+  color-scheme: dark;
+}
+
+.page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem clamp(1rem, 3vw, 2rem);
+  border-bottom: 1px solid #ffffff0e;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  direction: ltr;
+  font-family: var(--font-latin), Arial, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.brandOrbit {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: #d2c6ff;
+  border: 1px solid #b8a5ff80;
+  border-radius: 50%;
+}
+
+.brandLocation {
+  margin-inline-start: 0.375rem;
+  padding-inline-start: 0.5rem;
+  border-inline-start: 1px solid #ffffff35;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.headerActions,
+.homeLink {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.homeLink {
+  min-height: 36px;
+  padding-inline: 0.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+.homeLink:hover {
+  color: var(--foreground);
+}
+
+.header a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+.homeLink span {
+  display: none;
+}
+
+.main {
+  width: 100%;
+  max-width: 72rem;
+  margin: auto;
+  display: grid;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem;
+}
+
+.intro {
+  display: none;
+}
+
+.eyebrow {
+  color: var(--primary);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.introTitle {
+  max-width: 9ch;
+  margin-top: 1rem;
+  font-size: clamp(2.25rem, 3.5vw, 3rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+
+.introCopy {
+  max-width: 32ch;
+  margin-top: 1.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+}
+
+.page:dir(rtl) .eyebrow,
+.page:dir(rtl) .introTitle {
+  letter-spacing: 0;
+}
+
+.page:dir(rtl) .introTitle {
+  max-width: 12ch;
+  line-height: 1.5;
+}
+
+.card {
+  min-width: 0;
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: 0.625rem;
+  background: var(--card);
+}
+
+.card :is(input, textarea, [data-slot="select-trigger"]) {
+  background: #1b1823;
+  border-color: var(--input);
+  border-radius: 0.375rem;
+  box-shadow: none;
+}
+
+.card :is(input, textarea, [data-slot="select-trigger"]):focus-visible {
+  border-color: var(--primary);
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.card :is(input, textarea, [data-slot="select-trigger"])[aria-invalid="true"] {
+  border-color: var(--destructive);
+}
+
+.card button {
+  border-radius: 0.375rem;
+}
+
+.card button[type="submit"] {
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.card button[type="submit"]:enabled:hover {
+  background: #cbbbff;
+}
+
+.card a {
+  text-underline-offset: 3px;
+  text-decoration-color: #b8a5ff66;
+}
+
+.card a:hover {
+  text-decoration-color: var(--primary);
+}
+
+.loginMain {
+  max-width: 30rem;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.passwords {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 640px) {
+  .homeLink span {
+    display: inline;
+  }
+  .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .main:not(.loginMain) {
+    grid-template-columns: 0.7fr 1.3fr;
+    padding: 1.5rem;
+  }
+  .intro {
+    display: block;
+  }
+}
+
+@media (max-height: 740px) {
+  .main {
+    padding-block: 0.75rem;
+  }
+}

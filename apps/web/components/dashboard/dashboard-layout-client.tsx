@@ -1,7 +1,8 @@
 "use client"
 
+import { useEffect } from "react"
 import { useLocale, useTranslations } from "next-intl"
-import { usePathname } from "@/i18n/routing"
+import { usePathname, useRouter } from "@/i18n/routing"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { DashboardNavbar } from "@/components/dashboard/dashboard-navbar"
@@ -24,16 +25,33 @@ export function DashboardLayoutClient({
   fontClassName,
 }: DashboardLayoutClientProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const locale = useLocale()
   const t = useTranslations("Dashboard.shell")
   const { resolvedTheme } = useTheme()
   const user = useAuthUser() ?? initialUser
-  const currentRole = getDashboardRole(pathname, user)
+  const currentRole = getDashboardRole(user)
+  const routeRole = pathname.split("/")[2]
+  const needsRedirect =
+    pathname.replace(/\/$/, "") === "/dashboard" ||
+    (["participant", "mentor", "judge", "organizer", "competition"].includes(
+      routeRole
+    ) &&
+      routeRole !== currentRole)
+
+  useEffect(() => {
+    if (!user) router.replace("/login")
+    else if (needsRedirect) router.replace(`/dashboard/${currentRole}`)
+  }, [currentRole, needsRedirect, router, user])
   const themeClassName = cn(
     resolvedTheme === "dark" && "dark",
     fontClassName,
     "font-[family-name:var(--font-dashboard-body),var(--font-arabic),var(--font-latin),sans-serif]"
   )
+
+  // Do not mount another role's page or its data-loading components while
+  // redirecting, including on client-side navigation and browser history.
+  if (!user || needsRedirect) return null
 
   return (
     <DashboardThemeContext.Provider value={themeClassName}>

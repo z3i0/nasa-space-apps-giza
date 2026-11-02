@@ -73,12 +73,15 @@ for (const locale of ["en", "ar"]) {
         exact: true,
       })
       .click()
-    await page.locator('[name="skills"]').fill("Python, Machine Learning")
     await page.locator('[name="bio"]').fill("Curious about climate data.")
-    await page.locator('[name="interests"]').fill("Earth science, AI")
     await page
       .locator('[name="experience"]')
       .fill("Built a satellite image classifier.")
+    await page
+      .getByRole("button", { name: locale === "en" ? "Continue" : "متابعة" })
+      .click()
+    await page.locator('[name="skills"]').fill("Python, Machine Learning")
+    await page.locator('[name="interests"]').fill("Earth science, AI")
     await page
       .getByRole("button", { name: locale === "en" ? "Continue" : "متابعة" })
       .click()
@@ -144,6 +147,7 @@ test("login offers registration and duplicate emails have a clear error", async 
   await page.locator('input[type="tel"]').fill("+201000000001")
   await page.locator('input[type="password"]').nth(0).fill("NewPassword123!")
   await page.locator('input[type="password"]').nth(1).fill("NewPassword123!")
+  await page.getByRole("button", { name: "Continue" }).click()
   await page.getByRole("button", { name: "Continue" }).click()
   await page.getByRole("button", { name: "Continue" }).click()
   await page
@@ -224,7 +228,9 @@ test("interactive skill and interest chip selection, custom inputs, and review",
   await page.locator('input[type="password"]').nth(1).fill("Password123!")
   await page.getByRole("button", { name: "Continue" }).click()
 
-  // On step 2
+  await page.getByRole("button", { name: "Continue" }).click()
+
+  // Skills and interests
   // 1. Click popular skill pills
   await page.getByRole("button", { name: /Python/i }).click()
   await page.getByRole("button", { name: /GIS/i }).click()
@@ -243,7 +249,7 @@ test("interactive skill and interest chip selection, custom inputs, and review",
 
   await page.getByRole("button", { name: "Continue" }).click()
 
-  // On step 3: Check review badges
+  // Review badges
   await expect(page.getByText("Python", { exact: true })).toBeVisible()
   await expect(page.getByText("GIS", { exact: true })).toBeVisible()
   await expect(page.getByText("Next.js", { exact: true })).toBeVisible()
@@ -290,7 +296,11 @@ for (const locale of ["en", "ar"]) {
       })
       .click()
 
-    // Step 2
+    await page
+      .getByRole("button", { name: locale === "en" ? "Continue" : "متابعة" })
+      .click()
+
+    // Skills and interests
     const hasOverflow = await page.evaluate(
       () =>
         document.documentElement.scrollWidth >
@@ -301,7 +311,7 @@ for (const locale of ["en", "ar"]) {
     // Select skills and interests
     await page.getByRole("button", { name: /Python/i }).click()
     await page.screenshot({
-      path: testInfo.outputPath(`register-step2-${locale}-mobile-375.png`),
+      path: testInfo.outputPath(`register-step3-${locale}-mobile-375.png`),
       fullPage: true,
     })
 
@@ -311,7 +321,7 @@ for (const locale of ["en", "ar"]) {
       })
       .click()
 
-    // Step 3
+    // Review
     const hasOverflowStep3 = await page.evaluate(
       () =>
         document.documentElement.scrollWidth >
@@ -319,7 +329,7 @@ for (const locale of ["en", "ar"]) {
     )
     expect(hasOverflowStep3).toBe(false)
     await page.screenshot({
-      path: testInfo.outputPath(`register-step3-${locale}-mobile-375.png`),
+      path: testInfo.outputPath(`register-step4-${locale}-mobile-375.png`),
       fullPage: true,
     })
   })

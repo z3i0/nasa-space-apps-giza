@@ -3,9 +3,10 @@ import localFont from "next/font/local"
 import saturnImage from "@/public/space/saturn.png"
 import meteorImage from "@/public/space/meteor.webp"
 import { getTranslations, setRequestLocale } from "next-intl/server"
-import { ArrowDown, ArrowUpLeft, ArrowUpRight, Rocket } from "lucide-react"
+import { ArrowDown, ArrowUpLeft, ArrowUpRight } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { Logo } from "@/components/logo"
 import { MissionCard } from "@/components/landing/mission-card"
 import { MissionTimeline } from "@/components/landing/mission-timeline"
 import { MoonLanding } from "@/components/landing/moon-landing"
@@ -54,9 +55,7 @@ export default async function Page({
       </a>
       <header className={styles.header}>
         <Link href="/" className={styles.brand} aria-label={t("brand")}>
-          <span className={styles.brandOrbit} aria-hidden="true">
-            <Rocket size={19} />
-          </span>
+          <Logo size="lg" />
           <span>
             SPACE APPS <span className={styles.brandLocation}>GIZA</span>
           </span>
