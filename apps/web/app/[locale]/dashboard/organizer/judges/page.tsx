@@ -1,13 +1,10 @@
 import { RoleGuard } from "@/components/role-guard"
-import { JudgingHub } from "@/components/judging/judging-hub"
-import { RoleApplications } from "@/components/account/role-applications"
+import { OrganizerJudgesView } from "@/components/dashboard/organizer-judges-view"
+
 export default function Page() {
   return (
     <RoleGuard allowedRoles={["organizer"]}>
-      <div className="grid gap-8">
-        <RoleApplications role="judge" />
-        <JudgingHub organizer />
-      </div>
+      <OrganizerJudgesView />
     </RoleGuard>
   )
 }

@@ -56,6 +56,7 @@
     "label_approved": "تمت الموافقة",
     "label_rejected": "مرفوض",
     "reviewReason": "ملاحظة المراجعة (اختياري)",
+    "reviewReasonPlaceholder": "اكتب ملاحظة أو سبب القرار هنا…",
     "approve": "الموافقة على الوصول",
     "reject": "رفض الطلب",
     "reviewed": "تمت مراجعة الطلب."

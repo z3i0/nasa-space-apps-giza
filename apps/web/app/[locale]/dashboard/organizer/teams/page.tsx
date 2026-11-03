@@ -1,9 +1,10 @@
 import { RoleGuard } from "@/components/role-guard"
-import { OrganizerDirectory } from "@/components/account/organizer-directory"
+import { OrganizerTeamsView } from "@/components/dashboard/organizer-teams-view"
+
 export default function Page() {
   return (
     <RoleGuard allowedRoles={["organizer"]}>
-      <OrganizerDirectory kind="teams" />
+      <OrganizerTeamsView />
     </RoleGuard>
   )
 }

@@ -56,6 +56,7 @@
     "label_approved": "Approved",
     "label_rejected": "Declined",
     "reviewReason": "Review note (optional)",
+    "reviewReasonPlaceholder": "Write a note or reason for the decision here…",
     "approve": "Approve access",
     "reject": "Decline request",
     "reviewed": "The request has been reviewed."

@@ -112,7 +112,7 @@ export function OrganizerDirectory({
                     <p className="mt-2 text-sm">
                       {t("team")}: {row.team?.name || t("noTeam")}
                     </p>
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2" title={row.skills?.join(" · ")}>
                       {row.skills?.join(" · ") || t("noSkills")}
                     </p>
                   </>

@@ -1,9 +1,10 @@
 import { RoleGuard } from "@/components/role-guard"
-import { RoleApplications } from "@/components/account/role-applications"
+import { OrganizerMentorsView } from "@/components/dashboard/organizer-mentors-view"
+
 export default function Page() {
   return (
     <RoleGuard allowedRoles={["organizer"]}>
-      <RoleApplications role="mentor" />
+      <OrganizerMentorsView />
     </RoleGuard>
   )
 }

@@ -1,7 +1,10 @@
 "use client"
-import { OrganizerDirectory } from "@/components/account/organizer-directory"
+
+import { OrganizerParticipantsView } from "@/components/dashboard/organizer-participants-view"
+
 export type HackathonRole =
   "organizer" | "team_leader" | "participant" | "mentor" | "judge"
+
 export function UsersManagementTable() {
-  return <OrganizerDirectory kind="participants" />
+  return <OrganizerParticipantsView />
 }
