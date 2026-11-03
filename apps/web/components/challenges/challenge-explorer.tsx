@@ -9,6 +9,7 @@ import {
   challengesApi,
   challengeError,
   localizedChallenge,
+  localizedSubject,
   type ChallengeCard,
   type ChallengeList,
 } from "@/lib/challenges"
@@ -116,7 +117,9 @@ export function ChallengeExplorer({ role = "participant" }: { role?: Viewer }) {
             >
               <option value="">{t("all")}</option>
               {data?.categories.map((category) => (
-                <option key={category}>{category}</option>
+                <option key={category} value={category}>
+                  {localizedSubject(category, locale)}
+                </option>
               ))}
             </select>
           </label>

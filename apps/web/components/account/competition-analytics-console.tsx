@@ -552,30 +552,46 @@ export function CompetitionAnalyticsConsole() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 p-0 pt-2">
-                {community.categoryBreakdown.map((cat) => (
-                  <div key={cat.category} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-foreground uppercase">
-                        {cat.category}
-                      </span>
-                      <span className="text-muted-foreground">
-                        {cat.answered} / {cat.total} answered
-                      </span>
+                {community.categoryBreakdown.map((cat) => {
+                  const getCatLabel = (c: string) => {
+                    switch (c?.toLowerCase()) {
+                      case "technical":
+                        return isAr ? "تقني وبرمجة" : "Technical & Code"
+                      case "challenge":
+                        return isAr ? "خاص بالتحديات" : "Challenge Specific"
+                      case "platform":
+                        return isAr ? "المنصة والإجراءات" : "Platform & Logistics"
+                      case "general":
+                        return isAr ? "استفسار عام" : "General Inquiry"
+                      default:
+                        return c
+                    }
+                  }
+                  return (
+                    <div key={cat.category} className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-semibold text-foreground">
+                          {getCatLabel(cat.category)}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {cat.answered} / {cat.total} {isAr ? "تم الرد" : "answered"}
+                        </span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full bg-primary"
+                          style={{
+                            width: `${
+                              cat.total > 0
+                                ? Math.round((cat.answered / cat.total) * 100)
+                                : 0
+                            }%`,
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full bg-primary"
-                        style={{
-                          width: `${
-                            cat.total > 0
-                              ? Math.round((cat.answered / cat.total) * 100)
-                              : 0
-                          }%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </CardContent>
             </Card>
 

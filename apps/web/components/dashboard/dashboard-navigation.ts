@@ -69,7 +69,7 @@ const participantNavigation = [
   }
 })
 
-import { LayoutDashboard } from "lucide-react"
+import { LayoutDashboard, MessagesSquare, BarChart3 } from "lucide-react"
 
 export function getShellNavigation(
   role: DashboardRole,
@@ -94,6 +94,21 @@ export function getShellNavigation(
             titleKey: "nav.overview",
             url: "/dashboard/organizer",
             icon: LayoutDashboard,
+          },
+          {
+            titleKey: "nav.analytics",
+            url: "/dashboard/organizer/analytics",
+            icon: BarChart3,
+          },
+        ],
+      },
+      {
+        titleKey: "sections.management",
+        items: [
+          {
+            titleKey: "nav.communityManagement",
+            url: "/dashboard/organizer/community",
+            icon: MessagesSquare,
           },
         ],
       },

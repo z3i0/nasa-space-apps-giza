@@ -29,6 +29,14 @@ const nextConfig: NextConfig = {
         source: "/api/judging/:path*",
         destination: `${apiURL}/judging/:path*`,
       },
+      {
+        source: "/api/community/:path*",
+        destination: `${apiURL}/community/:path*`,
+      },
+      {
+        source: "/uploads/:path*",
+        destination: `${apiURL.replace(/\/api\/?$/, "")}/uploads/:path*`,
+      },
     ]
   },
   turbopack: {

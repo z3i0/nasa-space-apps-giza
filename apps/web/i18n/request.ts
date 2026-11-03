@@ -22,6 +22,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     judging,
     account,
     operations,
+    community,
   ] = await Promise.all([
     import(`../messages/${locale}/home.json`),
     import(`../messages/${locale}/metadata.json`),
@@ -35,6 +36,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     import(`../messages/${locale}/judging.json`),
     import(`../messages/${locale}/account.json`),
     import(`../messages/${locale}/operations.json`),
+    import(`../messages/${locale}/community.json`),
   ])
 
   return {
@@ -52,6 +54,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       ...judging.default,
       ...account.default,
       ...operations.default,
+      ...community.default,
       Dashboard: {
         ...dashboard.default.Dashboard,
         myTeam: teams.default.Teams.myTeam,
