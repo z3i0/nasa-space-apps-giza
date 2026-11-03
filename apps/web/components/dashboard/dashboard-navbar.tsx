@@ -30,8 +30,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Bell, Languages, LogOut, Search, UserRound } from "lucide-react"
-import { DASHBOARD_ROLES_CONFIG, type DashboardRole } from "./dashboard-config"
-import { getAvailableRoles } from "./dashboard-navigation"
+import { type DashboardRole } from "./dashboard-config"
+import { getShellNavigation } from "./dashboard-navigation"
 import { clearAuth, useAuthUser } from "@/lib/auth"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -58,11 +58,12 @@ export function DashboardNavbar({
   const [openSearch, setOpenSearch] = React.useState(false)
   const [openNotifications, setOpenNotifications] = React.useState(false)
   const [signingOut, setSigningOut] = React.useState(false)
-  const [notifications, setNotifications] = React.useState<NotificationItem[]>([])
+  const [notifications, setNotifications] = React.useState<NotificationItem[]>(
+    []
+  )
   const [unreadCount, setUnreadCount] = React.useState(0)
   const notificationsRef = React.useRef<HTMLDivElement>(null)
-  const availableRoles = getAvailableRoles(user)
-  const roleConfig = DASHBOARD_ROLES_CONFIG[currentRole]
+  const navigation = getShellNavigation(currentRole, user)
   const displayName = user?.name || user?.fullName || t("shell.accountFallback")
   const profileHref =
     currentRole === "organizer"
@@ -276,7 +277,8 @@ export function DashboardNavbar({
                               "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full text-xs",
                               item.type === "mentorship"
                                 ? "bg-sky-500/15 text-sky-500"
-                                : item.type === "team_join" || item.type === "team_invite"
+                                : item.type === "team_join" ||
+                                    item.type === "team_invite"
                                   ? "bg-emerald-500/15 text-emerald-500"
                                   : item.type === "role_application"
                                     ? "bg-amber-500/15 text-amber-500"
@@ -393,26 +395,6 @@ export function DashboardNavbar({
                   </kbd>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
-              {availableRoles.length > 1 && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>{t("switchRole")}</DropdownMenuLabel>
-                    {availableRoles.map((role) => {
-                      const Icon = DASHBOARD_ROLES_CONFIG[role].icon
-                      return (
-                        <DropdownMenuItem
-                          key={role}
-                          render={<Link href={`/dashboard/${role}`} />}
-                        >
-                          <Icon />
-                          {t(`titles.${role}`)}
-                        </DropdownMenuItem>
-                      )
-                    })}
-                  </DropdownMenuGroup>
-                </>
-              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleLogout}
@@ -449,7 +431,7 @@ export function DashboardNavbar({
             <CommandList>
               <CommandEmpty>{t("header.commandEmpty")}</CommandEmpty>
               <CommandGroup heading={t("header.quickNavigation")}>
-                {roleConfig.sections
+                {navigation
                   .flatMap((section) => section.items)
                   .map((item) => (
                     <CommandItem
@@ -464,25 +446,6 @@ export function DashboardNavbar({
                     </CommandItem>
                   ))}
               </CommandGroup>
-              {availableRoles.length > 1 && (
-                <CommandGroup heading={t("switchRole")}>
-                  {availableRoles.map((role) => {
-                    const Icon = DASHBOARD_ROLES_CONFIG[role].icon
-                    return (
-                      <CommandItem
-                        key={role}
-                        onSelect={() => {
-                          setOpenSearch(false)
-                          router.push(`/dashboard/${role}`)
-                        }}
-                      >
-                        <Icon />
-                        {t(`titles.${role}`)}
-                      </CommandItem>
-                    )
-                  })}
-                </CommandGroup>
-              )}
             </CommandList>
           </Command>
         </DialogContent>

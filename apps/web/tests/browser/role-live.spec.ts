@@ -77,12 +77,33 @@ test("real participant, mentor, judge and organizer browser journey", async ({
       const page = pages[i],
         actor = actors[i]
       await page.goto("/en/register")
-      await page.getByRole("combobox").selectOption(actor.role)
+      await page.getByRole("combobox").click()
+      await page
+        .getByRole("option", {
+          name:
+            actor.role === "participant"
+              ? "Participant"
+              : actor.role === "judge"
+                ? "Judge"
+                : "Mentor",
+          exact: true,
+        })
+        .click()
       await page.locator('input[autocomplete="name"]').fill(actor.name)
       await page.locator('input[type="email"]').fill(actor.email)
       await page.locator('input[type="tel"]').fill("+201000000001")
       await page.locator('input[type="password"]').nth(0).fill(password)
       await page.locator('input[type="password"]').nth(1).fill(password)
+      for (
+        let step = 1;
+        step <
+        (actor.role === "participant" ? 4 : actor.role === "mentor" ? 2 : 1);
+        step++
+      ) {
+        await page
+          .getByRole("button", { name: "Continue", exact: true })
+          .click()
+      }
       await page
         .getByRole("button", { name: "Create account", exact: true })
         .click()

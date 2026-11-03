@@ -2,11 +2,12 @@
 import { useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
-import { LanguageSwitcher } from "@/components/language-switcher"
+import { AuthHeader } from "@/components/auth/auth-header"
 import { Button } from "@/components/ui/button"
 import { authClient } from "@/lib/auth-client"
 import { clearLocalAuth, getRedirectPathByRole, setAuth } from "@/lib/auth"
 import { selectAccountRole } from "@/lib/account"
+import styles from "@/components/auth/auth-layout.module.css"
 export default function LoginPage() {
   const t = useTranslations("Auth.login"),
     locale = useLocale()
@@ -48,16 +49,13 @@ export default function LoginPage() {
   const input =
     "mt-2 h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-primary"
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="flex justify-between border-b border-border p-4 sm:px-8">
-        <Link href="/" className="text-sm underline">
-          {t("backToHome")}
-        </Link>
-        <LanguageSwitcher />
-      </header>
-      <main className="mx-auto w-full max-w-lg px-4 py-12">
-        <section className="rounded-2xl border border-border bg-card p-6 shadow-lg sm:p-8">
-          <h1 className="text-3xl font-bold">{t("title")}</h1>
+    <div className={styles.page}>
+      <AuthHeader backLabel={t("backToHome")} />
+      <main className={`${styles.main} ${styles.loginMain}`}>
+        <section className={styles.card}>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t("title")}
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">{t("subtitle")}</p>
           {error && (
             <p
@@ -67,7 +65,7 @@ export default function LoginPage() {
               {error}
             </p>
           )}
-          <form onSubmit={login} className="mt-6 space-y-5">
+          <form onSubmit={login} className="mt-5 space-y-4">
             <label className="block text-sm font-medium">
               {t("emailLabel")}
               <input

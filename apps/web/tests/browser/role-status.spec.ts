@@ -25,12 +25,21 @@ for (const role of ["judge", "mentor"]) {
       })
     )
     await page.goto("/en/register")
-    await page.getByRole("combobox").selectOption(role)
+    await page.getByRole("combobox").click()
+    await page
+      .getByRole("option", {
+        name: role === "judge" ? "Judge" : "Mentor",
+        exact: true,
+      })
+      .click()
     await page.locator('input[autocomplete="name"]').fill(user.name)
     await page.locator('input[type="email"]').fill(user.email)
     await page.locator('input[type="tel"]').fill("+201000000001")
     await page.locator('input[type="password"]').nth(0).fill("NewPassword123!")
     await page.locator('input[type="password"]').nth(1).fill("NewPassword123!")
+    for (let step = 1; step < (role === "mentor" ? 2 : 1); step++) {
+      await page.getByRole("button", { name: "Continue", exact: true }).click()
+    }
     await page
       .getByRole("button", { name: "Create account", exact: true })
       .click()

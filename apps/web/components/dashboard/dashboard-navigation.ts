@@ -116,13 +116,10 @@ export function isNavigationActive(
   )
 }
 
-export function getDashboardRole(
-  pathname: string,
-  user?: UserSession | null
-): DashboardRole {
-  const routeRole = pathname.split("/")[2]
-  if (routeRole && Object.hasOwn(DASHBOARD_ROLES_CONFIG, routeRole))
-    return routeRole as DashboardRole
+export function getDashboardRole(user?: UserSession | null): DashboardRole {
+  // Keep frontend navigation in the account's main workspace. A selected
+  // mentor/judge role still identifies a pending application; API permissions
+  // continue to be checked by the existing backend.
   if (user?.roles?.includes("competition") || user?.role === "competition") {
     return "organizer"
   }
@@ -130,19 +127,5 @@ export function getDashboardRole(
     (["organizer", "judge", "mentor", "participant"] as const).find(
       (role) => user?.roles?.includes(role) || user?.role === role
     ) ?? "participant"
-  )
-}
-
-export function getAvailableRoles(user: UserSession | null): DashboardRole[] {
-  const roles = Object.keys(DASHBOARD_ROLES_CONFIG) as DashboardRole[]
-  return roles.filter(
-    (role) =>
-      user?.roles?.includes("organizer") ||
-      user?.role === "organizer" ||
-      (role === "organizer" &&
-        (user?.roles?.includes("competition") ||
-          user?.role === "competition")) ||
-      user?.roles?.includes(role) ||
-      user?.role === role
   )
 }
