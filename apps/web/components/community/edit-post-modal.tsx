@@ -195,7 +195,7 @@ export function EditPostModal({
             </div>
           )}
 
-          <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t">
+          <DialogFooter className="gap-2 sm:gap-3 pt-2 border-t">
             <Button
               type="button"
               variant="outline"
