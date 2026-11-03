@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useState } from "react"
+import useSWR from "swr"
 import { useLocale, useTranslations } from "next-intl"
 import {
   Activity,
@@ -27,48 +28,26 @@ export function CompetitionAnalyticsConsole() {
   const locale = useLocale()
   const isAr = locale === "ar"
 
-  const [data, setData] = useState<CompetitionAnalyticsResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
-  const [isRefreshing, setIsRefreshing] = useState(false)
   const [activeTab, setActiveTab] = useState<AnalyticsTab>("overview")
-  const fetchLock = useRef(false)
 
-  const fetchAnalytics = useCallback(async (isBackground = false) => {
-    if (fetchLock.current) return
-    fetchLock.current = true
+  const {
+    data,
+    error: swrError,
+    isLoading,
+    isValidating,
+    mutate,
+  } = useSWR<CompetitionAnalyticsResponse>("/competition-analytics", {
+    refreshInterval: 12000,
+    revalidateOnFocus: true,
+  })
 
-    if (!isBackground) setLoading(true)
-    else setIsRefreshing(true)
-    setError(false)
+  const loading = isLoading && !data
+  const error = Boolean(swrError) && !data
+  const isRefreshing = isValidating && !isLoading
 
-    try {
-      const res = await accountApi<CompetitionAnalyticsResponse>(
-        "/competition-analytics"
-      )
-      setData(res)
-    } catch {
-      if (!isBackground) setError(true)
-    } finally {
-      fetchLock.current = false
-      setLoading(false)
-      setIsRefreshing(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    void fetchAnalytics()
-  }, [fetchAnalytics])
-
-  // Live polling every 12 seconds when page is visible
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (document.visibilityState === "visible") {
-        void fetchAnalytics(true)
-      }
-    }, 12000)
-    return () => clearInterval(timer)
-  }, [fetchAnalytics])
+  const fetchAnalytics = useCallback((_isBackground?: boolean) => {
+    return mutate()
+  }, [mutate])
 
   const tabs: { id: AnalyticsTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: "overview", label: t("tabs.overview"), icon: Activity },
@@ -705,15 +684,24 @@ export function CompetitionAnalyticsConsole() {
                   </div>
 
                   {m.expertise.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1 items-center">
                       {m.expertise.slice(0, 3).map((e, idx) => (
                         <span
                           key={idx}
-                          className="rounded-md bg-muted px-2 py-0.5 text-[10px] text-muted-foreground"
+                          className="rounded-md bg-muted px-2 py-0.5 text-[10px] text-muted-foreground max-w-[100px] truncate inline-block"
+                          title={e}
                         >
                           {e}
                         </span>
                       ))}
+                      {m.expertise.length > 3 && (
+                        <span
+                          className="text-[10px] text-muted-foreground"
+                          title={m.expertise.slice(3).join(", ")}
+                        >
+                          +{m.expertise.length - 3}
+                        </span>
+                      )}
                     </div>
                   )}
 

@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useState, useCallback, useMemo } from "react"
+import useSWR from "swr"
 import { useLocale, useTranslations } from "next-intl"
 import {
   Activity,
@@ -59,9 +60,6 @@ export function RequestsTrackingConsole() {
   const locale = useLocale()
   const isRtl = locale === "ar"
 
-  const [data, setData] = useState<RequestsTrackingResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
   const [typeFilter, setTypeFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [search, setSearch] = useState("")
@@ -70,57 +68,41 @@ export function RequestsTrackingConsole() {
   const [selectedItem, setSelectedItem] = useState<UnifiedRequestItem | null>(
     null
   )
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const fetchLock = useRef(false)
 
-  const fetchTracking = useCallback(
-    async (isBackground = false) => {
-      if (fetchLock.current) return
-      fetchLock.current = true
-      if (!isBackground) setLoading(true)
-      else setIsRefreshing(true)
-      setError("")
+  const queryParams = useMemo(() => {
+    const params = new URLSearchParams()
+    if (typeFilter !== "all") params.set("type", typeFilter)
+    if (statusFilter !== "all") params.set("status", statusFilter)
+    if (activeSearch.trim()) params.set("search", activeSearch.trim())
+    params.set("page", String(page))
+    params.set("limit", "25")
+    return params.toString()
+  }, [typeFilter, statusFilter, activeSearch, page])
 
-      try {
-        const queryParams = new URLSearchParams()
-        if (typeFilter !== "all") queryParams.set("type", typeFilter)
-        if (statusFilter !== "all") queryParams.set("status", statusFilter)
-        if (activeSearch.trim()) queryParams.set("search", activeSearch.trim())
-        queryParams.set("page", String(page))
-        queryParams.set("limit", "25")
+  const swrKey = `/requests-tracking?${queryParams}`
+  const {
+    data,
+    error: swrError,
+    isLoading,
+    isValidating,
+    mutate,
+  } = useSWR<RequestsTrackingResponse>(swrKey, {
+    keepPreviousData: true,
+    refreshInterval: 12000,
+    revalidateOnFocus: true,
+  })
 
-        const res = await accountApi<RequestsTrackingResponse>(
-          `/requests-tracking?${queryParams.toString()}`
-        )
-        setData(res)
-      } catch (err) {
-        if (!isBackground) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load tracking data"
-          )
-        }
-      } finally {
-        fetchLock.current = false
-        setLoading(false)
-        setIsRefreshing(false)
-      }
-    },
-    [typeFilter, statusFilter, activeSearch, page]
-  )
+  const loading = isLoading && !data
+  const error = swrError
+    ? swrError instanceof Error
+      ? swrError.message
+      : "Failed to load tracking data"
+    : ""
+  const isRefreshing = isValidating && !isLoading
 
-  useEffect(() => {
-    void fetchTracking()
-  }, [fetchTracking])
-
-  // Live polling every 12 seconds when document is visible
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (document.visibilityState === "visible") {
-        void fetchTracking(true)
-      }
-    }, 12000)
-    return () => clearInterval(timer)
-  }, [fetchTracking])
+  const fetchTracking = useCallback((_isBackground?: boolean) => {
+    return mutate()
+  }, [mutate])
 
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault()

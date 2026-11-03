@@ -1,8 +1,14 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import useSWR, { useSWRConfig } from "swr"
 import { useTranslations } from "next-intl"
+import { Check, X, Clock, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
 import { accountApi, type RoleApplication } from "@/lib/account"
+import { cn } from "@/lib/utils"
 export function RoleApplications({
   role,
   embedded = false,
@@ -11,47 +17,28 @@ export function RoleApplications({
   embedded?: boolean
 }) {
   const t = useTranslations("Account")
-  const [items, setItems] = useState<RoleApplication[] | null>(null),
-    [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
-    [notice, setNotice] = useState(""),
-    [attempt, setAttempt] = useState(0),
-    [reasons, setReasons] = useState<Record<string, string>>({})
-  useEffect(() => {
-    if (busy) return
-    const c = new AbortController()
-    let active = false
-    const refresh = () => {
-      if (active || c.signal.aborted) return
-      active = true
-      return accountApi<RoleApplication[]>(
-        "/role-applications",
-        undefined,
-        c.signal
-      )
-        .then((data) => {
-          if (!c.signal.aborted) setItems(data)
-        })
-        .catch((e) => {
-          if (!c.signal.aborted) setError(e.message)
-        })
-        .finally(() => {
-          active = false
-        })
-    }
-    void refresh()
-    const timer = setInterval(() => {
-      if (document.visibilityState === "visible") void refresh()
-    }, 5000)
-    return () => {
-      c.abort()
-      clearInterval(timer)
-    }
-  }, [attempt, busy])
+  const { mutate: globalMutate } = useSWRConfig()
+
+  const {
+    data: items,
+    error: swrError,
+    mutate,
+  } = useSWR<RoleApplication[]>("/role-applications", {
+    refreshInterval: 10000,
+    revalidateOnFocus: true,
+  })
+
+  const [reviewError, setReviewError] = useState("")
+  const [busy, setBusy] = useState(false)
+  const [notice, setNotice] = useState("")
+  const [reasons, setReasons] = useState<Record<string, string>>({})
+
+  const error = reviewError || (swrError ? swrError.message : "")
+
   async function review(id: string, decision: string) {
     if (busy) return
     setBusy(true)
-    setError("")
+    setReviewError("")
     setNotice("")
     try {
       await accountApi(`/role-applications/${id}/review`, {
@@ -59,10 +46,11 @@ export function RoleApplications({
         reason: reasons[id] ?? items?.find((a) => a.id === id)?.reason ?? "",
         expectedStatus: items?.find((a) => a.id === id)?.status,
       })
-      setItems(await accountApi<RoleApplication[]>("/role-applications"))
+      await mutate()
+      void globalMutate("/organizer-summary")
       setNotice(t("reviewed"))
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("error"))
+      setReviewError(e instanceof Error ? e.message : t("error"))
     } finally {
       setBusy(false)
     }
@@ -74,89 +62,136 @@ export function RoleApplications({
       (a, b) => Number(b.status === "pending") - Number(a.status === "pending")
     )
   const Heading = embedded ? "h2" : "h1"
+
+  const renderStatusBadge = (status: string) => {
+    if (status === "approved") {
+      return (
+        <Badge variant="default" className="bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 border-emerald-600/30">
+          <Check className="size-3 me-1" />
+          {t(`label_${status}`)}
+        </Badge>
+      )
+    }
+    if (status === "rejected") {
+      return (
+        <Badge variant="destructive" className="bg-destructive/15 text-destructive border-destructive/30">
+          <X className="size-3 me-1" />
+          {t(`label_${status}`)}
+        </Badge>
+      )
+    }
+    return (
+      <Badge variant="secondary" className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30">
+        <Clock className="size-3 me-1" />
+        {t(`label_${status}`)}
+      </Badge>
+    )
+  }
+
   return (
-    <div className="mx-auto grid max-w-6xl gap-6">
-      <header className={panel}>
-        <Heading className="text-2xl font-semibold">
-          {role
-            ? t("roleApprovalsTitle", { role: t(role) })
-            : t("applicationsTitle")}
-        </Heading>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          {t("applicationsHelp")}
-        </p>
-      </header>
+    <div className={cn("mx-auto grid gap-6", !embedded && "max-w-6xl")}>
+      {!embedded && (
+        <Card className="border-border/60">
+          <CardHeader className="p-6">
+            <Heading className="text-2xl font-bold tracking-tight text-foreground">
+              {role
+                ? t("roleApprovalsTitle", { role: t(role) })
+                : t("applicationsTitle")}
+            </Heading>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {t("applicationsHelp")}
+            </p>
+          </CardHeader>
+        </Card>
+      )}
+
       {error && (
-        <p role="alert" className={panel}>
-          {error}{" "}
+        <Card className="border-destructive/30 bg-destructive/5 p-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-sm text-destructive">
+            <AlertCircle className="size-4 shrink-0" />
+            <span>{error}</span>
+          </div>
           <Button
+            size="sm"
+            variant="outline"
             onClick={() => {
-              setError("")
-              setAttempt((n) => n + 1)
+              setReviewError("")
+              void mutate()
             }}
           >
             {t("retry")}
           </Button>
-        </p>
+        </Card>
       )}
+
       {notice && (
-        <p role="status" className={panel}>
+        <Card className="border-emerald-500/30 bg-emerald-500/5 p-4 text-sm text-emerald-600 dark:text-emerald-400">
           {notice}
-        </p>
+        </Card>
       )}
+
       {!items ? (
-        <p role="status">{t("loading")}</p>
+        <p role="status" className="text-sm text-muted-foreground">{t("loading")}</p>
       ) : !visibleItems?.length ? (
-        <p className={panel}>{t("noApplications")}</p>
+        <Card className="p-12 text-center border-dashed border-border/80">
+          <Clock className="mx-auto size-10 text-muted-foreground/40 mb-3" />
+          <p className="text-sm text-muted-foreground">{t("noApplications")}</p>
+        </Card>
       ) : (
         visibleItems.map((a) => (
-          <article className={panel} key={a.id}>
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold">{a.user?.name}</h2>
-                <p className="mt-1 text-sm break-all text-muted-foreground">
-                  {a.user?.email}
-                </p>
-                <p className="mt-2 text-sm">
-                  {t("requestedRole", { role: t(a.role) })}
-                </p>
+          <Card className="border-border/60 hover:border-border transition-all" key={a.id}>
+            <CardContent className="p-6">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-base font-semibold text-foreground">{a.user?.name}</h3>
+                  <p className="text-xs break-all text-muted-foreground">
+                    {a.user?.email}
+                  </p>
+                  <p className="text-xs font-medium text-foreground/80 pt-1">
+                    {t("requestedRole", { role: t(a.role) })}
+                  </p>
+                </div>
+                {renderStatusBadge(a.status)}
               </div>
-              <span className="rounded-full border border-border px-3 py-1 text-xs">
-                {t(`label_${a.status}`)}
-              </span>
-            </div>
-            {
-              <div className="mt-5 grid gap-4">
-                <label className="text-sm">
+
+              <div className="mt-4 flex flex-col gap-3 pt-3 border-t border-border/40">
+                <label className="text-xs font-medium text-muted-foreground block">
                   {t("reviewReason")}
-                  <textarea
+                  <Textarea
                     maxLength={1000}
                     disabled={busy}
                     value={reasons[a.id] ?? a.reason}
                     onChange={(e) =>
                       setReasons((old) => ({ ...old, [a.id]: e.target.value }))
                     }
-                    className="mt-2 min-h-20 w-full rounded-lg border border-border bg-background p-3"
+                    placeholder={t("reviewReasonPlaceholder")}
+                    className="mt-1.5 min-h-[70px] text-xs resize-none"
                   />
                 </label>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <Button
+                    size="sm"
                     disabled={busy || a.status === "approved"}
                     onClick={() => void review(a.id, "approved")}
+                    className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
-                    {t("approve")}
+                    <Check className="size-3.5" />
+                    <span>{t("approve")}</span>
                   </Button>
                   <Button
+                    size="sm"
                     variant="outline"
                     disabled={busy || a.status === "rejected"}
                     onClick={() => void review(a.id, "rejected")}
+                    className="gap-1.5 text-xs text-destructive hover:bg-destructive/10"
                   >
-                    {t("reject")}
+                    <X className="size-3.5" />
+                    <span>{t("reject")}</span>
                   </Button>
                 </div>
               </div>
-            }
-          </article>
+            </CardContent>
+          </Card>
         ))
       )}
     </div>
