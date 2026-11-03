@@ -10,6 +10,7 @@ import { MentorshipModule } from './mentorship/mentorship.module.js';
 import { ChallengesModule } from './challenges/challenges.module.js';
 import { JudgingModule } from './judging/judging.module.js';
 import { AccountModule } from './account/account.module.js';
+import { CommunityModule } from './community/community.module.js';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AccountModule } from './account/account.module.js';
     ChallengesModule,
     JudgingModule,
     AccountModule,
+    CommunityModule,
   ],
   controllers: [AppController],
   providers: [AppService],

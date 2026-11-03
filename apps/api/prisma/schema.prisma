@@ -51,6 +51,10 @@ model User {
   notifications    Notification[]
   communityQuestions CommunityQuestion[]
   communityAnswers   CommunityAnswer[]
+  communityAnswerComments CommunityAnswerComment[]
+  communityPosts     CommunityPost[]
+  communityComments  CommunityPostComment[]
+  communityLikes     CommunityPostLike[]
 
   @@index([email])
   @@index([deletedAt])
@@ -577,6 +581,7 @@ model CommunityQuestion {
   content      String
   category     String            @default("general") // technical, platform, challenge, general
   status       String            @default("unanswered") // unanswered, answered, resolved
+  images       String[]          @default([])
   authorId     String            @map("author_id")
   answersCount Int               @default(0) @map("answers_count")
   viewsCount   Int               @default(0) @map("views_count")
@@ -600,9 +605,78 @@ model CommunityAnswer {
   updatedAt  DateTime          @updatedAt @map("updated_at")
   question   CommunityQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
   author     User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments   CommunityAnswerComment[]
 
   @@index([questionId, createdAt])
   @@map("community_answers")
+}
+
+model CommunityPost {
+  id            String                 @id @default(uuid())
+  title         String
+  content       String
+  tags          String[]               @default([])
+  images        String[]               @default([])
+  isPinned      Boolean                @default(false) @map("is_pinned")
+  authorId      String                 @map("author_id")
+  likesCount    Int                    @default(0) @map("likes_count")
+  commentsCount Int                    @default(0) @map("comments_count")
+  createdAt     DateTime               @default(now()) @map("created_at")
+  updatedAt     DateTime               @updatedAt @map("updated_at")
+
+  author        User                   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments      CommunityPostComment[]
+  likes         CommunityPostLike[]
+
+  @@index([isPinned, createdAt(sort: Desc)])
+  @@map("community_posts")
+}
+
+model CommunityPostComment {
+  id        String                 @id @default(uuid())
+  postId    String                 @map("post_id")
+  authorId  String                 @map("author_id")
+  content   String
+  parentId  String?                @map("parent_id")
+  createdAt DateTime               @default(now()) @map("created_at")
+  updatedAt DateTime               @updatedAt @map("updated_at")
+
+  post      CommunityPost          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User                   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent    CommunityPostComment?  @relation("PostCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   CommunityPostComment[] @relation("PostCommentReplies")
+
+  @@index([postId, createdAt])
+  @@index([parentId])
+  @@map("community_post_comments")
+}
+
+model CommunityAnswerComment {
+  id        String          @id @default(uuid())
+  answerId  String          @map("answer_id")
+  authorId  String          @map("author_id")
+  content   String
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+
+  answer    CommunityAnswer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+  author    User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([answerId, createdAt])
+  @@map("community_answer_comments")
+}
+
+model CommunityPostLike {
+  id        String        @id @default(uuid())
+  postId    String        @map("post_id")
+  userId    String        @map("user_id")
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("community_post_likes")
 }
 
 

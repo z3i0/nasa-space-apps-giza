@@ -5,6 +5,8 @@ import { toNodeHandler } from 'better-auth/node';
 import { auth } from './auth/auth.js';
 import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
+import path from 'node:path';
+import fs from 'node:fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -55,6 +57,24 @@ async function bootstrap() {
   // Mount body-parsing middleware for remaining NestJS routes
   expressApp.use(express.json());
   expressApp.use(express.urlencoded({ extended: true }));
+
+  // Mount static uploads directory with security headers
+  const uploadsDir = path.resolve(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  expressApp.use(
+    '/uploads',
+    (req: Request, res: Response, next: NextFunction) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      next();
+    },
+    express.static(uploadsDir, {
+      maxAge: '7d',
+      index: false,
+    }),
+  );
 
   // Set global prefix for API routes
   app.setGlobalPrefix('api');
