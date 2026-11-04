@@ -104,28 +104,28 @@ export async function seedEssential(prisma: PrismaClient) {
     {
       email: 'competition@hackathon.local',
       username: 'competition',
-      name: 'شريف عادل',
+      name: 'Osama Kamal',
       role: 'competition',
       password: 'CompetitionSecure2026!',
     },
     {
       email: 'judge@hackathon.local',
       username: 'judge',
-      name: 'د. هاني كمال',
+      name: 'Sayed Fathy',
       role: 'judge',
       password: 'JudgeSecure2026!',
     },
     {
       email: 'mentor@hackathon.local',
       username: 'mentor',
-      name: 'م. طارق نبيل',
+      name: 'Mostafa Mohamed',
       role: 'mentor',
       password: 'MentorSecure2026!',
     },
     {
       email: 'participant@hackathon.local',
       username: 'participant',
-      name: 'أحمد حسن',
+      name: 'Ahmed Hassan',
       role: 'participant',
       password: 'ParticipantSecure2026!',
       profile: {
