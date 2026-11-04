@@ -6,11 +6,13 @@ import { useTranslations } from "next-intl"
 import { ArrowUpRight, Rocket } from "lucide-react"
 import { Link } from "@/i18n/routing"
 import { buttonVariants } from "@/components/ui/button"
+import { getRedirectPathByRole, useAuthUser } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 import styles from "./moon-landing.module.css"
 
 export function MoonLanding() {
   const t = useTranslations("Home")
+  const user = useAuthUser()
   const sceneRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -68,13 +70,15 @@ export function MoonLanding() {
           {t("registrationStatus")}
         </p>
         <Link
-          href="/login"
+          href={user ? getRedirectPathByRole(user.roles || [], user.role) : "/login"}
           className={cn(buttonVariants({ size: "lg" }), styles.cta)}
         >
-          {t("portal")}
+          {user ? t("dashboard") : t("portal")}
           <ArrowUpRight size={17} aria-hidden="true" />
         </Link>
-        <p className={styles.note}>{t("portalNote")}</p>
+        <p className={styles.note}>
+          {user ? t("dashboardNote") : t("portalNote")}
+        </p>
       </div>
       <div className={styles.landingZone} aria-hidden="true">
         <div className={styles.shadow} />

@@ -93,15 +93,27 @@ export async function clearAuth(): Promise<void> {
   document.cookie = "better-auth.session_data=; path=/; max-age=0"
 }
 
-export function getRedirectPathByRole(roles: string[] = []): string {
+export function getRedirectPathByRole(
+  roles: string[] = [],
+  preferredRole?: string | null
+): string {
+  if (
+    preferredRole &&
+    ["organizer", "competition", "mentor", "judge", "participant"].includes(
+      preferredRole
+    )
+  ) {
+    if (preferredRole === "competition") return "/dashboard/organizer"
+    return `/dashboard/${preferredRole}`
+  }
   if (roles.includes("organizer") || roles.includes("competition")) {
     return "/dashboard/organizer"
   }
-  if (roles.includes("judge")) {
-    return "/dashboard/judge"
-  }
   if (roles.includes("mentor")) {
     return "/dashboard/mentor"
+  }
+  if (roles.includes("judge")) {
+    return "/dashboard/judge"
   }
   return "/dashboard/participant"
 }

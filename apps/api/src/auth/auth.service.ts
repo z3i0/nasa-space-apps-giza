@@ -50,10 +50,17 @@ export class AuthService {
           ? [user.role]
           : ['participant'];
 
+    const userRole =
+      user.role ||
+      (user.roleApplications && user.roleApplications.length > 0
+        ? user.roleApplications[0].role
+        : roleNames[0] || 'participant');
+
     return {
       id: user.id,
       name: user.name,
       email: user.email,
+      role: userRole,
       phone: user.phone || null,
       roles: roleNames,
       profile: user.profile || null,
@@ -189,6 +196,10 @@ export class AuthService {
           },
         },
         profile: true,
+        roleApplications: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
     });
 
@@ -304,6 +315,10 @@ export class AuthService {
           },
         },
         profile: true,
+        roleApplications: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
     });
 

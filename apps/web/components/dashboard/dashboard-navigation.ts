@@ -126,8 +126,16 @@ export function getDashboardRole(user?: UserSession | null): DashboardRole {
   if (user?.roles?.includes("competition") || user?.role === "competition") {
     return "organizer"
   }
+  if (
+    user?.role &&
+    (["organizer", "mentor", "judge", "participant"] as const).includes(
+      user.role as DashboardRole
+    )
+  ) {
+    return user.role as DashboardRole
+  }
   return (
-    (["organizer", "judge", "mentor", "participant"] as const).find(
+    (["organizer", "mentor", "judge", "participant"] as const).find(
       (role) => user?.roles?.includes(role) || user?.role === role
     ) ?? "participant"
   )

@@ -11,6 +11,9 @@ import { MissionCard } from "@/components/landing/mission-card"
 import { MissionTimeline } from "@/components/landing/mission-timeline"
 import { MoonLanding } from "@/components/landing/moon-landing"
 import { SpaceScene } from "@/components/landing/space-scene"
+import { HomeAuthNav } from "@/components/landing/home-auth-nav"
+import { AuthProvider } from "@/components/auth-provider"
+import { getServerAuthUser } from "@/lib/auth-server"
 import { Link } from "@/i18n/routing"
 import { cn } from "@/lib/utils"
 import styles from "@/components/landing/landing.module.css"
@@ -45,32 +48,31 @@ export default async function Page({
   const { locale } = await params
   setRequestLocale(locale)
   const t = await getTranslations("Home")
+  const user = await getServerAuthUser()
 
   return (
-    <div
-      className={cn(styles.landing, pinnacle.variable, spaceRabbit.variable)}
-    >
-      <a className={styles.skipLink} href="#mission">
-        {t("skip")}
-      </a>
-      <header className={styles.header}>
-        <Link href="/" className={styles.brand} aria-label={t("brand")}>
-          <Logo size="lg" />
-          <span>
-            SPACE APPS <span className={styles.brandLocation}>GIZA</span>
-          </span>
-        </Link>
-        <nav className={styles.nav} aria-label={t("navigation")}>
-          <a className={styles.navMission} href="#mission">
-            {t("about")}
-          </a>
-          <LanguageSwitcher className={styles.language} variant="ghost" />
-          <Link href="/login" className={styles.login}>
-            {t("signIn")}
-            <ArrowUpRight size={15} aria-hidden="true" />
+    <AuthProvider initialUser={user}>
+      <div
+        className={cn(styles.landing, pinnacle.variable, spaceRabbit.variable)}
+      >
+        <a className={styles.skipLink} href="#mission">
+          {t("skip")}
+        </a>
+        <header className={styles.header}>
+          <Link href="/" className={styles.brand} aria-label={t("brand")}>
+            <Logo size="lg" />
+            <span>
+              SPACE APPS <span className={styles.brandLocation}>GIZA</span>
+            </span>
           </Link>
-        </nav>
-      </header>
+          <nav className={styles.nav} aria-label={t("navigation")}>
+            <a className={styles.navMission} href="#mission">
+              {t("about")}
+            </a>
+            <LanguageSwitcher className={styles.language} variant="ghost" />
+            <HomeAuthNav />
+          </nav>
+        </header>
       <main>
         <SpaceScene>
           <div
@@ -191,5 +193,6 @@ export default async function Page({
         </a>
       </footer>
     </div>
+  </AuthProvider>
   )
 }

@@ -36,7 +36,8 @@ export default function LoginPage() {
       const user = await selectAccountRole(email)
       setAuth({ accessToken: result.data.token }, user)
       const redirectPath = getRedirectPathByRole(
-        user.roles?.length ? user.roles : [user.role || "participant"]
+        user.roles?.length ? user.roles : [user.role || "participant"],
+        user.role
       )
       window.location.replace(`/${locale}${redirectPath}`)
     } catch (e) {

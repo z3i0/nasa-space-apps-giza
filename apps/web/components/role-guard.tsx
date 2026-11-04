@@ -69,7 +69,7 @@ export function RoleGuard({ allowedRoles, children }: RoleGuardProps) {
 
       if (!isOrganizer && !hasAllowedRole) {
         setIsAuthorized(false)
-        const redirectPath = getRedirectPathByRole(user.roles || [])
+        const redirectPath = getRedirectPathByRole(user.roles || [], user.role)
         router.replace(redirectPath as "/dashboard/participant")
       } else {
         setIsAuthorized(true)

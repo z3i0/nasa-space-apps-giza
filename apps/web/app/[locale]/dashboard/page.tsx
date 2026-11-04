@@ -10,7 +10,7 @@ export default function DashboardIndexPage() {
 
   useEffect(() => {
     const user = getAuthUser()
-    const targetPath = getRedirectPathByRole(user?.roles || [])
+    const targetPath = getRedirectPathByRole(user?.roles || [], user?.role)
     router.replace(targetPath as "/dashboard/participant")
   }, [router])
 

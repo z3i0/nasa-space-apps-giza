@@ -2,6 +2,7 @@ export interface AuthenticatedUser {
   id: string;
   name: string;
   email: string;
+  role?: string;
   phone?: string | null;
   roles: string[];
   profile?: Record<string, unknown> | null;
@@ -24,6 +25,7 @@ export interface AuthResponse {
     id: string;
     name: string;
     email: string;
+    role?: string;
     phone?: string | null;
     roles: string[];
     profile?: Record<string, unknown> | null;

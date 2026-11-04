@@ -206,16 +206,20 @@ export async function selectAccountRole(
     )
   const targetRole =
     role ||
-    (user.roles?.includes("organizer")
-      ? "organizer"
-      : user.roles?.includes("competition")
-        ? "competition"
-        : user.roles?.includes("judge")
-          ? "judge"
+    (user.role &&
+    (user.roles?.includes(user.role) ||
+      ["organizer", "competition", "mentor", "judge", "participant"].includes(
+        user.role
+      ))
+      ? user.role
+      : user.roles?.includes("organizer")
+        ? "organizer"
+        : user.roles?.includes("competition")
+          ? "competition"
           : user.roles?.includes("mentor")
             ? "mentor"
-            : user.role && user.role !== "participant"
-              ? user.role
+            : user.roles?.includes("judge")
+              ? "judge"
               : user.roles?.[0] || "participant")
   const selection = await accountApi<{
     role: string

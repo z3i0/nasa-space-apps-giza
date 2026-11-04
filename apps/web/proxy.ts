@@ -5,8 +5,8 @@ import { NextRequest, NextResponse } from "next/server"
 const intlMiddleware = createMiddleware(routing)
 const dashboardRoles = [
   "organizer",
-  "judge",
   "mentor",
+  "judge",
   "participant",
   "competition",
 ]
@@ -101,9 +101,12 @@ export default function proxy(request: NextRequest) {
     ) {
       // Choose only a role the user actually has; missing roles must never
       // bounce between participant and organizer dashboards.
+      const roleSingle = request.cookies.get("auth_role")?.value
       const targetRole = isCompetition
         ? "organizer"
-        : (dashboardRoles.find((role) => roles.includes(role)) || "participant")
+        : (roleSingle && roles.includes(roleSingle)
+            ? roleSingle
+            : dashboardRoles.find((role) => roles.includes(role)) || "participant")
       return NextResponse.redirect(
         new URL(`/${locale}/dashboard/${targetRole}`, request.url)
       )
