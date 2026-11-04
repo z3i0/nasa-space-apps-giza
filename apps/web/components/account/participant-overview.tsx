@@ -164,7 +164,8 @@ export function ParticipantOverview() {
             <div className="flex flex-wrap gap-2">
               {data.skills.map((skill) => (
                 <span
-                  className="rounded-full border border-border px-3 py-1 text-sm"
+                  className="rounded-full border border-border px-3 py-1 text-sm max-w-[200px] truncate inline-block"
+                  title={skill}
                   key={skill}
                 >
                   {skill}

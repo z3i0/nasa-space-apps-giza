@@ -9,6 +9,7 @@ import { NextIntlClientProvider } from "next-intl"
 
 import "../globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { SWRProvider } from "@/components/swr-provider"
 import { DirectionProvider } from "@/components/ui/direction"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
@@ -90,8 +91,10 @@ export default async function LocaleLayout({
           <ThemeProvider>
             <TooltipProvider>
               <NextIntlClientProvider locale={locale} messages={messages}>
-                {children}
-                <Toaster position={dir === "rtl" ? "top-left" : "top-right"} />
+                <SWRProvider>
+                  {children}
+                  <Toaster position={dir === "rtl" ? "top-left" : "top-right"} />
+                </SWRProvider>
               </NextIntlClientProvider>
             </TooltipProvider>
           </ThemeProvider>

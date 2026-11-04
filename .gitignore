@@ -37,3 +37,9 @@ Thumbs.db
 coverage/
 .turbo/
 apps/web/.playwright/
+
+# uploads
+uploads/
+
+.agents/
+skills-lock.json

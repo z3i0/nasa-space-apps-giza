@@ -451,7 +451,7 @@ export default function FindTeamPage() {
                 />
               </div>
 
-              <DialogFooter className="gap-2 pt-2 sm:gap-0">
+              <DialogFooter className="gap-2 pt-2 sm:gap-3">
                 <Button
                   type="button"
                   variant="outline"

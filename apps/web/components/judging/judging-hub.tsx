@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import useSWR from "swr"
 import { useTranslations } from "next-intl"
 import {
   Award,
@@ -52,51 +53,42 @@ export function JudgingHub({
   assignmentId?: string
 }) {
   const t = useTranslations("Judging")
-  const [assignments, setAssignments] = useState<Assignment[]>([])
-  const [management, setManagement] = useState<Management | null>(null)
-  const [publication, setPublication] = useState<Publication | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+
+  const swrKey = organizer
+    ? "/judging-workspace-organizer"
+    : "/judging-workspace-judge"
+  const {
+    data,
+    error: swrError,
+    isLoading,
+    mutate: swrMutate,
+  } = useSWR(swrKey, () => readWorkspace(organizer), {
+    revalidateOnFocus: true,
+  })
+
+  const management = data?.management ?? null
+  const assignments = data?.assignments ?? []
+  const publication = data?.publication ?? null
+  const loading = isLoading && !data
+  const [actionError, setActionError] = useState("")
   const [notice, setNotice] = useState("")
   const [busy, setBusy] = useState(false)
-  async function load(signal?: AbortSignal) {
-    const data = await readWorkspace(organizer, signal)
-    if (signal?.aborted) return
-    setManagement(data.management)
-    setAssignments(data.assignments)
-    setPublication(data.publication)
-  }
-  useEffect(() => {
-    const controller = new AbortController()
-    readWorkspace(organizer, controller.signal)
-      .then((data) => {
-        if (controller.signal.aborted) return
-        setManagement(data.management)
-        setAssignments(data.assignments)
-        setPublication(data.publication)
-      })
-      .catch((e) => {
-        if (!controller.signal.aborted)
-          setError(e instanceof Error ? e.message : t("error"))
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false)
-      })
-    return () => controller.abort()
-    // Role is fixed by the route. Translation changes remount the locale route.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [organizer])
+
+  const error =
+    actionError ||
+    (swrError ? (swrError instanceof Error ? swrError.message : t("error")) : "")
+
   async function mutate(path: string, method: string, body?: unknown) {
     setBusy(true)
-    setError("")
+    setActionError("")
     setNotice("")
     try {
       await judgingApi(path, method, body)
-      await load()
+      await swrMutate()
       setNotice(t("saved"))
       return true
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("error"))
+      setActionError(e instanceof Error ? e.message : t("error"))
       return false
     } finally {
       setBusy(false)
@@ -148,11 +140,8 @@ export function JudgingHub({
             variant="outline"
             disabled={busy}
             onClick={() => {
-              setLoading(true)
-              load()
-                .then(() => setError(""))
-                .catch((e) => setError(String(e.message)))
-                .finally(() => setLoading(false))
+              setActionError("")
+              void swrMutate()
             }}
           >
             {t("retry")}

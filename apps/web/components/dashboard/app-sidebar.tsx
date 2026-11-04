@@ -27,10 +27,14 @@ export function AppSidebar({ currentRole }: { currentRole: DashboardRole }) {
     user?.role !== "organizer"
 
   return (
-    <aside className="sticky top-[72px] z-10 min-w-0 flex-[0_0_224px] max-[760px]:static">
+    <aside
+      data-lenis-prevent
+      className="sticky top-[72px] z-10 min-w-0 flex-[0_0_224px] max-[760px]:static"
+    >
       <Sidebar
         collapsible="none"
-        className="h-[calc(100dvh-72px)] w-56 [scrollbar-width:thin] [scrollbar-color:var(--border)_transparent] overflow-y-auto border-e border-sidebar-border bg-sidebar px-4 py-6 shadow-[6px_0_24px_#00000061] max-[760px]:h-auto max-[760px]:w-full max-[760px]:overflow-visible max-[760px]:border-e-0 max-[760px]:border-b max-[760px]:border-sidebar-border max-[760px]:px-4 max-[760px]:py-3.5 max-[760px]:shadow-none rtl:shadow-[-6px_0_24px_#00000061]"
+        data-lenis-prevent
+        className="h-[calc(100dvh-72px)] w-56 overflow-y-auto overscroll-y-contain border-e border-sidebar-border bg-sidebar px-4 py-6 shadow-[6px_0_24px_#00000061] [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin] max-[760px]:h-auto max-[760px]:w-full max-[760px]:overflow-visible max-[760px]:border-e-0 max-[760px]:border-b max-[760px]:border-sidebar-border max-[760px]:px-4 max-[760px]:py-3.5 max-[760px]:shadow-none rtl:shadow-[-6px_0_24px_#00000061] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 hover:[&::-webkit-scrollbar-thumb]:bg-border"
       >
         <div
           className={`flex w-full items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10px] leading-4 font-semibold ${roleConfig.colorClass.border} ${roleConfig.colorClass.bg} ${roleConfig.colorClass.text}`}
@@ -48,7 +52,8 @@ export function AppSidebar({ currentRole }: { currentRole: DashboardRole }) {
         </div>
         <nav
           aria-label={t("shell.navigation")}
-          className="mt-4 mb-6 [scrollbar-width:thin] [scrollbar-color:var(--border)_transparent] max-[760px]:mt-3 max-[760px]:mb-0 max-[760px]:flex max-[760px]:gap-3 max-[760px]:overflow-x-auto max-[760px]:py-0.5 max-[760px]:pb-1"
+          data-lenis-prevent
+          className="mt-4 mb-6 overscroll-x-contain [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin] max-[760px]:mt-3 max-[760px]:mb-0 max-[760px]:flex max-[760px]:gap-3 max-[760px]:overflow-x-auto max-[760px]:py-0.5 max-[760px]:pb-1"
           data-dashboard-navigation=""
         >
           {getShellNavigation(currentRole, user).map((section, index) => (

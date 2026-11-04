@@ -20,8 +20,12 @@ import {
 
 export function RoleApplications({
   initialRole = "mentor",
+  role: roleProp,
+  embedded = false,
 }: {
   initialRole?: "mentor" | "judge"
+  role?: "mentor" | "judge"
+  embedded?: boolean
 }) {
   const t = useTranslations("Account")
   const a = useTranslations("Operations.admin")
@@ -33,7 +37,7 @@ export function RoleApplications({
   const [notice, setNotice] = useState("")
   const [attempt, setAttempt] = useState(0)
   const [reasons, setReasons] = useState<Record<string, string>>({})
-  const [role, setRole] = useState<"mentor" | "judge">(initialRole)
+  const [role, setRole] = useState<"mentor" | "judge">(roleProp ?? initialRole)
   const [status, setStatus] = useState("pending")
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
@@ -142,7 +146,7 @@ export function RoleApplications({
 
   return (
     <div className="mx-auto grid w-full max-w-7xl gap-4 sm:gap-5">
-      <PageHeader title={t("applicationsTitle")} subtitle={r("hint")} />
+      {!embedded && <PageHeader title={t("applicationsTitle")} subtitle={r("hint")} />}
       <div
         role="group"
         aria-label={r("requestType")}

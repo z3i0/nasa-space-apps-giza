@@ -7,6 +7,121 @@ export interface RoleApplication {
   createdAt: string
   user?: { id: string; name: string; email: string }
 }
+
+export interface DirectoryTeamMember {
+  userId: string
+  role: string
+  joinedAt?: string
+  user: {
+    id: string
+    name: string
+    email?: string
+    avatar?: string
+  }
+}
+
+export interface DirectoryTeamSubmission {
+  title: string
+  summary?: string
+  status: string
+  version: number
+  projectUrl?: string
+  repositoryUrl?: string
+  demoUrl?: string
+  submittedAt?: string
+  updatedAt?: string
+}
+
+export interface DirectoryTeam {
+  id: string
+  name: string
+  challenge: string | null
+  maxMembers: number
+  createdAt?: string
+  members: DirectoryTeamMember[]
+  submission?: DirectoryTeamSubmission | null
+}
+
+export interface DirectoryMentorSlot {
+  id: string
+  startTime: string
+  endTime: string
+  teamId?: string | null
+}
+
+export interface DirectoryMentor {
+  id: string
+  name: string
+  email: string
+  phone?: string | null
+  role?: string
+  avatar?: string | null
+  isActive: boolean
+  createdAt: string
+  institution?: string | null
+  skills: string[]
+  bio: string
+  availability: string
+  slotsCount: number
+  activeSlotsCount: number
+  bookedSlotsCount: number
+  requestsCount: number
+  slots?: DirectoryMentorSlot[]
+}
+
+export interface DirectoryJudgeAssignedTeam {
+  assignmentId: string
+  teamId: string
+  teamName: string
+  challenge?: string | null
+  completed: boolean
+  rubricName?: string
+}
+
+export interface DirectoryJudge {
+  id: string
+  name: string
+  email: string
+  phone?: string | null
+  role?: string
+  avatar?: string | null
+  isActive: boolean
+  createdAt: string
+  institution?: string | null
+  skills: string[]
+  bio: string
+  assignmentsCount: number
+  completedAssignmentsCount: number
+  pendingAssignmentsCount: number
+  assignedTeams: DirectoryJudgeAssignedTeam[]
+}
+
+export interface DirectoryParticipant {
+  id: string
+  name: string
+  email: string
+  phone?: string | null
+  role?: string
+  avatar?: string | null
+  isActive: boolean
+  createdAt?: string
+  institution?: string | null
+  skills: string[]
+  bio?: string
+  team?: {
+    id: string
+    name: string
+    challenge?: string | null
+    role?: string
+  } | null
+}
+
+export interface DirectoryResponse<T> {
+  items: T[]
+  total: number
+  page: number
+  totalPages: number
+}
 export interface AccountOverview {
   skills: string[]
   challenge: string | null
@@ -23,11 +138,30 @@ export interface AccountOverview {
 }
 export async function accountApi<T>(
   path: string,
-  body?: unknown,
+  bodyOrOptions?: unknown,
   signal?: AbortSignal
 ): Promise<T> {
+  let method = "GET"
+  let body: unknown = undefined
+
+  if (bodyOrOptions !== undefined) {
+    if (
+      typeof bodyOrOptions === "object" &&
+      bodyOrOptions !== null &&
+      "method" in bodyOrOptions &&
+      typeof (bodyOrOptions as { method: string }).method === "string"
+    ) {
+      const opts = bodyOrOptions as { method: string; body?: unknown }
+      method = opts.method.toUpperCase()
+      body = opts.body
+    } else {
+      method = "POST"
+      body = bodyOrOptions
+    }
+  }
+
   const response = await fetch(`/api/account${path}`, {
-    method: body === undefined ? "GET" : "POST",
+    method,
     credentials: "include",
     cache: "no-store",
     signal: signal
@@ -45,7 +179,9 @@ export async function accountApi<T>(
     throw new Error(
       typeof result?.message === "string"
         ? result.message
-        : `Request failed (${response.status})`
+        : Array.isArray(result?.message)
+          ? result.message.join(", ")
+          : `Request failed (${response.status})`
     )
   }
   return response.json()

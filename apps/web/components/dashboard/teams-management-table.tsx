@@ -1,5 +1,7 @@
 "use client"
-import { OrganizerDirectory } from "@/components/account/organizer-directory"
+
+import { OrganizerTeamsView } from "@/components/dashboard/organizer-teams-view"
+
 export function TeamsManagementTable() {
-  return <OrganizerDirectory kind="teams" />
+  return <OrganizerTeamsView />
 }

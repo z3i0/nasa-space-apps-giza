@@ -101,7 +101,11 @@ export function ApplicantDetails({ user }: { user?: TeamContact }) {
               <h3>{t(`application.${key}`)}</h3>
               <div className={styles.tags}>
                 {profile[key]?.length ? (
-                  profile[key].map((value) => <span key={value}>{value}</span>)
+                  profile[key].map((value) => (
+                    <span key={value} className="max-w-[200px] truncate inline-block" title={value}>
+                      {value}
+                    </span>
+                  ))
                 ) : (
                   <p className={styles.muted}>{t("notProvided")}</p>
                 )}

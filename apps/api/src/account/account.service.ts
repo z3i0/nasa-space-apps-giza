@@ -7,7 +7,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { officialChallengeWhere } from '../challenges/official-catalogue.js';
-import { Prisma } from '@prisma/client';
+import { Prisma, TeamMemberRole, TeamSubmissionStatus } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AccountService {
@@ -607,7 +608,7 @@ export class AccountService {
     };
   }
   async directory(
-    kind: 'participants' | 'teams',
+    kind: 'participants' | 'teams' | 'mentors' | 'judges',
     search: string,
     page: number,
     limit: number,
@@ -640,10 +641,17 @@ export class AccountService {
             id: true,
             name: true,
             email: true,
+            phone: true,
+            role: true,
+            avatar: true,
             isActive: true,
-            profile: { select: { institution: true, skills: true } },
+            createdAt: true,
+            profile: { select: { institution: true, skills: true, bio: true } },
             teamMemberships: {
-              select: { team: { select: { id: true, name: true } } },
+              select: {
+                role: true,
+                team: { select: { id: true, name: true, challenge: true } },
+              },
             },
           },
           orderBy: { createdAt: 'desc' },
@@ -653,15 +661,209 @@ export class AccountService {
         this.db.user.count({ where }),
       ]);
       return {
-        items: items.map((u) => ({
-          id: u.id,
-          name: u.name,
-          email: u.email,
-          isActive: u.isActive,
-          institution: u.profile?.institution || null,
-          skills: u.profile?.skills || [],
-          team: u.teamMemberships[0]?.team || null,
-        })),
+        items: items.map((u) => {
+          const membership = u.teamMemberships[0];
+          return {
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            phone: u.phone,
+            role: u.role || 'participant',
+            avatar: u.avatar,
+            isActive: u.isActive,
+            createdAt: u.createdAt,
+            institution: u.profile?.institution || null,
+            skills: u.profile?.skills || [],
+            bio: u.profile?.bio || '',
+            team: membership
+              ? {
+                  id: membership.team.id,
+                  name: membership.team.name,
+                  challenge: membership.team.challenge,
+                  role: membership.role,
+                }
+              : null,
+          };
+        }),
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      };
+    }
+    if (kind === 'mentors') {
+      const where: Prisma.UserWhereInput = {
+        deletedAt: null,
+        OR: [
+          { role: 'mentor' },
+          { roles: { some: { role: { name: 'mentor' } } } },
+        ],
+        ...(search
+          ? {
+              AND: [
+                {
+                  OR: [
+                    { name: { contains: search, mode: 'insensitive' } },
+                    { email: { contains: search, mode: 'insensitive' } },
+                    { profile: { institution: { contains: search, mode: 'insensitive' } } },
+                  ],
+                },
+              ],
+            }
+          : {}),
+      };
+      const [items, total] = await Promise.all([
+        this.db.user.findMany({
+          where,
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            role: true,
+            avatar: true,
+            isActive: true,
+            createdAt: true,
+            mentorProfile: {
+              select: {
+                expertise: true,
+                availability: true,
+                bio: true,
+              },
+            },
+            profile: { select: { institution: true, skills: true, bio: true } },
+            mentorSlots: {
+              select: { id: true, startTime: true, endTime: true, teamId: true },
+            },
+            _count: {
+              select: {
+                mentorRequests: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+          skip,
+        }),
+        this.db.user.count({ where }),
+      ]);
+      return {
+        items: items.map((u) => {
+          const allSlots = u.mentorSlots || [];
+          const now = new Date();
+          const activeSlots = allSlots.filter(
+            (s) => !s.teamId && new Date(s.startTime) > now,
+          );
+          const bookedSlots = allSlots.filter((s) => s.teamId);
+          const skills =
+            (u.mentorProfile?.expertise?.length
+              ? u.mentorProfile.expertise
+              : u.profile?.skills) || [];
+          return {
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            phone: u.phone,
+            role: u.role || 'mentor',
+            avatar: u.avatar,
+            isActive: u.isActive,
+            createdAt: u.createdAt,
+            institution: u.profile?.institution || null,
+            skills,
+            bio: u.mentorProfile?.bio || u.profile?.bio || '',
+            availability: u.mentorProfile?.availability || '',
+            slotsCount: allSlots.length,
+            activeSlotsCount: activeSlots.length,
+            bookedSlotsCount: bookedSlots.length,
+            requestsCount: u._count.mentorRequests || 0,
+            slots: allSlots.slice(0, 5),
+          };
+        }),
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      };
+    }
+    if (kind === 'judges') {
+      const where: Prisma.UserWhereInput = {
+        deletedAt: null,
+        OR: [
+          { role: 'judge' },
+          { roles: { some: { role: { name: 'judge' } } } },
+        ],
+        ...(search
+          ? {
+              AND: [
+                {
+                  OR: [
+                    { name: { contains: search, mode: 'insensitive' } },
+                    { email: { contains: search, mode: 'insensitive' } },
+                    { profile: { institution: { contains: search, mode: 'insensitive' } } },
+                  ],
+                },
+              ],
+            }
+          : {}),
+      };
+      const [items, total] = await Promise.all([
+        this.db.user.findMany({
+          where,
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            role: true,
+            avatar: true,
+            isActive: true,
+            createdAt: true,
+            profile: { select: { institution: true, skills: true, bio: true } },
+            judgingAssignments: {
+              select: {
+                id: true,
+                completed: true,
+                submissionVersion: true,
+                createdAt: true,
+                updatedAt: true,
+                team: { select: { id: true, name: true, challenge: true } },
+                rubric: { select: { id: true, name: true } },
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+          skip,
+        }),
+        this.db.user.count({ where }),
+      ]);
+      return {
+        items: items.map((u) => {
+          const assignments = u.judgingAssignments || [];
+          const completed = assignments.filter((a) => a.completed).length;
+          return {
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            phone: u.phone,
+            role: u.role || 'judge',
+            avatar: u.avatar,
+            isActive: u.isActive,
+            createdAt: u.createdAt,
+            institution: u.profile?.institution || null,
+            skills: u.profile?.skills || [],
+            bio: u.profile?.bio || '',
+            assignmentsCount: assignments.length,
+            completedAssignmentsCount: completed,
+            pendingAssignmentsCount: assignments.length - completed,
+            assignedTeams: assignments.map((a) => ({
+              assignmentId: a.id,
+              teamId: a.team.id,
+              teamName: a.team.name,
+              challenge: a.team.challenge,
+              completed: a.completed,
+              rubricName: a.rubric?.name,
+            })),
+          };
+        }),
         total,
         page,
         totalPages: Math.ceil(total / limit),
@@ -683,14 +885,28 @@ export class AccountService {
           name: true,
           challenge: true,
           maxMembers: true,
+          createdAt: true,
           members: {
             select: {
               userId: true,
               role: true,
-              user: { select: { name: true } },
+              joinedAt: true,
+              user: { select: { id: true, name: true, email: true, avatar: true } },
             },
           },
-          submission: { select: { title: true, status: true, version: true } },
+          submission: {
+            select: {
+              title: true,
+              summary: true,
+              status: true,
+              version: true,
+              projectUrl: true,
+              repositoryUrl: true,
+              demoUrl: true,
+              submittedAt: true,
+              updatedAt: true,
+            },
+          },
         },
         orderBy: { createdAt: 'desc' },
         take: limit,
@@ -1351,6 +1567,317 @@ export class AccountService {
         breakdown,
       },
     };
+  }
+
+  // -------------------------------------------------------------
+  // Organizer Administrative Operations
+  // -------------------------------------------------------------
+  async adminUpdateUser(
+    userId: string,
+    dto: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      institution?: string;
+      skills?: string[];
+      bio?: string;
+      availability?: string;
+      isActive?: boolean;
+    },
+  ) {
+    const user = await this.db.user.findUnique({
+      where: { id: userId },
+      include: { profile: true, mentorProfile: true },
+    });
+    if (!user || user.deletedAt) throw new NotFoundException('User not found');
+
+    if (dto.email && dto.email.toLowerCase().trim() !== user.email) {
+      const emailExists = await this.db.user.findUnique({
+        where: { email: dto.email.toLowerCase().trim() },
+      });
+      if (emailExists && emailExists.id !== userId) {
+        throw new ConflictException('Email already in use');
+      }
+    }
+
+    await this.db.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
+          ...(dto.email !== undefined ? { email: dto.email.toLowerCase().trim() } : {}),
+          ...(dto.phone !== undefined ? { phone: dto.phone.trim() || null } : {}),
+          ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
+        },
+      });
+
+      if (dto.institution !== undefined || dto.skills !== undefined || dto.bio !== undefined) {
+        await tx.profile.upsert({
+          where: { userId },
+          create: {
+            userId,
+            institution: dto.institution || null,
+            skills: dto.skills || [],
+            bio: dto.bio || null,
+          },
+          update: {
+            ...(dto.institution !== undefined ? { institution: dto.institution || null } : {}),
+            ...(dto.skills !== undefined ? { skills: dto.skills } : {}),
+            ...(dto.bio !== undefined ? { bio: dto.bio || null } : {}),
+          },
+        });
+      }
+
+      if (user.role === 'mentor' || dto.availability !== undefined || dto.skills !== undefined || dto.bio !== undefined) {
+        if (user.mentorProfile || user.role === 'mentor') {
+          await tx.mentorProfile.upsert({
+            where: { userId },
+            create: {
+              userId,
+              expertise: dto.skills || [],
+              bio: dto.bio || '',
+              availability: dto.availability || '',
+            },
+            update: {
+              ...(dto.skills !== undefined ? { expertise: dto.skills } : {}),
+              ...(dto.bio !== undefined ? { bio: dto.bio } : {}),
+              ...(dto.availability !== undefined ? { availability: dto.availability } : {}),
+            },
+          });
+        }
+      }
+    });
+
+    return { success: true, message: 'User updated successfully' };
+  }
+
+  async adminChangeUserRole(
+    userId: string,
+    newRole: 'participant' | 'mentor' | 'judge' | 'organizer',
+  ) {
+    const user = await this.db.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user || user.deletedAt) throw new NotFoundException('User not found');
+
+    const roleRecord = await this.db.role.upsert({
+      where: { name: newRole },
+      create: { name: newRole },
+      update: {},
+    });
+
+    await this.db.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: { role: newRole },
+      });
+      await tx.userRole.deleteMany({
+        where: { userId },
+      });
+      await tx.userRole.create({
+        data: {
+          userId,
+          roleId: roleRecord.id,
+        },
+      });
+
+      if (newRole === 'mentor') {
+        await tx.mentorProfile.upsert({
+          where: { userId },
+          create: {
+            userId,
+            expertise: [],
+            availability: 'Weekdays 6-9 PM',
+            bio: '',
+          },
+          update: {},
+        });
+      }
+    });
+
+    return { success: true, role: newRole };
+  }
+
+  async adminResetUserPassword(userId: string, password: string) {
+    const user = await this.db.user.findUnique({ where: { id: userId } });
+    if (!user || user.deletedAt) throw new NotFoundException('User not found');
+    if (!password || password.length < 6) {
+      throw new BadRequestException('Password must be at least 6 characters');
+    }
+    const passwordHash = await bcrypt.hash(password, 10);
+    await this.db.$transaction([
+      this.db.user.update({
+        where: { id: userId },
+        data: { passwordHash },
+      }),
+      this.db.account.updateMany({
+        where: { userId, providerId: 'credential' },
+        data: { password: passwordHash },
+      }),
+      this.db.session.deleteMany({
+        where: { userId },
+      }),
+    ]);
+    return { success: true, message: 'Password reset successfully' };
+  }
+
+  async adminToggleUserStatus(userId: string, isActive: boolean) {
+    const user = await this.db.user.findUnique({ where: { id: userId } });
+    if (!user || user.deletedAt) throw new NotFoundException('User not found');
+    await this.db.user.update({
+      where: { id: userId },
+      data: { isActive },
+    });
+    if (!isActive) {
+      await this.db.session.deleteMany({ where: { userId } });
+    }
+    return { success: true, isActive };
+  }
+
+  async adminDeleteUser(userId: string) {
+    const user = await this.db.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    await this.db.$transaction([
+      this.db.user.update({
+        where: { id: userId },
+        data: { deletedAt: new Date(), isActive: false },
+      }),
+      this.db.session.deleteMany({ where: { userId } }),
+      this.db.teamMember.deleteMany({ where: { userId } }),
+    ]);
+    return { success: true, message: 'User deleted successfully' };
+  }
+
+  async adminUpdateTeam(
+    teamId: string,
+    dto: {
+      name?: string;
+      challenge?: string;
+      maxMembers?: number;
+      submissionStatus?: 'not_started' | 'draft' | 'submitted';
+    },
+  ) {
+    const team = await this.db.team.findUnique({
+      where: { id: teamId },
+      include: { submission: true },
+    });
+    if (!team) throw new NotFoundException('Team not found');
+
+    if (dto.name && dto.name.trim() !== team.name) {
+      const exists = await this.db.team.findUnique({ where: { name: dto.name.trim() } });
+      if (exists && exists.id !== teamId) {
+        throw new ConflictException('Team name already taken');
+      }
+    }
+
+    await this.db.$transaction(async (tx) => {
+      let challengeId: string | null | undefined = undefined;
+      if (dto.challenge !== undefined) {
+        if (dto.challenge?.trim()) {
+          const matchedChallenge = await tx.challenge.findFirst({
+            where: {
+              OR: [
+                { title: { equals: dto.challenge.trim(), mode: 'insensitive' } },
+                { titleAr: { equals: dto.challenge.trim(), mode: 'insensitive' } },
+              ],
+            },
+            select: { id: true },
+          });
+          challengeId = matchedChallenge?.id || null;
+        } else {
+          challengeId = null;
+        }
+      }
+
+      await tx.team.update({
+        where: { id: teamId },
+        data: {
+          ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
+          ...(dto.challenge !== undefined ? { challenge: dto.challenge.trim() || null } : {}),
+          ...(challengeId !== undefined ? { challengeId } : {}),
+          ...(dto.maxMembers !== undefined ? { maxMembers: dto.maxMembers } : {}),
+          ...(dto.submissionStatus !== undefined
+            ? { submissionStatus: dto.submissionStatus as TeamSubmissionStatus }
+            : {}),
+        },
+      });
+
+      if (dto.challenge !== undefined) {
+        await tx.teamSubmission.updateMany({
+          where: { teamId },
+          data: {
+            challenge: dto.challenge.trim() || '',
+          },
+        });
+      }
+
+      if (dto.submissionStatus !== undefined) {
+        await tx.teamSubmission.upsert({
+          where: { teamId },
+          create: {
+            teamId,
+            status: dto.submissionStatus as TeamSubmissionStatus,
+            challenge: dto.challenge || team.challenge || '',
+          },
+          update: {
+            status: dto.submissionStatus as TeamSubmissionStatus,
+            ...(dto.submissionStatus === 'submitted' ? { submittedAt: new Date() } : {}),
+          },
+        });
+      }
+    });
+
+    return { success: true, message: 'Team updated successfully' };
+  }
+
+  async adminChangeTeamMemberRole(
+    teamId: string,
+    targetUserId: string,
+    role: 'leader' | 'member',
+  ) {
+    const member = await this.db.teamMember.findUnique({
+      where: { teamId_userId: { teamId, userId: targetUserId } },
+    });
+    if (!member) throw new NotFoundException('Member not found in team');
+
+    await this.db.$transaction(async (tx) => {
+      if (role === 'leader') {
+        await tx.teamMember.updateMany({
+          where: { teamId, role: TeamMemberRole.leader },
+          data: { role: TeamMemberRole.member },
+        });
+      }
+      await tx.teamMember.update({
+        where: { teamId_userId: { teamId, userId: targetUserId } },
+        data: { role: role as TeamMemberRole },
+      });
+    });
+
+    return { success: true, role };
+  }
+
+  async adminRemoveTeamMember(teamId: string, targetUserId: string) {
+    const member = await this.db.teamMember.findUnique({
+      where: { teamId_userId: { teamId, userId: targetUserId } },
+    });
+    if (!member) throw new NotFoundException('Member not found in team');
+
+    await this.db.teamMember.delete({
+      where: { teamId_userId: { teamId, userId: targetUserId } },
+    });
+
+    return { success: true, message: 'Member removed from team' };
+  }
+
+  async adminDeleteTeam(teamId: string) {
+    const team = await this.db.team.findUnique({ where: { id: teamId } });
+    if (!team) throw new NotFoundException('Team not found');
+
+    await this.db.team.delete({
+      where: { id: teamId },
+    });
+
+    return { success: true, message: 'Team deleted successfully' };
   }
 }
 

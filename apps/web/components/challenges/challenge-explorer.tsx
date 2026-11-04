@@ -1,5 +1,6 @@
 "use client"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useMemo } from "react"
+import useSWR from "swr"
 import { useLocale, useTranslations } from "next-intl"
 import { Bookmark, ArrowUpRight, Compass } from "lucide-react"
 import { Link } from "@/i18n/routing"
@@ -9,6 +10,7 @@ import {
   challengesApi,
   challengeError,
   localizedChallenge,
+  localizedSubject,
   type ChallengeCard,
   type ChallengeList,
 } from "@/lib/challenges"
@@ -27,18 +29,10 @@ export function ChallengeExplorer({ role = "participant" }: { role?: Viewer }) {
     view: "all",
     page: 1,
   })
-  const [revision, setRevision] = useState(0)
-  const [state, setState] = useState<{
-    key: string
-    data?: ChallengeList
-    error?: string
-  } | null>(null)
-  const [error, setError] = useState("")
+  const [actionError, setActionError] = useState("")
   const [busy, setBusy] = useState(false)
   const lock = useRef(false)
-  const key = JSON.stringify([query, revision])
-  const data = state?.key === key ? state.data : undefined
-  const loading = state?.key !== key
+
   useEffect(() => {
     const timer = window.setTimeout(
       () =>
@@ -51,33 +45,48 @@ export function ChallengeExplorer({ role = "participant" }: { role?: Viewer }) {
     )
     return () => window.clearTimeout(timer)
   }, [search])
-  useEffect(() => {
-    const controller = new AbortController()
+
+  const swrKey = useMemo(() => {
     const params = new URLSearchParams()
-    for (const [name, value] of Object.entries(query))
+    for (const [name, value] of Object.entries(query)) {
       if (value !== "") params.set(name, String(value))
-    challengesApi<ChallengeList>(`?${params}`, {
-      signal: controller.signal,
-    })
-      .then((result) => {
-        if (!controller.signal.aborted) setState({ key, data: result })
-      })
-      .catch((cause) => {
-        if (!controller.signal.aborted)
-          setState({ key, error: challengeError(cause) })
-      })
-    return () => controller.abort()
-  }, [key, query])
+    }
+    return `/challenges?${params.toString()}`
+  }, [query])
+
+  const {
+    data,
+    error: swrError,
+    isLoading,
+    mutate,
+  } = useSWR<ChallengeList>(
+    swrKey,
+    () => {
+      const params = new URLSearchParams()
+      for (const [name, value] of Object.entries(query)) {
+        if (value !== "") params.set(name, String(value))
+      }
+      return challengesApi<ChallengeList>(`?${params.toString()}`)
+    },
+    {
+      keepPreviousData: true,
+      revalidateOnFocus: false,
+    }
+  )
+
+  const loading = isLoading && !data
+  const error = actionError || (swrError ? challengeError(swrError) : "")
+
   async function action(run: () => Promise<unknown>) {
     if (lock.current) return
     lock.current = true
     setBusy(true)
-    setError("")
+    setActionError("")
     try {
       await run()
-      setRevision((current) => current + 1)
+      await mutate()
     } catch (cause) {
-      setError(challengeError(cause))
+      setActionError(challengeError(cause))
     } finally {
       lock.current = false
       setBusy(false)
@@ -116,7 +125,9 @@ export function ChallengeExplorer({ role = "participant" }: { role?: Viewer }) {
             >
               <option value="">{t("all")}</option>
               {data?.categories.map((category) => (
-                <option key={category}>{category}</option>
+                <option key={category} value={category}>
+                  {localizedSubject(category, locale)}
+                </option>
               ))}
             </select>
           </label>
@@ -169,12 +180,12 @@ export function ChallengeExplorer({ role = "participant" }: { role?: Viewer }) {
         <p role="status" className={s.muted}>
           {t("loading")}
         </p>
-      ) : state?.error ? (
+      ) : error ? (
         <div className={s.banner} role="alert">
-          {t(state.error)}{" "}
+          {t(error)}{" "}
           <Button
             variant="secondary"
-            onClick={() => setRevision((current) => current + 1)}
+            onClick={() => void mutate()}
           >
             {t("retry")}
           </Button>

@@ -75,7 +75,8 @@ export default function proxy(request: NextRequest) {
         /^(?:\/(?:ar|en))?\/dashboard\/organizer(?:\/([^/]+))?/
       )
       const subpath = subpathMatch?.[1] || ""
-      if (subpath) {
+      const allowedCompetitionSubpaths = ["community", "analytics"]
+      if (subpath && !allowedCompetitionSubpaths.includes(subpath)) {
         return NextResponse.redirect(
           new URL(`/${locale}/dashboard/organizer`, request.url)
         )

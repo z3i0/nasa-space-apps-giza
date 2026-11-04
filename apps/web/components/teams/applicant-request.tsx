@@ -44,7 +44,9 @@ export function ApplicantRequest({
           {skills.length ? (
             <>
               {skills.slice(0, 3).map((skill) => (
-                <span key={skill}>{skill}</span>
+                <span key={skill} className="max-w-[120px] truncate inline-block" title={skill}>
+                  {skill}
+                </span>
               ))}
               {skills.length > 3 && (
                 <span>{t("moreSkills", { count: skills.length - 3 })}</span>

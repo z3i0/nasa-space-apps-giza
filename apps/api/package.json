@@ -28,6 +28,9 @@
     "db:update": "node --env-file=.env prisma/update-database.mjs",
     "prisma:studio": "prisma studio",
     "prisma:seed": "node --experimental-strip-types prisma/seed.ts",
+    "prisma:seed:all": "node --experimental-strip-types prisma/seed.ts --all",
+    "prisma:seed:community": "node --experimental-strip-types prisma/seed.ts --community",
+    "prisma:seed:teams": "node --experimental-strip-types prisma/seed.ts --teams",
     "prisma:reset": "prisma db push --force-reset --skip-generate && pnpm prisma:seed"
   },
   "prisma": {
@@ -58,6 +61,7 @@
     "@types/bcryptjs": "^3.0.0",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.3.0",
     "@types/node": "^24.0.0",
     "@types/supertest": "^7.0.0",
     "@vitest/coverage-v8": "^4.1.2",
