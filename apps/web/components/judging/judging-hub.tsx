@@ -172,14 +172,18 @@ export function JudgingHub({
         <>
           <div className={s.stats}>
             {[
-              [ClipboardList, "assigned", assignments.length],
-              [CheckCircle2, "completed", done],
-              [Clock3, "remaining", assignments.length - done],
-              [TrendingUp, "progress", `${percent}%`],
-            ].map(([Icon, key, value]) => {
+              [ClipboardList, "assigned", assignments.length, "var(--primary)"],
+              [CheckCircle2, "completed", done, "var(--success)"],
+              [Clock3, "remaining", assignments.length - done, "var(--orange)"],
+              [TrendingUp, "progress", `${percent}%`, "var(--chart-5)"],
+            ].map(([Icon, key, value, tone]) => {
               const StatIcon = Icon as typeof Award
               return (
-                <section className={s.stat} key={String(key)}>
+                <section
+                  className={s.stat}
+                  key={String(key)}
+                  style={{ "--stat-color": tone } as React.CSSProperties}
+                >
                   <StatIcon size={20} />
                   <strong>{String(value)}</strong>
                   <span className={s.muted}>{t(String(key))}</span>
@@ -273,7 +277,7 @@ export function JudgingHub({
                               : t("privateScores")}
                           </span>
                           <Link
-                            className="text-sm text-purple-300 underline underline-offset-4"
+                            className="text-sm text-primary underline underline-offset-4"
                             href={`/dashboard/judge/projects/${a.id}`}
                           >
                             {t(a.completed ? "review" : "evaluate")}
@@ -402,7 +406,7 @@ function Evaluation({
         </fieldset>
         <div className={s.row}>
           <span>{t("weightedTotal")}</span>
-          <strong className="text-2xl text-purple-300">
+          <strong className="text-2xl text-primary">
             {total.toFixed(1)} / 100
           </strong>
         </div>

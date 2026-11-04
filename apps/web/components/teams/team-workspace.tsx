@@ -356,7 +356,7 @@ export function TeamWorkspace({ discover = false }: { discover?: boolean }) {
                           ? `/dashboard/participant/challenges/${team.challengeId}`
                           : "/dashboard/participant/challenges"
                       }
-                      className="text-sm text-cyan-200 underline underline-offset-4"
+                      className="text-sm text-primary underline underline-offset-4"
                     >
                       {t("browseChallenges")}
                     </Link>

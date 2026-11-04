@@ -62,9 +62,9 @@ export function ParticipantOverview() {
   return (
     <div className="mx-auto grid w-full max-w-7xl gap-6">
       <header
-        className={`${panel} bg-linear-to-br from-emerald-500/10 to-transparent`}
+        className={`${panel} border-primary/25 bg-linear-to-br from-primary/15 via-card to-orange/5`}
       >
-        <p className="mb-3 text-xs tracking-widest text-emerald-300 uppercase">
+        <p className="mb-3 text-xs tracking-widest text-orange uppercase">
           NASA SPACE APPS · GIZA
         </p>
         <h1 className="text-3xl font-semibold">
@@ -98,6 +98,7 @@ export function ParticipantOverview() {
           {
             icon: Users,
             label: "teamMembers",
+            tone: "border-chart-4/30 bg-chart-4/8 text-chart-4",
             value: data.team
               ? `${data.team.members.length} / ${data.team.maxMembers}`
               : "0",
@@ -105,21 +106,24 @@ export function ParticipantOverview() {
           {
             icon: Target,
             label: "challenge",
+            tone: "border-orange/30 bg-orange/8 text-orange",
             value: data.challenge || t("notSelected"),
           },
           {
             icon: Compass,
             label: "mentorRequests",
+            tone: "border-chart-5/30 bg-chart-5/8 text-chart-5",
             value: String(data.mentorshipCount),
           },
           {
             icon: CheckCircle2,
             label: "completedSteps",
+            tone: "border-success/30 bg-success/8 text-success",
             value: `${steps.filter((s) => s.done).length} / 4`,
           },
         ].map((item) => (
-          <section className={panel} key={item.label}>
-            <item.icon size={22} className="mb-4 text-emerald-300" />
+          <section className={`${panel} ${item.tone}`} key={item.label}>
+            <item.icon size={22} className="mb-4" />
             <p className="text-sm text-muted-foreground">{t(item.label)}</p>
             <strong className="mt-2 block text-xl break-words">
               {item.value}
@@ -141,7 +145,7 @@ export function ParticipantOverview() {
                   <CheckCircle2
                     size={18}
                     className={
-                      step.done ? "text-emerald-300" : "text-muted-foreground"
+                      step.done ? "text-success" : "text-muted-foreground"
                     }
                   />
                   {t(step.key)}

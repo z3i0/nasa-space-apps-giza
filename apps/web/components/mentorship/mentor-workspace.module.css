@@ -1,0 +1,116 @@
+.panel {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+  padding: 1.25rem;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.metric {
+  padding: 1rem;
+}
+
+@media (max-width: 640px) {
+  .panel {
+    padding: 1rem;
+  }
+  .metric {
+    padding: 0.75rem;
+  }
+}
+
+.heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-underline-offset: 4px;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.row {
+  min-width: 0;
+  border-radius: 0.75rem;
+  padding: 0.875rem;
+  background: var(--background);
+  overflow-wrap: anywhere;
+}
+
+a.row {
+  display: block;
+}
+
+a.row:hover {
+  background: var(--secondary);
+}
+
+.muted {
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+}
+
+.mint {
+  border-color: color-mix(in srgb, var(--success) 35%, var(--border));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--success) 14%, var(--card)),
+    var(--card) 80%
+  );
+}
+
+.amber {
+  border-color: color-mix(in srgb, var(--orange) 35%, var(--border));
+  background: color-mix(in srgb, var(--orange) 7%, var(--card));
+}
+
+.rose {
+  border-color: color-mix(in srgb, var(--chart-5) 35%, var(--border));
+  background: color-mix(in srgb, var(--chart-5) 7%, var(--card));
+}
+
+.violet {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  background: color-mix(in srgb, var(--primary) 7%, var(--card));
+}
+
+.field {
+  width: 100%;
+  min-width: 0;
+  margin-top: 0.5rem;
+  border: 1px solid var(--input);
+  border-radius: 0.75rem;
+  background: var(--background);
+  padding: 0.625rem 0.75rem;
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.empty {
+  padding: 1rem 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}

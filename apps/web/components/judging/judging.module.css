@@ -9,7 +9,11 @@
   border: 1px solid var(--border);
   border-radius: 20px;
   background:
-    radial-gradient(ellipse at top right, #7045bd28, transparent 65%),
+    radial-gradient(
+      ellipse at top right,
+      color-mix(in srgb, var(--primary) 10%, transparent),
+      transparent 65%
+    ),
     var(--card);
 }
 .eyebrow {
@@ -49,8 +53,13 @@
   display: block;
   margin: 8px 0;
 }
+.stat {
+  border-color: color-mix(in srgb, var(--stat-color) 30%, var(--border));
+  background: color-mix(in srgb, var(--stat-color) 8%, var(--card));
+}
+.stat strong,
 .stat svg {
-  color: #bb9aef;
+  color: var(--stat-color);
 }
 .panel h2 {
   font-size: 20px;
@@ -75,9 +84,9 @@
   font-size: 14px;
 }
 .nav a[aria-current="page"] {
-  background: #ab80ee20;
-  border-color: #9972ca;
-  color: #dec5ff;
+  background: var(--accent);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 .grid {
   display: grid;
@@ -104,16 +113,16 @@
   flex-wrap: wrap;
 }
 .badge {
-  border: 1px solid #a482d855;
-  color: #d7b9fe;
-  background: #a482d810;
+  border: 1px solid color-mix(in srgb, var(--primary) 33%, transparent);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
   border-radius: 20px;
   padding: 4px 10px;
   font-size: 12px;
 }
 .done {
-  color: #81e4bd;
-  border-color: #81e4bd55;
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 33%, transparent);
 }
 .form {
   display: grid;
@@ -138,7 +147,7 @@
 .form input:focus-visible,
 .form select:focus-visible,
 .form textarea:focus-visible {
-  outline: 2px solid #b195df;
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 .form textarea {
@@ -155,7 +164,7 @@
 }
 .progress {
   width: 100%;
-  accent-color: #b18ae7;
+  accent-color: var(--primary);
   height: 10px;
 }
 .empty {
@@ -165,17 +174,17 @@
   line-height: 1.8;
 }
 .error {
-  border: 1px solid #f8909080;
+  border: 1px solid color-mix(in srgb, var(--destructive) 50%, transparent);
   padding: 15px;
   border-radius: 10px;
-  color: #ffb6b6;
+  color: var(--destructive);
   overflow-wrap: anywhere;
 }
 .notice {
-  border: 1px solid #7ce2ba55;
+  border: 1px solid color-mix(in srgb, var(--success) 33%, transparent);
   padding: 15px;
   border-radius: 10px;
-  color: #a5ebd1;
+  color: var(--success);
 }
 .summary {
   white-space: pre-wrap;
@@ -202,7 +211,7 @@
 }
 .ranking strong {
   font-size: 22px;
-  color: #d9b7ff;
+  color: var(--primary);
 }
 .ranking span:last-child {
   margin-inline-start: auto;

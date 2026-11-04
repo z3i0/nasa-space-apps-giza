@@ -184,7 +184,7 @@ test("organizer creates rubric and gets a publication validation error", async (
   context,
 }, testInfo) => {
   await fixture(page, context, "organizer")
-  await page.goto("/en/dashboard/organizer/judges")
+  await page.goto("/en/dashboard/organizer/scores")
   await expect(
     page.getByRole("heading", { name: "Judging control room" })
   ).toBeVisible()

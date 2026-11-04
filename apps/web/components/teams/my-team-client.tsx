@@ -311,7 +311,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                   className="h-9 cursor-pointer gap-1.5 rounded-xl text-xs shadow-xs"
                 >
                   {copied ? (
-                    <Check className="size-3.5 text-emerald-500" />
+                    <Check className="size-3.5 text-success" />
                   ) : (
                     <Copy className="size-3.5" />
                   )}
@@ -406,7 +406,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
             {/* Why teams matter perks */}
             <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
               <Card className="space-y-3 rounded-2xl border-border/60 p-6">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-success/10 text-success">
                   <Sparkles className="size-5" />
                 </div>
                 <h3 className="text-sm font-bold text-foreground">
@@ -418,7 +418,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
               </Card>
 
               <Card className="space-y-3 rounded-2xl border-border/60 p-6">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-500">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-chart-4/10 text-chart-4">
                   <Compass className="size-5" />
                 </div>
                 <h3 className="text-sm font-bold text-foreground">
@@ -430,7 +430,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
               </Card>
 
               <Card className="space-y-3 rounded-2xl border-border/60 p-6">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-orange/10 text-orange">
                   <Target className="size-5" />
                 </div>
                 <h3 className="text-sm font-bold text-foreground">
@@ -586,7 +586,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                               {isMemberLeader && (
                                 <Badge
                                   variant="secondary"
-                                  className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0 text-[10px] font-semibold text-amber-600 dark:text-amber-400"
+                                  className="inline-flex items-center gap-1 rounded-full border border-orange/20 bg-orange/10 px-2 py-0 text-[10px] font-semibold text-orange"
                                 >
                                   <Crown className="size-2.5" />
                                   <span>{t("roleLeader")}</span>
@@ -652,7 +652,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                                     handleOpenTransferDialog(member)
                                   }
                                 >
-                                  <Crown className="size-3.5 text-amber-500" />
+                                  <Crown className="size-3.5 text-orange" />
                                   {t("transferLeaderBtn")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
@@ -676,10 +676,10 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
               {isLeader &&
                 team.joinRequests &&
                 team.joinRequests.length > 0 && (
-                  <Card className="rounded-2xl border-amber-500/30 border-border/60 shadow-xs">
+                  <Card className="rounded-2xl border-orange/30 border-border/60 shadow-xs">
                     <CardHeader className="pb-3">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="size-4 text-amber-500" />
+                        <Sparkles className="size-4 text-orange" />
                         <CardTitle className="text-sm font-bold">
                           {t("pendingJoinRequestsTitle")} (
                           {team.joinRequests.length})
@@ -708,7 +708,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                               size="sm"
                               variant="default"
                               onClick={() => handleJoinResponse(req.id, true)}
-                              className="h-8 cursor-pointer gap-1 rounded-lg bg-emerald-600 px-3 text-xs hover:bg-emerald-700"
+                              className="h-8 cursor-pointer gap-1 rounded-lg bg-success px-3 text-xs hover:bg-success"
                             >
                               <Check className="size-3" />
                               <span>{t("acceptBtn")}</span>
@@ -778,7 +778,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
                       </Button>
                     </form>
                     {team.members.length >= team.maxMembers && (
-                      <p className="text-xs font-medium text-amber-500">
+                      <p className="text-xs font-medium text-orange">
                         {t("teamFullNotice")}
                       </p>
                     )}
@@ -790,7 +790,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
               <Card className="rounded-2xl border-border/60 shadow-xs">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
-                    <Compass className="size-4 text-sky-500" />
+                    <Compass className="size-4 text-chart-4" />
                     <CardTitle className="text-sm font-bold">
                       {t("mentorCardTitle")}
                     </CardTitle>

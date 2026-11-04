@@ -380,7 +380,7 @@ function SpecificTeamContent({
                   className="h-9 cursor-pointer gap-1.5 rounded-xl text-xs shadow-xs"
                 >
                   {copied ? (
-                    <Check className="size-3.5 text-emerald-500" />
+                    <Check className="size-3.5 text-success" />
                   ) : (
                     <Copy className="size-3.5" />
                   )}
@@ -609,7 +609,7 @@ function SpecificTeamContent({
                               {isMemberLeader && (
                                 <Badge
                                   variant="secondary"
-                                  className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0 text-[10px] font-semibold text-amber-600 dark:text-amber-400"
+                                  className="inline-flex items-center gap-1 rounded-full border border-orange/20 bg-orange/10 px-2 py-0 text-[10px] font-semibold text-orange"
                                 >
                                   <Crown className="size-2.5" />
                                   <span>{t("roleLeader")}</span>
@@ -675,7 +675,7 @@ function SpecificTeamContent({
                                     handleOpenTransferDialog(member)
                                   }
                                 >
-                                  <Crown className="size-3.5 text-amber-500" />
+                                  <Crown className="size-3.5 text-orange" />
                                   {t("transferLeaderBtn")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
@@ -699,10 +699,10 @@ function SpecificTeamContent({
               {isLeader &&
                 team.joinRequests &&
                 team.joinRequests.length > 0 && (
-                  <Card className="rounded-2xl border-amber-500/30 border-border/60 shadow-xs">
+                  <Card className="rounded-2xl border-orange/30 border-border/60 shadow-xs">
                     <CardHeader className="pb-3">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="size-4 text-amber-500" />
+                        <Sparkles className="size-4 text-orange" />
                         <CardTitle className="text-sm font-bold">
                           {t("pendingJoinRequestsTitle")} (
                           {team.joinRequests.length})
@@ -731,7 +731,7 @@ function SpecificTeamContent({
                               size="sm"
                               variant="default"
                               onClick={() => handleJoinResponse(req.id, true)}
-                              className="h-8 cursor-pointer gap-1 rounded-lg bg-emerald-600 px-3 text-xs hover:bg-emerald-700"
+                              className="h-8 cursor-pointer gap-1 rounded-lg bg-success px-3 text-xs hover:bg-success"
                             >
                               <Check className="size-3" />
                               <span>{t("acceptBtn")}</span>
@@ -782,7 +782,7 @@ function SpecificTeamContent({
                   <Separator />
                   <CardContent className="space-y-3 pt-4">
                     {joinSent ? (
-                      <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-600 dark:text-emerald-400">
+                      <div className="flex items-center gap-2 rounded-xl border border-success/20 bg-success/10 p-3 text-xs text-success">
                         <CheckCircle2 className="size-4 shrink-0" />
                         <span>{tFind("joinRequestSent")}</span>
                       </div>
@@ -860,7 +860,7 @@ function SpecificTeamContent({
                       </Button>
                     </form>
                     {team.members.length >= team.maxMembers && (
-                      <p className="text-xs font-medium text-amber-500">
+                      <p className="text-xs font-medium text-orange">
                         {t("teamFullNotice")}
                       </p>
                     )}
@@ -872,7 +872,7 @@ function SpecificTeamContent({
               <Card className="rounded-2xl border-border/60 shadow-xs">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
-                    <Compass className="size-4 text-sky-500" />
+                    <Compass className="size-4 text-chart-4" />
                     <CardTitle className="text-sm font-bold">
                       {t("mentorCardTitle")}
                     </CardTitle>
@@ -920,7 +920,7 @@ function SpecificTeamContent({
                     className="h-9 w-full cursor-pointer gap-1.5 rounded-xl text-xs"
                   >
                     {copied ? (
-                      <Check className="size-3.5 text-emerald-500" />
+                      <Check className="size-3.5 text-success" />
                     ) : (
                       <Copy className="size-3.5" />
                     )}

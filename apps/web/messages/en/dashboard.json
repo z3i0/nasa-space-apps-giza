@@ -98,7 +98,7 @@
       "teams": "Teams",
       "participants": "Participants",
       "mentors": "Mentors",
-      "judges": "Judging Panels",
+      "judges": "Judges",
       "challenges": "Challenges & Tracks",
       "submissions": "Project Submissions",
       "announcements": "Announcements",
@@ -120,12 +120,13 @@
       "community": "Community & Q&A",
       "aiAssistant": "AI Camp Assistant",
       "evaluationRubric": "Evaluation Rubric",
-      "mentorProfile": "Mentor Profile & Skills",
-      "assignedTeams": "Assigned Teams",
-      "mentorshipRequests": "Mentorship Requests",
-      "mentorSessions": "Live Sessions & Chat",
-      "mentorHistory": "Mentoring History",
-      "mentorNotes": "Notes & Reports",
+      "mentorOfficeHours": "Office hours",
+      "mentorProfile": "Profile & skills",
+      "assignedTeams": "My teams",
+      "mentorshipRequests": "Requests",
+      "mentorSessions": "Sessions & chat",
+      "mentorHistory": "History",
+      "mentorNotes": "Session notes",
       "mentorGuidelines": "Mentorship Guidelines",
       "assignedProjects": "Assigned Projects",
       "judgingSchedule": "Judging Time Slots",
@@ -134,7 +135,7 @@
       "leaderboard": "Leaderboard",
       "nasaCriteria": "Official NASA Criteria",
       "requestsTracking": "Requests & Response Tracking",
-      "judgingScores": "Judging Scores & Results",
+      "judgingScores": "Judging & results",
       "communityManagement": "Community Management",
       "roleRequests": "Mentor & judge approvals"
     },
@@ -856,4 +857,3 @@
     }
   }
 }
-

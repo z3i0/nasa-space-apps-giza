@@ -41,10 +41,10 @@ export function DashboardHeader({ roleName }: DashboardHeaderProps) {
   }
 
   const roleIcons = {
-    organizer: <Shield className="h-4 w-4 text-amber-500" />,
-    judge: <Award className="h-4 w-4 text-purple-500" />,
-    mentor: <Compass className="h-4 w-4 text-blue-500" />,
-    participant: <Users className="h-4 w-4 text-emerald-500" />,
+    organizer: <Shield className="h-4 w-4 text-orange" />,
+    judge: <Award className="h-4 w-4 text-primary" />,
+    mentor: <Compass className="h-4 w-4 text-success" />,
+    participant: <Users className="h-4 w-4 text-success" />,
   }
 
   const roleTitle = t(

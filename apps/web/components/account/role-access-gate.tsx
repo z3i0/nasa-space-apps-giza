@@ -85,12 +85,13 @@ export function RoleAccessGate({
         {t("loading")}
       </p>
     )
+  if (access.status === "approved" && role === "mentor") return <>{children}</>
   if (access.status === "approved")
     return (
       <>
         <p
           role="status"
-          className="mb-5 flex items-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-4 text-sm text-emerald-200"
+          className="mb-5 flex items-center gap-2 rounded-xl border border-success/30 bg-success/5 p-4 text-sm text-success"
         >
           <ShieldCheck size={18} />
           {t("accessAccepted", { role: t(role) })}
@@ -101,7 +102,7 @@ export function RoleAccessGate({
   const Icon = role === "judge" ? Award : Compass
   return (
     <section className={`${panel} mx-auto max-w-3xl`}>
-      <div className="mb-5 flex items-center gap-3 text-purple-300">
+      <div className="mb-5 flex items-center gap-3 text-primary">
         <Icon size={28} />
         <span className="text-sm tracking-widest uppercase">
           {t("applicationTitle", { role: t(role) })}
@@ -114,7 +115,7 @@ export function RoleAccessGate({
         {access.status === "rejected" ? (
           <ShieldX className="text-red-300" />
         ) : (
-          <Clock3 className="text-amber-300" />
+          <Clock3 className="text-orange" />
         )}
         <h2 className="text-xl font-medium">{t(`label_${access.status}`)}</h2>
       </div>

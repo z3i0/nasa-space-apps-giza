@@ -21,7 +21,6 @@ import {
   MessageSquareCode,
   CalendarClock,
   FileEdit,
-  BookOpenCheck,
   FileCheck,
   Scale,
   CheckCheck,
@@ -81,11 +80,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
     descriptionKey: "organizer.description",
     icon: Shield,
     colorClass: {
-      text: "text-amber-500 dark:text-amber-400",
-      bg: "bg-amber-500/10",
-      border: "border-amber-500/20",
-      glow: "shadow-amber-500/10",
-      gradient: "from-amber-500/15 via-amber-500/5 to-transparent",
+      text: "text-orange",
+      bg: "bg-orange/10",
+      border: "border-orange/20",
+      glow: "shadow-orange/10",
+      gradient: "from-orange/15 via-orange/5 to-transparent",
     },
     sections: [
       {
@@ -205,11 +204,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
     descriptionKey: "participant.description",
     icon: Rocket,
     colorClass: {
-      text: "text-emerald-500 dark:text-emerald-400",
-      bg: "bg-emerald-500/10",
-      border: "border-emerald-500/20",
-      glow: "shadow-emerald-500/10",
-      gradient: "from-emerald-500/15 via-emerald-500/5 to-transparent",
+      text: "text-primary",
+      bg: "bg-primary/10",
+      border: "border-primary/20",
+      glow: "shadow-primary/10",
+      gradient: "from-primary/15 via-primary/5 to-transparent",
     },
     sections: [
       {
@@ -336,11 +335,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
     descriptionKey: "mentor.description",
     icon: Compass,
     colorClass: {
-      text: "text-sky-500 dark:text-sky-400",
-      bg: "bg-sky-500/10",
-      border: "border-sky-500/20",
-      glow: "shadow-sky-500/10",
-      gradient: "from-sky-500/15 via-sky-500/5 to-transparent",
+      text: "text-success",
+      bg: "bg-success/10",
+      border: "border-success/20",
+      glow: "shadow-success/10",
+      gradient: "from-success/15 via-success/5 to-transparent",
     },
     sections: [
       {
@@ -370,9 +369,9 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             badgeVariant: "default",
           },
           {
-            titleKey: "nav.mentorMap",
-            url: "/dashboard/mentor/map",
-            icon: MapPin,
+            titleKey: "nav.mentorOfficeHours",
+            url: "/dashboard/mentor/office-hours",
+            icon: Clock,
           },
           {
             titleKey: "nav.mentorSessions",
@@ -399,16 +398,6 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             url: "/dashboard/mentor/feedback",
             icon: FileEdit,
           },
-          {
-            titleKey: "nav.mentorGuidelines",
-            url: "/dashboard/mentor/guidelines",
-            icon: BookOpenCheck,
-          },
-          {
-            titleKey: "nav.timeline",
-            url: "/dashboard/mentor/timeline",
-            icon: Timer,
-          },
         ],
       },
     ],
@@ -421,11 +410,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
     descriptionKey: "judge.description",
     icon: Award,
     colorClass: {
-      text: "text-purple-500 dark:text-purple-400",
-      bg: "bg-purple-500/10",
-      border: "border-purple-500/20",
-      glow: "shadow-purple-500/10",
-      gradient: "from-purple-500/15 via-purple-500/5 to-transparent",
+      text: "text-primary",
+      bg: "bg-primary/10",
+      border: "border-primary/20",
+      glow: "shadow-primary/10",
+      gradient: "from-primary/15 via-primary/5 to-transparent",
     },
     sections: [
       {

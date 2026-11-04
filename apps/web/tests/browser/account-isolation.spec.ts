@@ -192,24 +192,28 @@ test("organizer can approve a mentor and decline a judge", async ({
     .getByRole("button", { name: "Approve access" })
     .click()
   await expect(
-    page.getByRole("article").filter({ hasText: "Mentor Applicant" })
-  ).toContainText("Approved")
+    page.getByRole("status").filter({ hasText: "Mentor Applicant: Approved." })
+  ).toBeVisible()
+  await page.getByRole("button", { name: /Judge requests/ }).click()
   await page
     .getByRole("article")
     .filter({ hasText: "Judge Applicant" })
     .getByRole("button", { name: "Decline request" })
     .click()
   await expect(
-    page.getByRole("article").filter({ hasText: "Judge Applicant" })
-  ).toContainText("Declined")
+    page.getByRole("status").filter({ hasText: "Judge Applicant: Declined." })
+  ).toBeVisible()
+  await page
+    .getByRole("combobox", { name: "Request status", exact: true })
+    .selectOption("rejected")
   await page
     .getByRole("article")
     .filter({ hasText: "Judge Applicant" })
     .getByRole("button", { name: "Approve access" })
     .click()
   await expect(
-    page.getByRole("article").filter({ hasText: "Judge Applicant" })
-  ).toContainText("Approved")
+    page.getByRole("status").filter({ hasText: "Judge Applicant: Approved." })
+  ).toBeVisible()
   await page.screenshot({
     path: testInfo.outputPath("role-approvals.png"),
     fullPage: true,

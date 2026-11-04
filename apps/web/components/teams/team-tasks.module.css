@@ -10,7 +10,7 @@
 }
 
 .card {
-  --task-color: #93c5fd;
+  --task-color: var(--primary);
   border-top: 4px solid var(--task-color);
   background: linear-gradient(
     150deg,
@@ -21,11 +21,11 @@
 }
 
 .card[data-status="in_progress"] {
-  --task-color: #fcd34d;
+  --task-color: var(--orange);
 }
 
 .card[data-status="completed"] {
-  --task-color: #6ee7b7;
+  --task-color: var(--success);
 }
 
 .card h2 {
