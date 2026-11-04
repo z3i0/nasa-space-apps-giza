@@ -151,11 +151,11 @@ export function MentorshipChat({
     }).format(new Date(value))
   return (
     <section
-      className="mt-4 min-w-0 border-t border-[#2a3950] pt-4"
+      className="mt-4 min-w-0 border-t border-border pt-4"
       aria-label={t("conversation")}
     >
       <h4 className="font-semibold">{t("conversation")}</h4>
-      <p className="mt-1 text-xs text-[#a8b5ca]">{t("chatAccess")}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{t("chatAccess")}</p>
       {error && (
         <p role="alert" className="mt-2 text-sm text-red-200">
           {error}
@@ -165,7 +165,7 @@ export function MentorshipChat({
         <button
           type="button"
           disabled={loadingOlder}
-          className="mt-3 rounded-xl border border-[#2a3950] bg-[#172439] px-4 py-2 text-sm disabled:opacity-50"
+          className="mt-3 rounded-xl border border-border bg-secondary px-4 py-2 text-sm disabled:opacity-50"
           onClick={() => void older()}
         >
           {t("older")}
@@ -184,24 +184,24 @@ export function MentorshipChat({
             pinned.current =
               node.scrollHeight - node.scrollTop - node.clientHeight < 60
         }}
-        className="mt-3 h-[min(26rem,60vh)] min-h-48 min-w-0 [scrollbar-gutter:stable] space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain rounded-xl bg-[#080d20] p-4"
+        className="mt-3 h-[min(26rem,60vh)] min-h-48 min-w-0 [scrollbar-gutter:stable] space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain rounded-xl bg-background p-4"
       >
         {loading ? (
-          <p className="text-sm text-[#a8b5ca]">{t("loading")}</p>
+          <p className="text-sm text-muted-foreground">{t("loading")}</p>
         ) : messages.length ? (
           messages.map((item) => (
             <div
               key={item.id}
-              className={`w-fit max-w-[90%] rounded-xl p-3 text-sm [overflow-wrap:anywhere] ${item.senderId === userId ? "ms-auto bg-[#173c49]" : "bg-[#172439]"}`}
+              className={`w-fit max-w-[90%] rounded-xl p-3 text-sm [overflow-wrap:anywhere] ${item.senderId === userId ? "ms-auto bg-card-highlight" : "bg-secondary"}`}
             >
-              <p className="mb-1 text-xs font-semibold text-[#7df4ff]">
+              <p className="mb-1 text-xs font-semibold text-primary">
                 {item.sender.name} · {time(item.createdAt)}
               </p>
               <p className="whitespace-pre-wrap">{item.content}</p>
             </div>
           ))
         ) : (
-          <p className="text-sm text-[#a8b5ca]">{t("emptyMessages")}</p>
+          <p className="text-sm text-muted-foreground">{t("emptyMessages")}</p>
         )}
       </div>
       {["pending", "accepted"].includes(status) && (
@@ -209,7 +209,7 @@ export function MentorshipChat({
           <input
             required
             maxLength={2000}
-            className="min-w-0 flex-1 rounded-xl border border-[#2a3950] bg-[#080d20] px-3 py-2 text-sm"
+            className="min-w-0 flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm"
             placeholder={t("writeMessage")}
             aria-label={t("writeMessage")}
             value={draft}
@@ -218,7 +218,7 @@ export function MentorshipChat({
           <button
             type="submit"
             disabled={sending || !draft.trim()}
-            className="shrink-0 rounded-xl bg-[#fb9746] px-4 py-2 text-sm font-semibold text-[#080d20] disabled:opacity-50"
+            className="shrink-0 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
             {t("send")}
           </button>

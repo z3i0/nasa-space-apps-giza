@@ -6,8 +6,6 @@ import {
 import type { UserSession } from "@/lib/auth"
 
 export interface ShellNavItem extends NavItem {
-  asset?: string
-  activeAsset?: string
   matchPaths?: string[]
 }
 
@@ -23,29 +21,22 @@ const participantNavigation = [
   {
     route: "",
     label: "mission",
-    asset: "mission",
-    activeAsset: "mission-active",
   },
-  { route: "/challenges", label: "challenges", asset: "challenges" },
+  { route: "/challenges", label: "challenges" },
   {
     route: "/find-team",
     label: "findTeam",
-    asset: "find-team",
-    activeAsset: "find-team-active",
   },
   {
     route: "/team",
     label: "team",
-    asset: "team",
-    activeAsset: "team-active",
   },
-  { route: "/tasks", label: "tasks", asset: "tasks" },
-  { route: "/community", label: "community", asset: "community" },
-  { route: "/schedule", label: "schedule", asset: "schedule" },
+  { route: "/tasks", label: "tasks" },
+  { route: "/community", label: "community" },
+  { route: "/schedule", label: "schedule" },
   {
     route: "/mentorship",
     label: "mentors",
-    asset: "mentors",
     matchPaths: [
       "/dashboard/participant/sessions",
       "/dashboard/participant/mentor-map",
@@ -54,17 +45,14 @@ const participantNavigation = [
   {
     route: "/submit",
     label: "submission",
-    asset: "submission",
     matchPaths: ["/dashboard/participant/project"],
   },
-].map(({ route, label, asset, activeAsset, matchPaths }): ShellNavItem => {
+].map(({ route, label, matchPaths }): ShellNavItem => {
   const url = `/dashboard/participant${route}`
   const existing = participantItems.find((item) => item.url === url)!
   return {
     ...existing,
     titleKey: `shell.nav.${label}`,
-    asset,
-    activeAsset,
     matchPaths,
   }
 })

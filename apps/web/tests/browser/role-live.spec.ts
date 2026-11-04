@@ -160,21 +160,31 @@ test("real participant, mentor, judge and organizer browser journey", async ({
     const mentorApplication = organizerPage
       .getByRole("article")
       .filter({ hasText: actors[1].email })
+    await organizerPage.goto("/en/dashboard/organizer/role-requests")
+    await organizerPage.getByLabel("Search applicants").fill(actors[1].email)
     await mentorApplication
       .getByRole("button", { name: "Approve access", exact: true })
       .click()
     await expect(
-      mentor.getByText("Mentor access: accepted", { exact: true })
+      mentor.getByRole("heading", {
+        name: "Your mentoring overview",
+        exact: true,
+      })
     ).toBeVisible({ timeout: 15000 })
     const judgeApplication = organizerPage
       .getByRole("article")
       .filter({ hasText: actors[2].email })
+    await organizerPage.getByRole("button", { name: /Judge requests/ }).click()
+    await organizerPage.getByLabel("Search applicants").fill(actors[2].email)
     await judgeApplication
       .getByRole("button", { name: "Decline request", exact: true })
       .click()
     await expect(
       judge.getByRole("heading", { name: "Declined", exact: true })
     ).toBeVisible({ timeout: 15000 })
+    await organizerPage
+      .getByRole("combobox", { name: "Request status", exact: true })
+      .selectOption("rejected")
     await judgeApplication
       .getByRole("button", { name: "Approve access", exact: true })
       .click()
@@ -183,21 +193,15 @@ test("real participant, mentor, judge and organizer browser journey", async ({
     ).toBeVisible({ timeout: 15000 })
     await organizerPage.goto("/en/dashboard/organizer/participants")
     await organizerPage
-      .getByRole("textbox", { name: "Search", exact: true })
+      .getByRole("searchbox", { name: "Search", exact: true })
       .fill(actors[0].email)
-    await organizerPage
-      .getByRole("button", { name: "Search", exact: true })
-      .click()
     await expect(
       organizerPage.getByRole("heading", { name: actors[0].name, exact: true })
     ).toBeVisible()
     await organizerPage.goto("/en/dashboard/organizer/teams")
     await organizerPage
-      .getByRole("textbox", { name: "Search", exact: true })
+      .getByRole("searchbox", { name: "Search", exact: true })
       .fill(teamName)
-    await organizerPage
-      .getByRole("button", { name: "Search", exact: true })
-      .click()
     await expect(
       organizerPage.getByRole("heading", { name: teamName, exact: true })
     ).toBeVisible()

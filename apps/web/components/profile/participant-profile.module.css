@@ -76,7 +76,7 @@ textarea.control.control {
 }
 .control:focus-visible {
   border-color: var(--ring);
-  box-shadow: 0 0 0 3px #7df4ff14;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 8%, transparent);
 }
 .control[aria-invalid="true"] {
   border-color: var(--destructive);
@@ -114,8 +114,8 @@ textarea.control.control {
 }
 .chip[aria-pressed="true"],
 .chip:hover {
-  background: #1c2d44;
-  color: #7df4ff;
+  background: var(--accent);
+  color: var(--primary);
 }
 .pill {
   display: inline-flex;
@@ -127,7 +127,7 @@ textarea.control.control {
   font-weight: 600;
   line-height: 1;
   background: var(--secondary);
-  color: #7df4ff;
+  color: var(--primary);
 }
 .choice.chip {
   min-height: 20px;
@@ -142,7 +142,7 @@ textarea.control.control {
   overflow-wrap: anywhere;
 }
 .match {
-  background: #153442;
+  background: var(--card-highlight);
 }
 .check {
   display: flex;
@@ -162,9 +162,9 @@ textarea.control.control {
   border-color: var(--border);
 }
 .checkbox.checkbox[data-checked] {
-  background: #7df4ff;
-  border-color: #7df4ff;
-  color: #153442;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
 }
 .divider {
   width: 100%;

@@ -276,12 +276,12 @@ export function DashboardNavbar({
                             className={cn(
                               "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full text-xs",
                               item.type === "mentorship"
-                                ? "bg-sky-500/15 text-sky-500"
+                                ? "bg-success/15 text-success"
                                 : item.type === "team_join" ||
                                     item.type === "team_invite"
-                                  ? "bg-emerald-500/15 text-emerald-500"
+                                  ? "bg-chart-4/15 text-chart-4"
                                   : item.type === "role_application"
-                                    ? "bg-amber-500/15 text-amber-500"
+                                    ? "bg-orange/15 text-orange"
                                     : "bg-primary/15 text-primary"
                             )}
                           >

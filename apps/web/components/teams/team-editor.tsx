@@ -73,7 +73,7 @@ export function TeamEditor({
             />
             <Link
               href="/dashboard/participant/challenges"
-              className="text-xs text-cyan-200 underline underline-offset-4"
+              className="text-xs text-primary underline underline-offset-4"
             >
               {t("browseChallenges")}
             </Link>

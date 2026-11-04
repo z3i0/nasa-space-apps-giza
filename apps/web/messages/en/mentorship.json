@@ -1,7 +1,7 @@
 {
   "Mentorship": {
     "participantTitle": "Find a mentor",
-    "participantSubtitle": "Ask for guidance, follow your requests, and plan a conversation.",
+    "participantSubtitle": "Find someone who can help with your team's next step. Browse topics, read their bio, and request guidance.",
     "mentorTitle": "Mentor desk",
     "mentorSubtitle": "Review requests and support the teams you guide.",
     "mentors": "Available mentors",
@@ -56,6 +56,146 @@
     "activeCount": "Active teams",
     "upcomingCount": "Upcoming sessions",
     "emptyMessages": "Your conversation starts here.",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "editor": {
+      "topics": "Mentoring topics",
+      "topicsHint": "Choose the things you can help a team with. Add your own or pick a suggestion.",
+      "selectedTopics": "Your mentoring topics",
+      "removeTopic": "Remove {topic}",
+      "topicPlaceholder": "Add a topic, e.g. satellite imagery",
+      "addTopic": "Add",
+      "suggested": "Suggestions:",
+      "bioHint": "A few sentences about your experience and how you can help.",
+      "newTime": "Add an available time",
+      "bookingHint": "Choose a day and a time window of up to four hours.",
+      "date": "Date",
+      "from": "From",
+      "until": "To",
+      "availabilityOptional": "Availability note (optional)",
+      "suggestions": {
+        "python": "Python",
+        "data": "Data analysis",
+        "design": "UI/UX design",
+        "react": "React",
+        "pitch": "Pitching",
+        "nasa": "NASA datasets"
+      }
+    },
+    "workspace": {
+      "pages": {
+        "overview": {
+          "title": "Your mentoring overview",
+          "description": "A quick look at your teams, upcoming sessions, and what needs your attention."
+        },
+        "profile": {
+          "title": "Your mentor profile",
+          "description": "Help teams understand what you can offer. Update your topics and a short introduction."
+        },
+        "requests": {
+          "title": "Mentoring requests",
+          "description": "Review the teams waiting for your response. Accepted requests move to Teams and Sessions."
+        },
+        "teams": {
+          "title": "Your teams",
+          "description": "The teams you are currently mentoring, with a direct link to each conversation."
+        },
+        "sessions": {
+          "title": "Sessions & conversations",
+          "description": "Prepare for booked sessions, chat with your teams, and complete your mentoring sessions."
+        },
+        "history": {
+          "title": "Mentoring history",
+          "description": "Look back at completed, declined, and canceled requests."
+        },
+        "office-hours": {
+          "title": "Office hours",
+          "description": "Choose when teams can book you. Booked appointments appear in Sessions."
+        },
+        "feedback": {
+          "title": "Session notes",
+          "description": "Keep useful feedback and next steps for each team. These notes are shared with the team."
+        }
+      },
+      "pendingLabel": "Requests to review",
+      "pendingHint": "Teams waiting for your response",
+      "teamsHint": "Teams you are currently supporting",
+      "sessionsHint": "Booked and upcoming",
+      "profileCard": "Your profile",
+      "editProfile": "Edit profile",
+      "moreTopics": "+{count} more",
+      "addTopics": "Add the topics you can help with.",
+      "addBio": "Add a short bio so teams can get to know you.",
+      "manageHours": "Manage hours",
+      "cairoTime": "Times shown in Cairo time",
+      "available": "Available",
+      "noHours": "No upcoming office hours yet. Add a time slot so teams can book you.",
+      "attention": "Needs your attention",
+      "viewRequests": "View requests",
+      "waitingRequests": "{count, plural, one {# team is waiting for your response.} other {# teams are waiting for your response.}}",
+      "reviewRequest": "Review request",
+      "allCaughtUp": "You're all caught up. New mentoring requests will appear here.",
+      "nextSessions": "Coming up next",
+      "viewSessions": "View sessions",
+      "noUpcoming": "No upcoming sessions booked. Accepted teams can book your open office hours.",
+      "teamMessages": "Latest from your teams",
+      "openConversations": "Conversations",
+      "loadingMessages": "Checking team conversations…",
+      "messagesError": "Some conversations couldn't be loaded. Open Sessions to check your messages.",
+      "replyNeeded": "Reply needed",
+      "noMessages": "No team messages waiting for a reply in your recent conversations.",
+      "requestedOn": "Requested {date}",
+      "awaitingBooking": "Waiting for the team to book a time",
+      "changesSaved": "Your changes have been saved.",
+      "conflict": "This item has changed, or the time overlaps another slot. Refresh and try again.",
+      "profileUnavailable": "Your mentor profile couldn't be loaded. Please refresh to try again.",
+      "sessionBooked": "Session booked",
+      "writeNotes": "Write notes",
+      "emptyTeams": "No active teams yet. Accept a mentoring request to start supporting a team.",
+      "filterHistory": "Filter history",
+      "allHistory": "All past requests",
+      "empty": {
+        "requests": "No requests waiting for your response.",
+        "sessions": "No active mentoring sessions yet. Accept a request to start a conversation.",
+        "history": "No past requests match this filter.",
+        "feedback": "Notes become available after you accept a mentoring request."
+      },
+      "viewTeams": "View your teams",
+      "profileVisible": "This is the profile participants see when they look for a mentor.",
+      "backOverview": "Back to overview",
+      "inputTimeZone": "Enter times in {zone}.",
+      "invalidSlot": "Choose a future start time and an end time after it, no more than four hours later.",
+      "saveAvailability": "Save availability note",
+      "openHours": "Available time slots",
+      "removeSlot": "Remove slot on {date}",
+      "viewBookedSessions": "View booked sessions"
+    },
+    "directory": {
+      "findHelp": "What do you need help with?",
+      "yourRequests": "Your requests ({count})",
+      "searchLabel": "Search mentors",
+      "searchPlaceholder": "Try Python, satellite data, or a mentor's name",
+      "topicLabel": "Mentoring topic",
+      "allTopics": "All topics",
+      "openHoursOnly": "With upcoming office hours",
+      "clearFilters": "Clear filters",
+      "results": "{count, plural, =0 {No mentors found} one {# mentor found} other {# mentors found}}",
+      "timeZone": "Office hours are shown in Cairo time",
+      "mentorLabel": "Space Apps mentor",
+      "canHelpWith": "Can help with",
+      "noTopics": "Topics not added yet.",
+      "noBio": "This mentor hasn't added a bio yet.",
+      "moreBio": "Read full bio",
+      "lessBio": "Show less",
+      "nextOfficeHour": "Next open office hour",
+      "arrangeTime": "Request mentorship to arrange a time",
+      "alreadyRequested": "Your team's request is pending",
+      "alreadyAccepted": "Mentoring your team",
+      "viewRequest": "View request",
+      "requestHelp": "Requests are sent for your team. Share a specific question; once accepted, you can chat and book an open slot.",
+      "closeForm": "Close",
+      "noMatches": "No mentors match these filters",
+      "noMatchesHelp": "Try a broader topic, another skill, or clear your filters.",
+      "noMentorsHelp": "Mentor profiles will appear here when they are available."
+    }
   }
 }

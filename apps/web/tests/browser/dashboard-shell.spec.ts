@@ -102,7 +102,7 @@ for (const locale of ["en", "ar"]) {
         )
         .toBe(true)
       const iconSizes = await navigation
-        .locator("a img")
+        .locator("a svg")
         .evaluateAll((images) =>
           images
             .filter((image) => getComputedStyle(image).display !== "none")
@@ -111,6 +111,7 @@ for (const locale of ["en", "ar"]) {
               height: image.getBoundingClientRect().height,
             }))
         )
+      expect(iconSizes.length).toBeGreaterThanOrEqual(9)
       for (const size of iconSizes) {
         expect([12, 18]).toContain(size.width)
         expect(size.height).toBe(size.width)

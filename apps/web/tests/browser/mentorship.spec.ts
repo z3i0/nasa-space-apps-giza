@@ -212,10 +212,19 @@ test("mentor accepts a team request, saves persistent notes, and scrolls its con
   await page.goto("/en/dashboard/mentor")
   await expect(page.getByText("NileScope")).toBeVisible()
   await expect(
-    page.getByText("Pending requests").locator("..").getByText("1")
+    page
+      .getByRole("region", { name: "Needs your attention" })
+      .getByText("1 team is waiting for your response.")
   ).toBeVisible()
-  await page.getByRole("button", { name: "Accept" }).click()
-  await expect(page.getByText("Accepted", { exact: true })).toBeVisible()
+  await page
+    .locator("main")
+    .getByRole("link", { name: "View requests" })
+    .click()
+  await page.getByRole("button", { name: "Accept", exact: true }).click()
+  await expect(
+    page.getByText("No requests waiting for your response.")
+  ).toBeVisible()
+  await page.goto("/en/dashboard/mentor/feedback")
   await page
     .getByRole("textbox", { name: "Session notes" })
     .fill("Review the Earth observation dataset before our next session.")
@@ -228,6 +237,7 @@ test("mentor accepts a team request, saves persistent notes, and scrolls its con
     page.getByRole("textbox", { name: "Session notes" })
   ).toHaveValue("Review the Earth observation dataset before our next session.")
   await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto("/en/dashboard/mentor/sessions")
   await page.getByRole("button", { name: "Open conversation" }).click()
   const log = page.getByRole("log", { name: "Conversation" })
   await expect(

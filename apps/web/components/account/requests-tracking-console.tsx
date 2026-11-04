@@ -195,28 +195,28 @@ export function RequestsTrackingConsole() {
           icon: Compass,
           label: t("types.mentorship"),
           className:
-            "border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400",
+            "border-success/30 bg-success/10 text-success",
         }
       case "team_join":
         return {
           icon: UserPlus,
           label: t("types.teamJoin"),
           className:
-            "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+            "border-success/30 bg-success/10 text-success",
         }
       case "team_invitation":
         return {
           icon: Users,
           label: t("types.teamInvitation"),
           className:
-            "border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400",
+            "border-primary/30 bg-primary/10 text-primary",
         }
       case "role_application":
         return {
           icon: Shield,
           label: t("types.roleApplication"),
           className:
-            "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+            "border-orange/30 bg-orange/10 text-orange",
         }
     }
   }
@@ -228,14 +228,14 @@ export function RequestsTrackingConsole() {
           icon: Clock3,
           label: t("statuses.pending"),
           className:
-            "border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-400",
+            "border-orange/30 bg-orange/15 text-orange",
         }
       case "accepted":
         return {
           icon: CheckCircle2,
           label: t("statuses.accepted"),
           className:
-            "border-emerald-500/30 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+            "border-success/30 bg-success/15 text-success",
         }
       case "rejected":
         return {
@@ -249,7 +249,7 @@ export function RequestsTrackingConsole() {
           icon: UserCheck,
           label: t("statuses.completed"),
           className:
-            "border-blue-500/30 bg-blue-500/15 text-blue-600 dark:text-blue-400",
+            "border-primary/30 bg-primary/15 text-primary",
         }
       case "canceled":
         return {
@@ -323,10 +323,10 @@ export function RequestsTrackingConsole() {
         <Card className="p-0">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+              <span className="text-xs font-medium text-orange">
                 {t("metrics.pendingRequests")}
               </span>
-              <Clock3 className="size-4 text-amber-500" />
+              <Clock3 className="size-4 text-orange" />
             </div>
             <div className="mt-2 text-2xl font-bold text-foreground">
               {stats ? stats.pendingCount : "—"}
@@ -340,10 +340,10 @@ export function RequestsTrackingConsole() {
         <Card className="p-0">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+              <span className="text-xs font-medium text-success">
                 {t("metrics.acceptedRequests")}
               </span>
-              <CheckCircle2 className="size-4 text-emerald-500" />
+              <CheckCircle2 className="size-4 text-success" />
             </div>
             <div className="mt-2 text-2xl font-bold text-foreground">
               {stats ? stats.acceptedCount : "—"}
@@ -664,7 +664,7 @@ export function RequestsTrackingConsole() {
                         {item.durationMinutes !== null ? (
                           <Badge
                             variant="secondary"
-                            className="rounded-full border border-sky-500/20 bg-sky-500/10 px-2 py-0.5 text-[11px] font-medium text-sky-600 dark:text-sky-400"
+                            className="rounded-full border border-success/20 bg-success/10 px-2 py-0.5 text-[11px] font-medium text-success"
                           >
                             <Timer className="me-1 size-3" />
                             <span>{formatDuration(item.durationMinutes)}</span>

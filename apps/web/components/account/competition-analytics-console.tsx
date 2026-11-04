@@ -117,10 +117,10 @@ export function CompetitionAnalyticsConsole() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
-              <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span className="flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-0.5 text-[11px] font-semibold text-success">
                 <span className="relative flex size-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span>
+                  <span className="relative inline-flex size-2 rounded-full bg-success"></span>
                 </span>
                 {t("liveBadge")}
               </span>
@@ -182,14 +182,14 @@ export function CompetitionAnalyticsConsole() {
         <div className="space-y-6">
           {/* Active Users KPI Cards */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <Card className="col-span-2 rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-card to-card p-5 shadow-xs sm:col-span-1">
+            <Card className="col-span-2 rounded-2xl border border-success/30 bg-gradient-to-br from-success/10 via-card to-card p-5 shadow-xs sm:col-span-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                <span className="text-xs font-medium text-success">
                   {t("activeUsers.onlineNow")}
                 </span>
                 <span className="relative flex size-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500"></span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span>
+                  <span className="relative inline-flex size-2.5 rounded-full bg-success"></span>
                 </span>
               </div>
               <div className="mt-2 text-3xl font-extrabold text-foreground">
@@ -236,14 +236,14 @@ export function CompetitionAnalyticsConsole() {
                 <span className="text-xs font-medium text-muted-foreground">
                   {t("activeUsers.mentors")}
                 </span>
-                <Compass className="size-4 text-sky-500" />
+                <Compass className="size-4 text-chart-4" />
               </div>
               <div className="mt-2 text-2xl font-bold text-foreground">
                 {activeUsers.breakdownByRole.mentors}
               </div>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full bg-sky-500"
+                  className="h-full bg-chart-4"
                   style={{
                     width: `${
                       activeUsers.currentCount > 0
@@ -267,14 +267,14 @@ export function CompetitionAnalyticsConsole() {
                 <span className="text-xs font-medium text-muted-foreground">
                   {t("activeUsers.judges")}
                 </span>
-                <Award className="size-4 text-amber-500" />
+                <Award className="size-4 text-orange" />
               </div>
               <div className="mt-2 text-2xl font-bold text-foreground">
                 {activeUsers.breakdownByRole.judges}
               </div>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full bg-amber-500"
+                  className="h-full bg-orange"
                   style={{
                     width: `${
                       activeUsers.currentCount > 0
@@ -298,14 +298,14 @@ export function CompetitionAnalyticsConsole() {
                 <span className="text-xs font-medium text-muted-foreground">
                   {t("activeUsers.organizers")}
                 </span>
-                <Sparkles className="size-4 text-purple-500" />
+                <Sparkles className="size-4 text-chart-5" />
               </div>
               <div className="mt-2 text-2xl font-bold text-foreground">
                 {activeUsers.breakdownByRole.organizers}
               </div>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full bg-purple-500"
+                  className="h-full bg-chart-5"
                   style={{
                     width: `${
                       activeUsers.currentCount > 0
@@ -338,11 +338,11 @@ export function CompetitionAnalyticsConsole() {
                     {t("activeUsers.participants")}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="size-2 rounded-full bg-sky-500" />
+                    <span className="size-2 rounded-full bg-chart-4" />
                     {t("activeUsers.mentors")}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="size-2 rounded-full bg-amber-500" />
+                    <span className="size-2 rounded-full bg-orange" />
                     {t("activeUsers.judges")}
                   </span>
                 </div>
@@ -372,7 +372,7 @@ export function CompetitionAnalyticsConsole() {
                         style={{ height: `${heightPercent}%` }}
                       >
                         <div
-                          className="w-full bg-amber-500/80 transition-all"
+                          className="w-full bg-orange/80 transition-all"
                           style={{
                             height: `${
                               slot.total > 0
@@ -382,7 +382,7 @@ export function CompetitionAnalyticsConsole() {
                           }}
                         />
                         <div
-                          className="w-full bg-sky-500/80 transition-all"
+                          className="w-full bg-chart-4/80 transition-all"
                           style={{
                             height: `${
                               slot.total > 0
@@ -427,16 +427,16 @@ export function CompetitionAnalyticsConsole() {
                 {challenges.totalTeams}
               </div>
             </Card>
-            <Card className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 shadow-xs">
-              <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            <Card className="rounded-2xl border border-success/30 bg-success/5 p-5 shadow-xs">
+              <span className="text-xs font-medium text-success">
                 {t("challenges.assigned")}
               </span>
               <div className="mt-2 text-2xl font-bold text-foreground">
                 {challenges.assignedTeams}
               </div>
             </Card>
-            <Card className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5 shadow-xs">
-              <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+            <Card className="rounded-2xl border border-orange/30 bg-orange/5 p-5 shadow-xs">
+              <span className="text-xs font-medium text-orange">
                 {t("challenges.unassigned")}
               </span>
               <div className="mt-2 text-2xl font-bold text-foreground">
@@ -490,7 +490,7 @@ export function CompetitionAnalyticsConsole() {
 
                   <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-primary to-sky-500"
+                      className="h-full rounded-full bg-gradient-to-r from-primary to-chart-4"
                       style={{ width: `${Math.max(ch.percentage, ch.teamsCount > 0 ? 5 : 0)}%` }}
                     />
                   </div>
@@ -515,20 +515,20 @@ export function CompetitionAnalyticsConsole() {
               </div>
             </Card>
 
-            <Card className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 shadow-xs">
-              <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            <Card className="rounded-2xl border border-success/30 bg-success/5 p-5 shadow-xs">
+              <span className="text-xs font-medium text-success">
                 {t("community.answeredQuestions")}
               </span>
-              <div className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              <div className="mt-2 text-2xl font-bold text-success">
                 {community.answeredCount}
               </div>
             </Card>
 
-            <Card className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5 shadow-xs">
-              <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+            <Card className="rounded-2xl border border-orange/30 bg-orange/5 p-5 shadow-xs">
+              <span className="text-xs font-medium text-orange">
                 {t("community.unansweredQuestions")}
               </span>
-              <div className="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400">
+              <div className="mt-2 text-2xl font-bold text-orange">
                 {community.unansweredCount}
               </div>
             </Card>
@@ -631,11 +631,11 @@ export function CompetitionAnalyticsConsole() {
               </div>
             </Card>
 
-            <Card className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 shadow-xs">
-              <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            <Card className="rounded-2xl border border-success/30 bg-success/5 p-5 shadow-xs">
+              <span className="text-xs font-medium text-success">
                 {t("mentors.acceptanceRate")}
               </span>
-              <div className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              <div className="mt-2 text-2xl font-bold text-success">
                 {mentors.acceptanceRate}%
               </div>
             </Card>
@@ -649,12 +649,12 @@ export function CompetitionAnalyticsConsole() {
               </div>
             </Card>
 
-            <Card className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5 shadow-xs">
+            <Card className="rounded-2xl border border-orange/30 bg-orange/5 p-5 shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                <span className="text-xs font-medium text-orange">
                   {t("mentors.satisfaction")}
                 </span>
-                <Star className="size-4 fill-amber-500 text-amber-500" />
+                <Star className="size-4 fill-amber-500 text-orange" />
               </div>
               <div className="mt-2 text-2xl font-bold text-foreground">
                 {mentors.avgSatisfaction} / 5.0
@@ -683,7 +683,7 @@ export function CompetitionAnalyticsConsole() {
                       </p>
                     </div>
                     <Badge variant="outline" className="gap-1 text-xs">
-                      <Star className="size-3 fill-amber-500 text-amber-500" />
+                      <Star className="size-3 fill-amber-500 text-orange" />
                       <span>{m.rating}</span>
                     </Badge>
                   </div>
@@ -703,7 +703,7 @@ export function CompetitionAnalyticsConsole() {
 
                   <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border/40 pt-2">
                     <span>{t("mentors.acceptanceRate")}</span>
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span className="font-semibold text-success">
                       {m.acceptanceRate}%
                     </span>
                   </div>
@@ -728,20 +728,20 @@ export function CompetitionAnalyticsConsole() {
               </div>
             </Card>
 
-            <Card className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 shadow-xs">
-              <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            <Card className="rounded-2xl border border-success/30 bg-success/5 p-5 shadow-xs">
+              <span className="text-xs font-medium text-success">
                 {t("judges.completed")}
               </span>
-              <div className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              <div className="mt-2 text-2xl font-bold text-success">
                 {judges.completedCount}
               </div>
             </Card>
 
-            <Card className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5 shadow-xs">
-              <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+            <Card className="rounded-2xl border border-orange/30 bg-orange/5 p-5 shadow-xs">
+              <span className="text-xs font-medium text-orange">
                 {t("judges.pending")}
               </span>
-              <div className="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400">
+              <div className="mt-2 text-2xl font-bold text-orange">
                 {judges.pendingCount}
               </div>
             </Card>
@@ -796,10 +796,10 @@ export function CompetitionAnalyticsConsole() {
                         <td className="px-4 py-3.5 text-muted-foreground">
                           {j.assignedCount}
                         </td>
-                        <td className="px-4 py-3.5 font-medium text-emerald-600 dark:text-emerald-400">
+                        <td className="px-4 py-3.5 font-medium text-success">
                           {j.completedCount}
                         </td>
-                        <td className="px-4 py-3.5 text-amber-600 dark:text-amber-400">
+                        <td className="px-4 py-3.5 text-orange">
                           {j.pendingCount}
                         </td>
                         <td className="px-4 py-3.5">

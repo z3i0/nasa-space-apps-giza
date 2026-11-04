@@ -77,7 +77,7 @@ export function DashboardLayoutClient({
           themeClassName={themeClassName}
         />
         <SidebarProvider
-          className="flex min-h-[calc(100dvh-72px)] w-full items-start bg-background bg-[radial-gradient(circle_at_91%_85%,#4f8bd633,transparent_34%)] max-[760px]:block max-[760px]:min-h-[calc(100dvh-64px)] rtl:bg-[radial-gradient(circle_at_9%_85%,#4f8bd633,transparent_34%)] dark:bg-[radial-gradient(circle_at_91%_85%,#245c9b57,transparent_34%)] dark:rtl:bg-[radial-gradient(circle_at_9%_85%,#245c9b57,transparent_34%)]"
+          className="flex min-h-[calc(100dvh-72px)] w-full items-start bg-background bg-[radial-gradient(circle_at_91%_85%,color-mix(in_srgb,var(--primary)_10%,transparent),transparent_34%)] max-[760px]:block max-[760px]:min-h-[calc(100dvh-64px)] rtl:bg-[radial-gradient(circle_at_9%_85%,color-mix(in_srgb,var(--primary)_10%,transparent),transparent_34%)] dark:bg-[radial-gradient(circle_at_91%_85%,color-mix(in_srgb,var(--primary)_7%,transparent),transparent_34%)] dark:rtl:bg-[radial-gradient(circle_at_9%_85%,color-mix(in_srgb,var(--primary)_7%,transparent),transparent_34%)]"
           style={{ "--sidebar-width": "224px" } as React.CSSProperties}
         >
           <AppSidebar currentRole={currentRole} />

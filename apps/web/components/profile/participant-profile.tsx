@@ -396,7 +396,7 @@ export function ParticipantProfilePage() {
                   <TooltipTrigger>
                     <Badge
                       variant="outline"
-                      className="gap-1 border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-600 dark:text-emerald-400"
+                      className="gap-1 border-success/30 bg-success/10 text-xs text-success"
                     >
                       <CheckCircle2 className="size-3" />
                       {t("verified")}
@@ -486,7 +486,7 @@ export function ParticipantProfilePage() {
           </p>
 
           {hidden && (
-            <div className="flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 text-[11px] text-amber-600 dark:text-amber-400">
+            <div className="flex items-start gap-2 rounded-xl border border-chart-5/20 bg-chart-5/10 p-2.5 text-[11px] text-chart-5">
               <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
               <span>{t("hiddenNote")}</span>
             </div>
@@ -665,7 +665,7 @@ export function ParticipantProfilePage() {
               <Card className="rounded-2xl border-border/60 shadow-xs">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex size-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-success/10 text-success">
                       <Sparkles className="size-4" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -810,7 +810,7 @@ export function ParticipantProfilePage() {
                     <legend className="w-full">
                       <div className="flex items-center justify-between">
                         <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                          <Sparkles className="size-3.5 text-amber-500" />
+                          <Sparkles className="size-3.5 text-chart-5" />
                           <span>{t("popularSkills")}</span>
                         </span>
                         <span className="text-[11px] text-muted-foreground">
@@ -867,7 +867,7 @@ export function ParticipantProfilePage() {
               <Card className="rounded-2xl border-border/60 shadow-xs">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex size-8 items-center justify-center rounded-lg bg-sky-500/10 text-sky-500">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-orange/10 text-orange">
                       <Globe className="size-4" />
                     </div>
                     <div>
@@ -907,7 +907,7 @@ export function ParticipantProfilePage() {
                             className={cn(
                               "h-8 cursor-pointer gap-1.5 rounded-full border px-3.5 text-xs font-medium transition-all",
                               isSelected
-                                ? "border-sky-500/60 bg-sky-500/20 font-semibold text-sky-400 shadow-xs ring-1 ring-sky-500/30 hover:bg-sky-500/30 hover:text-sky-300"
+                                ? "border-orange/60 bg-orange/20 font-semibold text-orange shadow-xs ring-1 ring-orange/30 hover:bg-orange/30 hover:text-orange"
                                 : "border-border/60 bg-secondary/30 text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
                             )}
                           >
@@ -962,7 +962,7 @@ export function ParticipantProfilePage() {
                 <CardHeader className="pb-4">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
+                      <div className="flex size-8 items-center justify-center rounded-lg bg-chart-5/10 text-chart-5">
                         <Users className="size-4" />
                       </div>
                       <div>

@@ -1,10 +1,10 @@
 import { RoleGuard } from "@/components/role-guard"
-import { MentorshipHub } from "@/components/mentorship/mentorship-hub"
+import { MentorWorkspace } from "@/components/mentorship/mentor-workspace"
 
 export default function MentorProfilePage() {
   return (
     <RoleGuard allowedRoles={["mentor"]}>
-      <MentorshipHub role="mentor" />
+      <MentorWorkspace view="profile" />
     </RoleGuard>
   )
 }

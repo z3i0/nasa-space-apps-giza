@@ -103,13 +103,13 @@ export function NotificationsCenter() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "mentorship":
-        return <Compass className="size-4 text-sky-500" />
+        return <Compass className="size-4 text-success" />
       case "team_join":
-        return <UserPlus className="size-4 text-emerald-500" />
+        return <UserPlus className="size-4 text-success" />
       case "team_invite":
-        return <Users className="size-4 text-purple-500" />
+        return <Users className="size-4 text-chart-4" />
       case "role_application":
-        return <Shield className="size-4 text-amber-500" />
+        return <Shield className="size-4 text-orange" />
       default:
         return <Bell className="size-4 text-primary" />
     }
