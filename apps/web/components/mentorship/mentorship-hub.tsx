@@ -1,8 +1,11 @@
 "use client"
-import { useCallback, useRef, useState } from "react"
+
+import { useCallback, useEffect, useRef, useState } from "react"
 import useSWR from "swr"
 import { useLocale, useTranslations } from "next-intl"
+import { Maximize2, MessageCircle, MessageSquare } from "lucide-react"
 import { PageHeader } from "@/components/dashboard/page-header"
+import { Button } from "@/components/ui/button"
 import { useAuthUser } from "@/lib/auth"
 import {
   MentorshipApiError,
@@ -12,10 +15,17 @@ import {
 } from "@/lib/mentorship"
 import { MentorshipChat } from "./mentorship-chat"
 import { MentorDirectory } from "./mentor-directory"
+import { MentorshipChatWorkspace } from "./mentorship-chat-workspace"
+
 const card = "rounded-2xl border border-border bg-card p-5"
 const secondary =
   "rounded-xl border border-border bg-secondary px-4 py-2 text-sm text-foreground hover:border-primary disabled:opacity-50"
-export function MentorshipHub() {
+
+export function MentorshipHub({
+  initialTab = "hub",
+}: {
+  initialTab?: "hub" | "chat"
+}) {
   const t = useTranslations("Mentorship")
   const locale = useLocale()
   const user = useAuthUser()
@@ -45,6 +55,32 @@ export function MentorshipHub() {
   const mutationLock = useRef(false)
   const [actionError, setActionError] = useState("")
   const [openRequest, setOpenRequest] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<"hub" | "chat">(initialTab)
+
+  useEffect(() => {
+    const updateFromUrl = () => {
+      const searchParams = new URLSearchParams(window.location.search)
+      const conv = searchParams.get("conversation")
+      if (conv) {
+        setOpenRequest(conv)
+        setActiveTab("chat")
+      }
+    }
+    updateFromUrl()
+    window.addEventListener("popstate", updateFromUrl)
+    const onOpenChat = (event: Event) => {
+      const detail = (event as CustomEvent<{ requestId?: string }>).detail
+      if (detail?.requestId) {
+        setOpenRequest(detail.requestId)
+        setActiveTab("chat")
+      }
+    }
+    window.addEventListener("open-mentorship-chat", onOpenChat)
+    return () => {
+      window.removeEventListener("popstate", updateFromUrl)
+      window.removeEventListener("open-mentorship-chat", onOpenChat)
+    }
+  }, [])
 
   const loading = swrLoading && !data
   const error = actionError || (swrError && !data ? t("error") : "")
@@ -72,18 +108,33 @@ export function MentorshipHub() {
       setBusy(false)
     }
   }
+
   const time = (value: string) =>
     new Intl.DateTimeFormat(locale === "ar" ? "ar-EG" : "en-EG", {
       dateStyle: "medium",
       timeStyle: "short",
       timeZone: "Africa/Cairo",
     }).format(new Date(value))
+
   return (
     <div className="flex w-full flex-col gap-6">
       <PageHeader
         title={t("participantTitle")}
         subtitle={t("participantSubtitle")}
+        actions={
+          requests.length > 0 ? (
+            <Button
+              variant={activeTab === "chat" ? "default" : "outline"}
+              onClick={() => setActiveTab(activeTab === "chat" ? "hub" : "chat")}
+              className="gap-2"
+            >
+              <MessageSquare className="size-4" />
+              {activeTab === "chat" ? t("tabs.directory") : t("tabs.chat")}
+            </Button>
+          ) : undefined
+        }
       />
+
       {error && (
         <div
           role="alert"
@@ -95,8 +146,17 @@ export function MentorshipHub() {
           </button>
         </div>
       )}
+
       {loading ? (
         <p className="text-muted-foreground">{t("loading")}</p>
+      ) : activeTab === "chat" ? (
+        <MentorshipChatWorkspace
+          requests={requests}
+          userId={userId}
+          role="participant"
+          selectedRequestId={openRequest}
+          onSelectRequest={setOpenRequest}
+        />
       ) : (
         <>
           <MentorDirectory
@@ -116,7 +176,20 @@ export function MentorshipHub() {
             }
           />
           <section id="mentorship-requests" className="scroll-mt-24">
-            <h2 className="mb-3 text-xl font-semibold">{t("requests")}</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-semibold">{t("requests")}</h2>
+              {requests.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setActiveTab("chat")}
+                  className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <MessageSquare className="size-3.5" />
+                  {t("fullPageChat")}
+                </Button>
+              )}
+            </div>
             <div className="grid gap-4">
               {requests.length ? (
                 requests.map((request) => (
@@ -139,21 +212,22 @@ export function MentorshipHub() {
                         {t(request.status)}
                       </span>
                     </div>
+
                     {request.slot && (
                       <p className="mt-3 text-sm text-primary">
                         {time(request.slot.startTime)}
                       </p>
                     )}
+
                     {["accepted", "completed"].includes(request.status) && (
                       <div className="mt-4 rounded-xl border border-border bg-background p-4">
                         <h4 className="text-sm font-semibold">{t("notes")}</h4>
-                        {
-                          <p className="mt-2 text-sm whitespace-pre-wrap text-muted-foreground">
-                            {request.sessionNotes || t("noNotes")}
-                          </p>
-                        }
+                        <p className="mt-2 text-sm whitespace-pre-wrap text-muted-foreground">
+                          {request.sessionNotes || t("noNotes")}
+                        </p>
                       </div>
                     )}
+
                     <div className="mt-4 flex flex-wrap gap-2">
                       {["pending", "accepted"].includes(request.status) && (
                         <button
@@ -184,7 +258,21 @@ export function MentorshipHub() {
                           openRequest === request.id ? "closeChat" : "openChat"
                         )}
                       </button>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setOpenRequest(request.id)
+                          setActiveTab("chat")
+                        }}
+                        className="gap-1.5 rounded-xl border-border bg-secondary hover:border-primary text-sm h-auto py-2 px-3 text-foreground"
+                      >
+                        <Maximize2 className="size-3.5" />
+                        {t("fullPageChat")}
+                      </Button>
                     </div>
+
                     {request.status === "accepted" &&
                       !request.slot &&
                       !!request.mentor.mentorSlots.length && (
@@ -213,12 +301,17 @@ export function MentorshipHub() {
                           </div>
                         </div>
                       )}
+
                     {openRequest === request.id && (
                       <MentorshipChat
                         key={request.id}
                         requestId={request.id}
                         status={request.status}
                         userId={userId}
+                        partnerName={request.mentor.name}
+                        partnerAvatar={request.mentor.avatar}
+                        partnerRole={t("directory.mentorLabel") || "Mentor"}
+                        topic={request.topic}
                       />
                     )}
                   </article>

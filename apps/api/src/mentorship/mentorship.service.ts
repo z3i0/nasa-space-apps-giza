@@ -9,6 +9,7 @@ import { MentorshipStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { EventsService } from '../events/events.service.js';
 import { WebPushService } from '../events/web-push.service.js';
+import { notificationTemplates } from '../events/notification-templates.js';
 import { MentorProfileDto } from './dto.js';
 
 const publicMentor = {
@@ -220,25 +221,18 @@ export class MentorshipService {
           select: { userId: true },
         });
         const isAccepted = status === 'accepted';
+        const notifContent = isAccepted
+          ? notificationTemplates.mentorship.requestAccepted(mentorName)
+          : notificationTemplates.mentorship.requestDeclined(mentorName);
+
         for (const member of teamMembers) {
           await tx.notification.create({
             data: {
               userId: member.userId,
-              title: isAccepted
-                ? 'Mentorship Request Accepted'
-                : 'Mentorship Request Declined',
-              titleAr: isAccepted
-                ? 'تم قبول طلب الإرشاد'
-                : 'اعتذار عن طلب الإرشاد',
-              message: isAccepted
-                ? `${mentorName} accepted your team's mentorship request.`
-                : `${mentorName} declined your mentorship request.`,
-              messageAr: isAccepted
-                ? `وافق المرشد ${mentorName} على طلب الإرشاد الخاص بفريقكم.`
-                : `اعتذر المرشد ${mentorName} عن تلبية طلب الإرشاد.`,
+              ...notifContent,
               type: 'mentorship',
               link: isAccepted
-                ? '/dashboard/participant/sessions'
+                ? `/dashboard/participant/sessions?conversation=${id}`
                 : '/dashboard/participant/mentorship',
             },
           });
@@ -340,32 +334,36 @@ export class MentorshipService {
             : [];
 
           if (tx.notification) {
+            const notifContent =
+              notificationTemplates.mentorship.newMessageFromMentor(
+                senderName,
+                preview,
+              );
             for (const member of teamMembers) {
               if (member.userId === userId) continue;
               const notif = await tx.notification.create({
                 data: {
                   userId: member.userId,
-                  title: `New message from mentor ${senderName}`,
-                  titleAr: `رسالة جديدة من المرشد ${senderName}`,
-                  message: preview,
-                  messageAr: preview,
+                  ...notifContent,
                   type: 'mentorship_message',
-                  link: '/dashboard/participant/sessions',
+                  link: `/dashboard/participant/sessions?conversation=${request.id}`,
                 },
               });
               notificationsList.push(notif);
             }
           }
         } else if (tx.notification) {
+          const notifContent =
+            notificationTemplates.mentorship.newMessageFromParticipant(
+              senderName,
+              preview,
+            );
           const notif = await tx.notification.create({
             data: {
               userId: request.mentorId,
-              title: `New message from ${senderName}`,
-              titleAr: `رسالة جديدة من ${senderName}`,
-              message: preview,
-              messageAr: preview,
+              ...notifContent,
               type: 'mentorship_message',
-              link: '/dashboard/mentor/sessions',
+              link: `/dashboard/mentor/sessions?conversation=${request.id}&workspace=true`,
             },
           });
           notificationsList.push(notif);

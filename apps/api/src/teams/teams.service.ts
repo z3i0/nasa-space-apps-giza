@@ -6,6 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { notificationTemplates } from '../events/notification-templates.js';
 import { officialChallengeWhere } from '../challenges/official-catalogue.js';
 import { CreateTeamDto } from './dto/create-team.dto.js';
 import { UpdateTeamDto } from './dto/update-team.dto.js';
@@ -725,10 +726,9 @@ export class TeamsService {
         await tx.notification.create({
           data: {
             userId: invitation.invitedByUserId,
-            title: 'Team Invitation Declined',
-            titleAr: 'تم رفض دعوة الفريق',
-            message: `The user declined your invitation to join ${invitation.team.name}.`,
-            messageAr: `تم رفض دعوتك للانضمام إلى فريق ${invitation.team.name}.`,
+            ...notificationTemplates.teams.inviteDeclined(
+              invitation.team.name,
+            ),
             type: 'team_invite',
             link: '/dashboard/participant/team',
           },
@@ -771,10 +771,9 @@ export class TeamsService {
         await tx.notification.create({
           data: {
             userId: invitation.invitedByUserId,
-            title: 'Team Invitation Accepted',
-            titleAr: 'تم قبول دعوة الفريق',
-            message: `A new member has accepted your invitation and joined team ${invitation.team.name}!`,
-            messageAr: `قبل العضو دعوتك وانضم رسمياً إلى فريق ${invitation.team.name}!`,
+            ...notificationTemplates.teams.inviteAccepted(
+              invitation.team.name,
+            ),
             type: 'team_invite',
             link: '/dashboard/participant/team',
           },
@@ -894,10 +893,9 @@ export class TeamsService {
         await tx.notification.create({
           data: {
             userId: joinReq.userId,
-            title: 'Team Join Request Declined',
-            titleAr: 'تم رفض طلب الانضمام للفريق',
-            message: `Your request to join team ${joinReq.team.name} was not accepted.`,
-            messageAr: `تم رفض طلب انضمامك إلى فريق ${joinReq.team.name}.`,
+            ...notificationTemplates.teams.joinRequestDeclined(
+              joinReq.team.name,
+            ),
             type: 'team_join',
             link: '/dashboard/participant/find-team',
           },
@@ -939,10 +937,9 @@ export class TeamsService {
         await tx.notification.create({
           data: {
             userId: joinReq.userId,
-            title: 'Team Join Request Accepted',
-            titleAr: 'تم قبول طلب الانضمام للفريق',
-            message: `Congratulations! You have been accepted into team ${joinReq.team.name}.`,
-            messageAr: `تهانينا! تم قبولك كعضو في فريق ${joinReq.team.name}.`,
+            ...notificationTemplates.teams.joinRequestAccepted(
+              joinReq.team.name,
+            ),
             type: 'team_join',
             link: '/dashboard/participant/team',
           },

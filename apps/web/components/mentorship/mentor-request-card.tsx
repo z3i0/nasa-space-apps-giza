@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
-import { CalendarDays, MessageCircle } from "lucide-react"
+import { CalendarDays, Maximize2, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MentorshipChat } from "./mentorship-chat"
 import type { MentorshipRequest } from "@/lib/mentorship"
@@ -21,6 +21,7 @@ export function MentorRequestCard({
   mutate,
   notesOnly = false,
   initiallyOpen = false,
+  onOpenWorkspace,
 }: {
   request: MentorshipRequest
   userId?: string
@@ -28,6 +29,7 @@ export function MentorRequestCard({
   mutate: MentorMutation
   notesOnly?: boolean
   initiallyOpen?: boolean
+  onOpenWorkspace?: (requestId: string) => void
 }) {
   const t = useTranslations("Mentorship")
   const w = useTranslations("Mentorship.workspace")
@@ -168,6 +170,16 @@ export function MentorRequestCard({
               <MessageCircle aria-hidden="true" />
               {t(chatOpen ? "closeChat" : "openChat")}
             </Button>
+            {onOpenWorkspace && (
+              <Button
+                variant="outline"
+                onClick={() => onOpenWorkspace(request.id)}
+                className="gap-1.5"
+              >
+                <Maximize2 className="size-4" aria-hidden="true" />
+                {t("fullPageChat")}
+              </Button>
+            )}
             {request.status === "accepted" && (
               <Button
                 variant="outline"
@@ -188,6 +200,9 @@ export function MentorRequestCard({
                 requestId={request.id}
                 status={request.status}
                 userId={userId}
+                partnerName={request.team.name}
+                partnerRole="Team"
+                topic={request.topic}
               />
             </div>
           )}

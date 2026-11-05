@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslations } from "next-intl"
-import { Clock3, RefreshCw, Users } from "lucide-react"
+import { Clock3, MessageSquare, RefreshCw, Users } from "lucide-react"
 import { Link } from "@/i18n/routing"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -21,6 +21,7 @@ import {
 } from "./mentor-overview"
 import { MentorRequestCard, type MentorMutation } from "./mentor-request-card"
 import { MentorProfileEditor, MentorOfficeHours } from "./mentor-editors"
+import { MentorshipChatWorkspace } from "./mentorship-chat-workspace"
 import styles from "./mentor-workspace.module.css"
 
 type MentorView =
@@ -51,6 +52,7 @@ export function MentorWorkspace({ view }: { view: MentorView }) {
   const [notice, setNotice] = useState("")
   const [conversation, setConversation] = useState<string | null>(null)
   const [historyFilter, setHistoryFilter] = useState("all")
+  const [viewMode, setViewMode] = useState<"cards" | "workspace">("cards")
   const lifetime = useRef<AbortController | null>(null)
   const mutationLock = useRef(false)
   const refreshVersion = useRef(0)
@@ -130,12 +132,30 @@ export function MentorWorkspace({ view }: { view: MentorView }) {
     const controller = new AbortController()
     lifetime.current = controller
     void Promise.resolve().then(() => refresh(controller.signal))
-    const updateConversation = () =>
-      setConversation(
-        new URLSearchParams(window.location.search).get("conversation")
-      )
+    const updateConversation = () => {
+      const params = new URLSearchParams(window.location.search)
+      const conv = params.get("conversation")
+      if (conv) {
+        setConversation(conv)
+        if (params.get("workspace") === "true") {
+          setViewMode("workspace")
+        }
+      }
+    }
     updateConversation()
     window.addEventListener("popstate", updateConversation)
+    const onOpenChat = (event: Event) => {
+      const detail = (
+        event as CustomEvent<{ requestId?: string; workspace?: boolean }>
+      ).detail
+      if (detail?.requestId) {
+        setConversation(detail.requestId)
+        if (detail.workspace !== false) {
+          setViewMode("workspace")
+        }
+      }
+    }
+    window.addEventListener("open-mentorship-chat", onOpenChat)
     const timer =
       view === "overview"
         ? window.setInterval(() => {
@@ -147,6 +167,7 @@ export function MentorWorkspace({ view }: { view: MentorView }) {
       controller.abort()
       window.clearInterval(timer)
       window.removeEventListener("popstate", updateConversation)
+      window.removeEventListener("open-mentorship-chat", onOpenChat)
     }
   }, [refresh, view])
 
@@ -222,6 +243,17 @@ export function MentorWorkspace({ view }: { view: MentorView }) {
               <Clock3 aria-hidden="true" />
               {w("manageHours")}
             </Link>
+          ) : view === "sessions" || view === "requests" ? (
+            <Button
+              variant={viewMode === "workspace" ? "default" : "outline"}
+              onClick={() =>
+                setViewMode(viewMode === "workspace" ? "cards" : "workspace")
+              }
+              className="gap-2"
+            >
+              <MessageSquare className="size-4" />
+              {viewMode === "workspace" ? t("tabs.requests") : t("fullPageChat")}
+            </Button>
           ) : undefined
         }
       />
@@ -369,33 +401,47 @@ export function MentorWorkspace({ view }: { view: MentorView }) {
                     </Link>
                   </div>
                 )}
-                <div className="grid gap-4">
-                  {filtered.length ? (
-                    filtered.map((request) => (
-                      <MentorRequestCard
-                        key={`${request.id}-${conversation === request.id}`}
-                        request={request}
-                        userId={userId}
-                        busy={busy}
-                        mutate={mutate}
-                        notesOnly={view === "feedback"}
-                        initiallyOpen={conversation === request.id}
-                      />
-                    ))
-                  ) : (
-                    <div className={styles.panel}>
-                      <p className={styles.empty}>{w(`empty.${view}`)}</p>
-                      {view === "requests" && (
-                        <Link
-                          href="/dashboard/mentor/teams"
-                          className={styles.link}
-                        >
-                          {w("viewTeams")}
-                        </Link>
-                      )}
-                    </div>
-                  )}
-                </div>
+                {viewMode === "workspace" && (view === "sessions" || view === "requests") ? (
+                  <MentorshipChatWorkspace
+                    requests={requests}
+                    userId={userId}
+                    role="mentor"
+                    selectedRequestId={conversation}
+                    onSelectRequest={setConversation}
+                  />
+                ) : (
+                  <div className="grid gap-4">
+                    {filtered.length ? (
+                      filtered.map((request) => (
+                        <MentorRequestCard
+                          key={`${request.id}-${conversation === request.id}`}
+                          request={request}
+                          userId={userId}
+                          busy={busy}
+                          mutate={mutate}
+                          notesOnly={view === "feedback"}
+                          initiallyOpen={conversation === request.id}
+                          onOpenWorkspace={(id) => {
+                            setConversation(id)
+                            setViewMode("workspace")
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <div className={styles.panel}>
+                        <p className={styles.empty}>{w(`empty.${view}`)}</p>
+                        {view === "requests" && (
+                          <Link
+                            href="/dashboard/mentor/teams"
+                            className={styles.link}
+                          >
+                            {w("viewTeams")}
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </>
             )}
           </>

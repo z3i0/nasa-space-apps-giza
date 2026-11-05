@@ -30,12 +30,14 @@ import {
   type NotificationItem,
   type NotificationsResponse,
 } from "@/lib/account"
+import { useAuthUser } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 
 export function NotificationsCenter() {
   const t = useTranslations("Dashboard.notificationsCenter")
   const locale = useLocale()
   const router = useRouter()
+  const user = useAuthUser()
 
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -44,6 +46,10 @@ export function NotificationsCenter() {
   const [error, setError] = useState("")
 
   const loadNotifications = useCallback(async () => {
+    if (!user) {
+      setLoading(false)
+      return
+    }
     setLoading(true)
     setError("")
     try {
@@ -57,9 +63,10 @@ export function NotificationsCenter() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user])
 
   useEffect(() => {
+    if (!user) return
     void loadNotifications()
 
     let es: EventSource | null = null
@@ -67,6 +74,9 @@ export function NotificationsCenter() {
       es = new EventSource("/api/account/notifications/stream", {
         withCredentials: true,
       })
+      es.onerror = () => {
+        if (es) es.close()
+      }
       es.addEventListener("notification", (event) => {
         try {
           const incoming = JSON.parse(event.data) as NotificationItem
@@ -88,7 +98,7 @@ export function NotificationsCenter() {
     return () => {
       if (es) es.close()
     }
-  }, [loadNotifications])
+  }, [loadNotifications, user])
 
   const handleMarkAllRead = async () => {
     try {
@@ -264,6 +274,19 @@ export function NotificationsCenter() {
                       )
                     }
                     if (item.link) {
+                      if (item.link.includes("conversation=")) {
+                        const match = item.link.match(/conversation=([^&#]+)/)
+                        if (match) {
+                          window.dispatchEvent(
+                            new CustomEvent("open-mentorship-chat", {
+                              detail: {
+                                requestId: decodeURIComponent(match[1]),
+                                workspace: true,
+                              },
+                            })
+                          )
+                        }
+                      }
                       router.push(item.link)
                     }
                   }}

@@ -146,6 +146,11 @@ export function DashboardNavbar({
         withCredentials: true,
       })
 
+      es.onerror = () => {
+        // If connection fails (e.g. 401 on unauthenticated test or logout), close event source
+        if (es) es.close()
+      }
+
       es.addEventListener("notification", (event) => {
         try {
           const incoming = JSON.parse(event.data) as NotificationItem & {
@@ -201,6 +206,22 @@ export function DashboardNavbar({
                         )
                       )
                     }
+                    let reqId = incoming.requestId
+                    if (
+                      !reqId &&
+                      incoming.link &&
+                      incoming.link.includes("conversation=")
+                    ) {
+                      const match = incoming.link.match(/conversation=([^&#]+)/)
+                      if (match) reqId = decodeURIComponent(match[1])
+                    }
+                    if (reqId) {
+                      window.dispatchEvent(
+                        new CustomEvent("open-mentorship-chat", {
+                          detail: { requestId: reqId, workspace: true },
+                        })
+                      )
+                    }
                     router.push(incoming.link!)
                   },
                 }
@@ -239,7 +260,9 @@ export function DashboardNavbar({
     }
   }
 
-  const handleNotificationClick = async (notif: NotificationItem) => {
+  const handleNotificationClick = async (
+    notif: NotificationItem & { requestId?: string }
+  ) => {
     if (!notif.isRead) {
       void accountApi("/notifications/mark-read", { id: notif.id })
       setUnreadCount((c) => Math.max(0, c - 1))
@@ -248,6 +271,20 @@ export function DashboardNavbar({
       )
     }
     setOpenNotifications(false)
+
+    let reqId = notif.requestId
+    if (!reqId && notif.link && notif.link.includes("conversation=")) {
+      const match = notif.link.match(/conversation=([^&#]+)/)
+      if (match) reqId = decodeURIComponent(match[1])
+    }
+    if (reqId) {
+      window.dispatchEvent(
+        new CustomEvent("open-mentorship-chat", {
+          detail: { requestId: reqId, workspace: true },
+        })
+      )
+    }
+
     if (notif.link) {
       router.push(notif.link)
     }

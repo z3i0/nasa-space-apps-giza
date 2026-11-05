@@ -4,7 +4,7 @@ import { MentorshipHub } from "@/components/mentorship/mentorship-hub"
 export default function ParticipantSessionsPage() {
   return (
     <RoleGuard allowedRoles={["participant"]}>
-      <MentorshipHub />
+      <MentorshipHub initialTab="chat" />
     </RoleGuard>
   )
 }

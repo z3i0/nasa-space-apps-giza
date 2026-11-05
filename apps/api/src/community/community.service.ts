@@ -8,6 +8,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { notificationTemplates } from '../events/notification-templates.js';
 import type {
   CreateAnswerCommentDto,
   CreateAnswerDto,
@@ -330,10 +331,10 @@ export class CommunityService {
         data: {
           userId: question.authorId,
           type: 'community',
-          title: 'New answer to your question',
-          titleAr: 'إجابة جديدة على سؤالك',
-          message: `${responderName} posted an answer to: "${questionTitlePreview}"`,
-          messageAr: `أضاف ${responderName} إجابة على سؤالك: "${questionTitlePreview}"`,
+          ...notificationTemplates.community.newAnswer(
+            responderName,
+            questionTitlePreview,
+          ),
           link: `/dashboard/participant/community/${questionId}`,
         },
       });
@@ -402,10 +403,9 @@ export class CommunityService {
           data: {
             userId: targetAnswer.authorId,
             type: 'community',
-            title: 'Your answer was marked as solution!',
-            titleAr: 'تم اعتماد إجابتك كحل معتمد!',
-            message: `Your answer on "${questionTitlePreview}" was selected as the accepted solution.`,
-            messageAr: `تم اعتماد إجابتك كحل رسمي ومعتمد لسؤال: "${questionTitlePreview}".`,
+            ...notificationTemplates.community.acceptedSolution(
+              questionTitlePreview,
+            ),
             link: `/dashboard/participant/community/${questionId}`,
           },
         });
@@ -520,10 +520,10 @@ export class CommunityService {
         data: {
           userId: answer.authorId,
           type: 'community',
-          title: 'New reply to your answer',
-          titleAr: 'رد جديد على إجابتك',
-          message: `${commenterName} replied to your answer on: "${qTitlePreview}"`,
-          messageAr: `أضاف ${commenterName} رداً على إجابتك في: "${qTitlePreview}"`,
+          ...notificationTemplates.community.replyToAnswer(
+            commenterName,
+            qTitlePreview,
+          ),
           link: `/dashboard/participant/community/${questionId}`,
         },
       });
@@ -976,10 +976,10 @@ export class CommunityService {
         data: {
           userId: parentComment.authorId,
           type: 'community',
-          title: 'New reply to your comment',
-          titleAr: 'رد جديد على تعليقك',
-          message: `${commenterName} replied to your comment on: "${postTitlePreview}"`,
-          messageAr: `أضاف ${commenterName} رداً على تعليقك في: "${postTitlePreview}"`,
+          ...notificationTemplates.community.replyToComment(
+            commenterName,
+            postTitlePreview,
+          ),
           link: `/dashboard/participant/community/posts/${postId}`,
         },
       });
@@ -989,10 +989,10 @@ export class CommunityService {
         data: {
           userId: post.authorId,
           type: 'community',
-          title: 'New comment on your post',
-          titleAr: 'تعليق جديد على منشورك',
-          message: `${commenterName} commented on: "${postTitlePreview}"`,
-          messageAr: `أضاف ${commenterName} تعليقاً على منشورك: "${postTitlePreview}"`,
+          ...notificationTemplates.community.newComment(
+            commenterName,
+            postTitlePreview,
+          ),
           link: `/dashboard/participant/community/posts/${postId}`,
         },
       });
