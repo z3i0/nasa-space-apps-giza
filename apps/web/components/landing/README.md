@@ -35,9 +35,9 @@ English and Arabic copy lives in `messages/{locale}/home.json`. The hero and mis
 
 ### Mission timeline
 
-`MissionTimeline` adds the five supplied event briefings after the challenge deck. `timeline-data.ts` preserves the phase numbers 01, 03, 04, 05, and 06; the separate progress counter counts five stops. English and Arabic content lives under `Home.timeline`. Dates and Cairo-specific achievements come from the supplied event brief, with no invented registration link or Phase 02.
+`MissionTimeline` presents four event checkpoints after the challenge deck: the bootcamp, team registration opening, registration deadline, and hackathon. English and Arabic content lives under `Home.timeline`.
 
-Checkpoint tabs, Previous/Next, arrow keys, Home/End, and horizontal touch swipes share one active phase. Vertical gestures retain native page scrolling. Completed dotted connectors draw into SVG waves, the existing spacecraft travels between checkpoints, and the planetary system rotates once per navigation while counter-rotating its planets. All transitions stop under reduced-motion preferences; there are no continuous animation loops or new dependencies. The mobile track keeps five numbered, accessible checkpoints and places the planetary decoration below the briefing.
+Checkpoint tabs, Previous/Next, arrow keys, Home/End, and horizontal touch swipes share one active phase. Vertical gestures retain native page scrolling. Completed dotted connectors draw into SVG waves, the existing spacecraft travels between checkpoints, and the planetary system rotates once per navigation while counter-rotating its planets. All transitions stop under reduced-motion preferences; there are no continuous animation loops or new dependencies. The mobile track keeps four numbered, accessible checkpoints and places the planetary decoration below the briefing.
 
 Run `node scripts/verify-timeline.mjs` with the Playwright environment options below. It checks every phase at 320/390/768/1440 pixels in both languages, navigation boundaries, keyboard focus, real touch input, asset loading, planet/text separation, page overflow, reduced motion, and intermediate ship/orbit/trail animation states.
 

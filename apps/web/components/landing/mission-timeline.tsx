@@ -48,7 +48,7 @@ export function MissionTimeline() {
       style={
         {
           "--timeline-accent": phase.accent,
-          "--ship-position": `${10 + active * 20}%`,
+          "--ship-position": `${12.5 + active * 25}%`,
           "--orbit-turn": `${active * -72}deg`,
           "--orbit-counter": `${active * 72}deg`,
           "--ship-facing": `${direction * (rtl ? -1 : 1) * 90}deg`,

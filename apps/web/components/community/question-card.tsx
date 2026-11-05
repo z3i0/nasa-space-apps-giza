@@ -1,213 +1,132 @@
 "use client"
 
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
 import {
   MessageSquare,
   Eye,
   CheckCircle2,
   Clock,
-  Sparkles,
+  ImageIcon,
 } from "lucide-react"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import type { CommunityQuestion } from "@/lib/community"
-import { CommunityImageGallery } from "./community-image-gallery"
 
-interface QuestionCardProps {
+export function QuestionCard({
+  question,
+  href,
+  compact = false,
+}: {
   question: CommunityQuestion
-  href?: string
-  onClick?: () => void
-}
-
-export function QuestionCard({ question, href, onClick }: QuestionCardProps) {
+  href: string
+  compact?: boolean
+}) {
   const t = useTranslations("Community")
-
-  const getCategoryLabel = (category: string) => {
-    switch (category?.toLowerCase()?.trim()) {
-      case "technical":
-        return t("technical")
-      case "challenge":
-        return t("challenge")
-      case "platform":
-        return t("platform")
-      case "general":
-        return t("general")
-      default:
-        return category || t("general")
-    }
-  }
-
-  const getStatusBadge = (status: string) => {
-    if (status === "resolved") {
-      return (
-        <Badge
-          variant="default"
-          className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] sm:text-xs font-semibold px-2 py-0.5"
-        >
-          <CheckCircle2 className="h-3.5 w-3.5" />
-          <span>{t("statusResolved")}</span>
-        </Badge>
-      )
-    }
-    if (status === "answered") {
-      return (
-        <Badge
-          variant="outline"
-          className="gap-1.5 text-primary border-primary/40 text-[10px] sm:text-xs font-semibold px-2 py-0.5"
-        >
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>{t("statusAnswered")}</span>
-        </Badge>
-      )
-    }
-    return (
-      <Badge
-        variant="outline"
-        className="gap-1.5 text-amber-500 border-amber-500/40 text-[10px] sm:text-xs font-semibold px-2 py-0.5"
-      >
-        <Clock className="h-3.5 w-3.5" />
-        <span>{t("statusUnanswered")}</span>
-      </Badge>
-    )
-  }
-
-  const formatDate = (isoString: string) => {
-    try {
-      const date = new Date(isoString)
-      return date.toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    } catch {
-      return ""
-    }
-  }
-
-  const authorInitials = (question.author?.name || "U")
+  const locale = useLocale()
+  const solved = question.status === "resolved"
+  const answered = question.status === "answered"
+  const StatusIcon = solved ? CheckCircle2 : answered ? MessageSquare : Clock
+  const author = question.author?.name || t("anonymousUser")
+  const initials = author
     .split(" ")
-    .map((n) => n[0])
+    .map((part) => part[0])
     .join("")
     .slice(0, 2)
-    .toUpperCase()
+  const role = question.author?.role
+  const roleLabel =
+    role === "organizer" || role === "admin"
+      ? t("roleOrganizer")
+      : role === "competition"
+        ? t("roleCoordinator")
+        : role === "mentor"
+          ? t("roleMentor")
+          : role === "judge"
+            ? t("roleJudge")
+            : null
 
-  const cardContent = (
-    <Card className="group relative flex h-full w-full flex-col justify-between overflow-hidden border-border/70 p-4 sm:p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40 bg-card">
-      <div className="flex flex-col flex-1">
-        <CardHeader className="p-0 pb-3">
-          {/* Top meta tags */}
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <Badge
-                variant="secondary"
-                className="text-[10px] sm:text-xs font-medium px-2 py-0.5"
-              >
-                {getCategoryLabel(question.category)}
-              </Badge>
-              {getStatusBadge(question.status)}
-            </div>
-            <span className="text-[11px] sm:text-xs text-muted-foreground">
-              {formatDate(question.createdAt)}
+  return (
+    <Link
+      href={href as `/${string}`}
+      className="group block h-full min-w-0 rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+    >
+      <Card
+        data-community-question
+        className={`h-full gap-3 border border-transparent p-4 shadow-none transition-colors hover:border-primary/30 hover:bg-muted/20 ${compact ? "sm:flex-row sm:items-start sm:gap-5" : ""}`}
+      >
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              data-question-status={question.status}
+              className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-semibold ${solved ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : answered ? "border-primary/30 bg-primary/10 text-primary" : "border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-400"}`}
+            >
+              <StatusIcon className="size-3.5" aria-hidden="true" />
+              {t(
+                solved
+                  ? "statusResolved"
+                  : answered
+                    ? "statusAnswered"
+                    : "statusUnanswered"
+              )}
             </span>
+            <Badge
+              variant="secondary"
+              className="max-w-full rounded-md px-2 py-0.5 text-xs font-normal"
+            >
+              {t(question.category)}
+            </Badge>
           </div>
-
-          {/* Question Title */}
-          <CardTitle className="mt-2.5 line-clamp-2 text-sm sm:text-base font-bold transition-colors group-hover:text-primary leading-snug">
+          <h2
+            dir="auto"
+            className="line-clamp-2 text-base leading-snug font-semibold break-words group-hover:text-primary"
+          >
             {question.title}
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="flex flex-col flex-1 p-0 mt-1">
-          {/* Question Content Preview */}
-          <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground flex-1">
+          </h2>
+          <p
+            dir="auto"
+            className={`${compact ? "line-clamp-1" : "line-clamp-2"} text-sm leading-relaxed break-words text-muted-foreground`}
+          >
             {question.content}
           </p>
-
-          {/* Question Images */}
-          <CommunityImageGallery images={question.images} compact />
-        </CardContent>
-      </div>
-
-      <CardFooter className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t p-0 pt-3">
-        <div className="flex items-center gap-2.5">
-          <Avatar className="h-7 w-7 ring-1 ring-border">
-            <AvatarImage
-              src={question.author?.avatar || undefined}
-              alt={question.author?.name || ""}
-            />
-            <AvatarFallback className="text-[11px] font-bold bg-muted">
-              {authorInitials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-medium group-hover:text-primary transition-colors">
-              {question.author?.name || t("anonymousUser")}
-            </span>
-            {question.author?.role && question.author.role !== "participant" && (
-              <Badge
-                variant="outline"
-                className="px-1.5 py-0 text-[10px] font-semibold text-primary border-primary/30"
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-1 text-xs text-muted-foreground">
+            <Avatar className="size-5">
+              <AvatarImage src={question.author?.avatar || undefined} alt="" />
+              <AvatarFallback className="text-[9px]">{initials}</AvatarFallback>
+            </Avatar>
+            <bdi className="max-w-44 truncate">{author}</bdi>
+            {roleLabel && <span className="text-primary">{roleLabel}</span>}
+            <span aria-hidden>&middot;</span>
+            <time dateTime={question.createdAt}>
+              {new Date(question.createdAt).toLocaleDateString(locale, {
+                month: "short",
+                day: "numeric",
+              })}
+            </time>
+            {!!question.images?.length && (
+              <span
+                className="inline-flex items-center gap-1"
+                aria-label={t("attachImages")}
               >
-                {question.author.role.toUpperCase()}
-              </Badge>
+                <ImageIcon className="size-3.5" />
+                {question.images.length}
+              </span>
             )}
           </div>
         </div>
-
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1" title={`${question.viewsCount} ${t("views")}`}>
-            <Eye className="h-3.5 w-3.5 opacity-70" />
-            <span>{question.viewsCount}</span>
+        <div
+          className={`flex shrink-0 flex-wrap items-center gap-3 text-xs ${compact ? "sm:w-36 sm:flex-col sm:items-end sm:gap-2 sm:pt-1" : "border-t pt-3"}`}
+        >
+          <span className="inline-flex items-center gap-1.5 font-medium text-muted-foreground">
+            <MessageSquare className="size-3.5" />
+            {t("answerCount", { count: question.answersCount })}
           </span>
-          <span
-            className={`inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-md text-xs transition-colors ${
-              question.status === "resolved"
-                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                : question.answersCount > 0
-                ? "bg-primary/10 text-primary"
-                : "bg-muted text-muted-foreground"
-            }`}
-            title={`${question.answersCount} ${t("answers")}`}
-          >
-            <MessageSquare className="h-3.5 w-3.5" />
-            <span>{question.answersCount}</span>
+          <span className="inline-flex items-center gap-1 text-muted-foreground">
+            <Eye className="size-3.5" />
+            {question.viewsCount} {t("views")}
           </span>
         </div>
-      </CardFooter>
-    </Card>
-  )
-
-  if (href) {
-    return (
-      <Link href={href as `/${string}`} className="block h-full w-full focus:outline-none focus:ring-2 focus:ring-ring rounded-xl">
-        {cardContent}
-      </Link>
-    )
-  }
-
-  return (
-    <div
-      onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault()
-          onClick?.()
-        }
-      }}
-      className="block h-full w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring rounded-xl"
-    >
-      {cardContent}
-    </div>
+      </Card>
+    </Link>
   )
 }

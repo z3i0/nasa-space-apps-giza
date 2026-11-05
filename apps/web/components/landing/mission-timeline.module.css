@@ -51,14 +51,14 @@
 .timeline[data-phase="bootcamp"] .atmosphere {
   transform: translate(5%, -4%);
 }
-.timeline[data-phase="training"] .atmosphere {
+.timeline[data-phase="registration"] .atmosphere {
   transform: translate(-8%, -8%);
 }
 .timeline[data-phase="hackathon"] .atmosphere {
   transform: translate(-12%, 5%);
   opacity: 0.7;
 }
-.timeline[data-phase="global"] .atmosphere {
+.timeline[data-phase="deadline"] .atmosphere {
   transform: translate(-18%, -12%);
 }
 .inner {
@@ -105,13 +105,13 @@
 .connectors {
   position: absolute;
   top: 39px;
-  inset-inline: 10%;
+  inset-inline: 12.5%;
   display: flex;
   height: 40px;
   direction: ltr;
 }
 .connectors svg {
-  width: 25%;
+  width: 33.3333%;
   height: 40px;
   overflow: visible;
 }
@@ -148,7 +148,7 @@
 .checkpoints {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .checkpoints button {
   display: flex;
@@ -665,7 +665,7 @@
   }
   .solarSystem {
     top: auto;
-    bottom: calc(var(--orbit-size) / -2);
+    bottom: calc(var(--orbit-size) / -2 - 80px);
     transform: none;
   }
   .timeline:dir(rtl) .content h3 {

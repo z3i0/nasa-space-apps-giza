@@ -8,8 +8,12 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright")
 const base = process.env.MISSION_BASE_URL || "http://localhost:3000"
 const output = process.env.MISSION_SCREENSHOTS
 if (output) fs.mkdirSync(output, { recursive: true })
-const phases = ["launch", "bootcamp", "training", "hackathon", "global"]
-const numbers = ["01", "03", "04", "05", "06"]
+const phases = ["bootcamp", "registration", "deadline", "hackathon"]
+const numbers = ["01", "02", "03", "04"]
+const dates = {
+  en: ["NOVEMBER 6, 2026", "NOVEMBER 7, 2026", "NOVEMBER 10, 2026", "NOVEMBER 13–14, 2026"],
+  ar: ["6 نوفمبر 2026", "7 نوفمبر 2026", "10 نوفمبر 2026", "13–14 نوفمبر 2026"],
+}
 const browser = await chromium.launch({
   headless: true,
   ...(process.env.CHROME_PATH
@@ -29,6 +33,14 @@ try {
       await page.goto(`${base}/${locale}`, { waitUntil: "networkidle" })
       const timeline = page.locator("#timeline")
       await timeline.scrollIntoViewIfNeeded()
+      await timeline.locator("img").evaluateAll((images) =>
+        images.forEach((image) => { image.loading = "eager" })
+      )
+      await page.waitForFunction(() =>
+        [...document.querySelectorAll("#timeline img")].every(
+          (img) => img.complete && img.naturalWidth > 0
+        )
+      )
       const tabs = timeline.getByRole("tab")
       const panel = timeline.getByRole("tabpanel")
       const previous = panel.locator("footer button").first()
@@ -49,12 +61,15 @@ try {
           index
         )
         assert.equal(await previous.isDisabled(), index === 0)
-        assert.equal(await next.isDisabled(), index === 4)
+        assert.equal(await next.isDisabled(), index === phases.length - 1)
         assert((await tabs.nth(index).innerText()).includes(numbers[index]))
         assert((await panel.innerText()).includes(numbers[index]))
+        assert((await panel.innerText()).includes(dates[locale][index]))
+        if (index === phases.length - 1)
+          assert((await panel.innerText()).includes(locale === "ar" ? "جامعة زويل" : "Zewail University"))
         assert.match(
           await panel.locator("footer").innerText(),
-          new RegExp(`0${index + 1}\\s*/\\s*05`)
+          new RegExp(`0${index + 1}\\s*/\\s*04`)
         )
         assert.equal(await panel.locator("li").count(), 3)
         const geometry = await timeline.evaluate((el) => {
@@ -100,21 +115,21 @@ try {
         )
       }
       await check(0)
-      for (let index = 1; index < 5; index++) {
+      for (let index = 1; index < phases.length; index++) {
         await next.click()
         await check(index)
       }
       if (output)
         await timeline.screenshot({
-          path: path.join(output, `timeline-${locale}-${width}-global.png`),
+          path: path.join(output, `timeline-${locale}-${width}-hackathon.png`),
         })
       await tabs.nth(0).click()
       await tabs.nth(0).press(locale === "ar" ? "ArrowLeft" : "ArrowRight")
       await check(1)
       assert(await tabs.nth(1).evaluate((el) => el === document.activeElement))
       await tabs.nth(1).press("End")
-      await check(4)
-      await tabs.nth(4).press("Home")
+      await check(phases.length - 1)
+      await tabs.nth(phases.length - 1).press("Home")
       await check(0)
       await tabs.nth(2).click()
       await check(2)
@@ -159,7 +174,7 @@ try {
       }
       assert.deepEqual(errors, [])
       console.log(
-        `PASS ${locale} ${width}px: five phases, controls, keyboard, trail, geometry, reduced motion${width === 390 ? ", touch" : ""}`
+        `PASS ${locale} ${width}px: four phases, dates, controls, keyboard, trail, geometry, reduced motion${width === 390 ? ", touch" : ""}`
       )
       await page.close()
     }

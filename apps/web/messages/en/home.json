@@ -39,7 +39,7 @@
       },
       "train": {
         "title": "Train for the mission",
-        "description": "Join the bootcamp and online sessions to build your skills and explore NASA's open data."
+        "description": "Join the bootcamp to build your skills and prepare for the hackathon."
       },
       "mentors": {
         "title": "Learn from experts",
@@ -47,7 +47,7 @@
       },
       "build": {
         "title": "Build something that matters",
-        "description": "Bring it all together in a 48-hour hackathon. Turn a bold idea into a solution for our world."
+        "description": "Bring it all together at the hackathon. Turn a bold idea into a solution for our world."
       }
     },
     "openToEveryone": "ALL BACKGROUNDS. ALL DISCIPLINES.",
@@ -56,7 +56,7 @@
     "registrationTitle": "A small step for you.",
     "registrationAccent": "A giant leap for your ideas.",
     "registrationDescription": "Your curiosity belongs here. Get ready to learn, collaborate, and take on real-world challenges with the Giza community.",
-    "registrationStatus": "Registration details will be announced here.",
+    "registrationStatus": "Team registration opens November 7 and closes November 10, 2026.",
     "portal": "Open the community portal",
     "portalNote": "Already have an account? Sign in to your dashboard.",
     "footer": "Made for curious minds, here on Earth.",
@@ -82,59 +82,48 @@
       "instructions": "Choose a checkpoint, swipe the briefing, or use the arrow keys to travel.",
       "announcement": "Stop {current} of {total}. Phase {number}: {title}",
       "phases": {
-        "launch": {
-          "short": "Launch",
-          "date": "AUGUST 2026",
-          "title": "Mission Launch: Registration Opens",
-          "description": "Your mission begins here. Enlist as an individual explorer or register with your crew. Space Apps Giza welcomes university and school students, researchers, young professionals, and curious minds ready to turn bold ideas into real-world solutions.",
-          "tags": {
-            "one": "INDIVIDUAL ENLISTMENT",
-            "two": "CREW REGISTRATION",
-            "three": "OPEN TO ALL"
-          }
-        },
         "bootcamp": {
           "short": "Bootcamp",
-          "date": "MID-OCTOBER 2026",
+          "date": "NOVEMBER 6, 2026",
           "title": "Mission Training: The Bootcamp",
-          "description": "One intensive day to prepare for the journey ahead. Take part in workshops and expert sessions, explore partner booths, meet fellow innovators, and assemble your crew. Arrive solo and get ready to build with a team.",
+          "description": "Join the bootcamp to prepare for the hackathon, learn with the community, and meet other participants.",
           "tags": {
-            "one": "TECHNICAL WORKSHOPS",
-            "two": "CREW FORMATION",
-            "three": "NETWORKING"
+            "one": "BOOTCAMP",
+            "two": "PREPARATION",
+            "three": "COMMUNITY"
           }
         },
-        "training": {
-          "short": "Preparation",
-          "date": "OCTOBER–NOVEMBER 2026",
-          "title": "Flight Preparation: Weekly Online Sessions",
-          "description": "Your training continues beyond the bootcamp. Join weekly online sessions covering technical topics, working with NASA’s open data, and preparing your team for the challenges of a 48-hour build.",
+        "registration": {
+          "short": "Team registration",
+          "date": "NOVEMBER 7, 2026",
+          "title": "Team Registration Opens",
+          "description": "Form your team and complete the team registration form when it opens on November 7.",
           "tags": {
-            "one": "TECHNICAL TRAINING",
-            "two": "NASA OPEN DATA",
-            "three": "TEAM PREPARATION"
+            "one": "FORM YOUR TEAM",
+            "two": "REGISTRATION OPENS",
+            "three": "TEAM FORM"
+          }
+        },
+        "deadline": {
+          "short": "Form deadline",
+          "date": "NOVEMBER 10, 2026",
+          "title": "Team Registration Deadline",
+          "description": "Submit your team registration form by November 10 to complete this step before the hackathon.",
+          "tags": {
+            "one": "TEAM FORM",
+            "two": "SUBMISSION DEADLINE",
+            "three": "NOVEMBER 10"
           }
         },
         "hackathon": {
           "short": "Hackathon",
           "date": "NOVEMBER 13–14, 2026",
-          "title": "Mission Control: The 48-Hour Hackathon",
-          "description": "Two days to turn ideas into working solutions. Build with your crew, learn from mentors, attend workshops, and push your concept forward. The mission culminates in submissions, judging by specialists, and a closing ceremony where the winners are announced.",
+          "title": "The Hackathon at Zewail University",
+          "description": "Join the hackathon on November 13 and 14 at Zewail University. Build your project with your team and bring your ideas to life.",
           "tags": {
-            "one": "48-HOUR BUILD",
-            "two": "MENTOR SUPPORT",
-            "three": "FINAL SUBMISSION"
-          }
-        },
-        "global": {
-          "short": "Beyond Earth",
-          "date": "AFTER THE HACKATHON",
-          "title": "Beyond Earth: Global Judging",
-          "description": "For projects nominated from Cairo, the journey can continue beyond the local event to NASA’s global judging stage. Cairo teams have earned nominations more than 40 times and achieved global wins in 2024 and 2025.",
-          "tags": {
-            "one": "GLOBAL NOMINATIONS",
-            "two": "NASA JUDGING",
-            "three": "GLOBAL RECOGNITION"
+            "one": "NOVEMBER 13–14",
+            "two": "ZEWAIL UNIVERSITY",
+            "three": "TEAM PROJECTS"
           }
         }
       }

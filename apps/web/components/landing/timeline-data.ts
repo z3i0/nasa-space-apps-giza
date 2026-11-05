@@ -1,10 +1,8 @@
-// Phase numbers come from the event brief; the missing 02 is intentional.
 export const timelinePhases = [
-  { key: "launch", number: "01", accent: "#b9a8f5" },
-  { key: "bootcamp", number: "03", accent: "#a6bcff" },
-  { key: "training", number: "04", accent: "#8ec8ff" },
-  { key: "hackathon", number: "05", accent: "#c2b0ff" },
-  { key: "global", number: "06", accent: "#9bdad8" },
+  { key: "bootcamp", number: "01", accent: "#a6bcff" },
+  { key: "registration", number: "02", accent: "#b9a8f5" },
+  { key: "deadline", number: "03", accent: "#8ec8ff" },
+  { key: "hackathon", number: "04", accent: "#c2b0ff" },
 ] as const
 
 export const timelinePlanets = [

@@ -5,33 +5,23 @@ import { useLocale, useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/routing"
 import {
   MessagesSquare,
-  Search,
   Plus,
   CheckCircle2,
   Clock,
-  Sparkles,
   HelpCircle,
-  X,
   RotateCcw,
   MessageSquare,
-  Filter,
-  LayoutGrid,
-  List,
+  X,
 } from "lucide-react"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  CommunitySearch,
+  CommunitySelect,
+  CommunityViewToggle,
+} from "./community-controls"
 import {
   fetchCommunityQuestions,
   fetchCommunityStats,
@@ -42,9 +32,7 @@ import {
 } from "@/lib/community"
 import { QuestionCard } from "./question-card"
 import { QuestionThread } from "./question-thread"
-import { AskQuestionModal } from "./ask-question-modal"
 import { PostCard } from "./post-card"
-import { CreatePostModal } from "./create-post-modal"
 import { useAuthUser } from "@/lib/auth"
 
 export function CommunityHub({
@@ -60,13 +48,13 @@ export function CommunityHub({
 
   const isOrganizer = Boolean(
     basePath.includes("/dashboard/organizer") ||
-      (currentUser &&
-        (currentUser.role === "organizer" ||
-          currentUser.role === "admin" ||
-          currentUser.role === "competition" ||
-          currentUser.roles?.includes("organizer") ||
-          currentUser.roles?.includes("competition") ||
-          currentUser.roles?.includes("admin")))
+    (currentUser &&
+      (currentUser.role === "organizer" ||
+        currentUser.role === "admin" ||
+        currentUser.role === "competition" ||
+        currentUser.roles?.includes("organizer") ||
+        currentUser.roles?.includes("competition") ||
+        currentUser.roles?.includes("admin")))
   )
 
   // Top-Level Active Tab: "feed" or "qa" (initialized to "feed" for SSR consistency)
@@ -81,10 +69,12 @@ export function CommunityHub({
   const [debouncedQuestionSearch, setDebouncedQuestionSearch] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
-  const [selectedQuestionSort, setSelectedQuestionSort] = useState<string>("newest")
+  const [selectedQuestionSort, setSelectedQuestionSort] =
+    useState<string>("newest")
   const [questionPage, setQuestionPage] = useState(1)
   const [questionTotalPages, setQuestionTotalPages] = useState(1)
-  const [isAskModalOpen, setIsAskModalOpen] = useState(false)
+  const [questionTotal, setQuestionTotal] = useState(0)
+  const [questionRetry, setQuestionRetry] = useState(0)
 
   // Feed / Posts States
   const [posts, setPosts] = useState<CommunityPost[]>([])
@@ -96,14 +86,18 @@ export function CommunityHub({
   const [selectedPostSort, setSelectedPostSort] = useState<string>("newest")
   const [postPage, setPostPage] = useState(1)
   const [postTotalPages, setPostTotalPages] = useState(1)
-  const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false)
+  const [postTotal, setPostTotal] = useState(0)
+  const [postRetry, setPostRetry] = useState(0)
+  const [knownTags, setKnownTags] = useState<string[]>([])
 
-  // View modes: default to "grid" for beautiful desktop layout
+  // Both feeds start in grid view; users can switch to a list.
   const [feedViewMode, setFeedViewMode] = useState<"grid" | "list">("grid")
   const [qaViewMode, setQaViewMode] = useState<"grid" | "list">("grid")
 
   // Deep-linked Question ID (backward compatibility)
-  const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null)
+  const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(
+    null
+  )
 
   // Synchronize tab and questionId from URL on client mount (prevents SSR hydration error)
   useEffect(() => {
@@ -121,8 +115,9 @@ export function CommunityHub({
 
   const handleBackFromThread = () => {
     setSelectedQuestionId(null)
+    setActiveTab("qa")
     if (typeof window !== "undefined" && window.location.search) {
-      window.history.replaceState({}, "", window.location.pathname)
+      window.history.replaceState({}, "", `${window.location.pathname}?tab=qa`)
     }
   }
 
@@ -157,6 +152,8 @@ export function CommunityHub({
   // Fetch Q&A Questions
   useEffect(() => {
     if (activeTab !== "qa") return
+    setLoadingQuestions(true)
+    setQuestionError("")
     let ignore = false
     const abortController = new AbortController()
 
@@ -178,6 +175,7 @@ export function CommunityHub({
         if (!ignore) {
           setQuestions(listRes.items || [])
           setQuestionTotalPages(listRes.totalPages || 1)
+          setQuestionTotal(listRes.total || 0)
           if (statsRes) setStats(statsRes)
           setQuestionError("")
           setLoadingQuestions(false)
@@ -201,12 +199,16 @@ export function CommunityHub({
     debouncedQuestionSearch,
     selectedQuestionSort,
     questionPage,
+    questionRetry,
+    isOrganizer,
     t,
   ])
 
   // Fetch Feed Posts
   useEffect(() => {
     if (activeTab !== "feed") return
+    setLoadingPosts(true)
+    setPostError("")
     let ignore = false
     const abortController = new AbortController()
 
@@ -222,6 +224,15 @@ export function CommunityHub({
         if (!ignore) {
           setPosts(res.items || [])
           setPostTotalPages(res.totalPages || 1)
+          setPostTotal(res.total || 0)
+          setKnownTags((previous) =>
+            Array.from(
+              new Set([
+                ...previous,
+                ...res.items.flatMap((post) => post.tags || []),
+              ])
+            ).sort()
+          )
           setPostError("")
           setLoadingPosts(false)
         }
@@ -243,21 +254,9 @@ export function CommunityHub({
     debouncedPostSearch,
     selectedPostSort,
     postPage,
+    postRetry,
     t,
   ])
-
-  const handleQuestionCreated = (newQuestion: CommunityQuestion) => {
-    router.push(`${basePath}/${newQuestion.id}` as `/${string}`)
-  }
-
-  const handlePostCreated = (newPost: CommunityPost) => {
-    router.push(`${basePath}/posts/${newPost.id}` as `/${string}`)
-  }
-
-  // All distinct tags collected from loaded posts
-  const availableTags = Array.from(
-    new Set(posts.flatMap((p) => p.tags || []))
-  ).slice(0, 8)
 
   const categories = [
     { id: "all", label: t("allCategories") },
@@ -288,35 +287,61 @@ export function CommunityHub({
     { id: "oldest", label: t("oldest") },
   ]
 
+  const isQa = activeTab === "qa"
+  const loading = isQa ? loadingQuestions : loadingPosts
+  const error = isQa ? questionError : postError
+  const total = isQa ? questionTotal : postTotal
+  const page = isQa ? questionPage : postPage
+  const totalPages = isQa ? questionTotalPages : postTotalPages
+  const view = isQa ? qaViewMode : feedViewMode
+  const hasFilters = isQa
+    ? Boolean(
+        questionSearch ||
+        selectedCategory !== "all" ||
+        selectedStatus !== "all" ||
+        selectedQuestionSort !== "newest"
+      )
+    : Boolean(
+        postSearch || selectedTag !== "all" || selectedPostSort !== "newest"
+      )
+  const resetFilters = () => {
+    if (isQa) {
+      setQuestionSearch("")
+      setDebouncedQuestionSearch("")
+      setSelectedCategory("all")
+      setSelectedStatus("all")
+      setSelectedQuestionSort("newest")
+      setQuestionPage(1)
+    } else {
+      setPostSearch("")
+      setDebouncedPostSearch("")
+      setSelectedTag("all")
+      setSelectedPostSort("newest")
+      setPostPage(1)
+    }
+  }
+  const createContent = () =>
+    router.push(`${basePath}/${isQa ? "new" : "posts/new"}` as `/${string}`)
+  const layout =
+    view === "grid"
+      ? isQa
+        ? "grid grid-cols-1 gap-3 md:grid-cols-2"
+        : "grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
+      : "flex flex-col gap-3"
+
   return (
-    <div className="w-full space-y-6">
-      {/* Page Header */}
+    <div className="w-full min-w-0 space-y-4">
       <PageHeader
         title={t("title")}
         subtitle={t("subtitle")}
         icon={MessagesSquare}
         actions={
-          activeTab === "feed" ? (
-            <Button
-              onClick={() => router.push(`${basePath}/posts/new` as `/${string}`)}
-              className="font-bold"
-            >
-              <Plus className="mr-1.5 h-4 w-4" />
-              {t("createPost")}
-            </Button>
-          ) : (
-            <Button
-              onClick={() => router.push(`${basePath}/new` as `/${string}`)}
-              className="font-bold"
-            >
-              <Plus className="mr-1.5 h-4 w-4" />
-              {t("askQuestion")}
-            </Button>
-          )
+          <Button onClick={createContent} size="sm">
+            <Plus className="size-4" />
+            {t(isQa ? "askQuestion" : "createPost")}
+          </Button>
         }
       />
-
-      {/* If opened via deep-link questionId parameter */}
       {selectedQuestionId ? (
         <QuestionThread
           questionId={selectedQuestionId}
@@ -327,594 +352,301 @@ export function CommunityHub({
         />
       ) : (
         <>
-          {/* Main Navigation Tabs */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b pb-4">
-            <div className="flex rounded-lg bg-muted p-1">
-              <Button
-                type="button"
-                variant={activeTab === "feed" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => handleTabChange("feed")}
-                className="gap-2 text-xs sm:text-sm font-semibold"
-              >
-                <MessageSquare className="h-4 w-4" />
-                <span>{t("tabFeed")}</span>
-              </Button>
-
-              <Button
-                type="button"
-                variant={activeTab === "qa" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => handleTabChange("qa")}
-                className="gap-2 text-xs sm:text-sm font-semibold"
-              >
-                <HelpCircle className="h-4 w-4" />
-                <span>{t("tabQa")}</span>
-              </Button>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
+            <div
+              role="group"
+              aria-label={t("browseCommunity")}
+              className="inline-flex gap-1 rounded-lg bg-muted p-1"
+            >
+              {(["feed", "qa"] as const).map((tab) => {
+                const Icon = tab === "feed" ? MessageSquare : HelpCircle
+                return (
+                  <Button
+                    key={tab}
+                    size="sm"
+                    variant="ghost"
+                    aria-pressed={activeTab === tab}
+                    onClick={() => handleTabChange(tab)}
+                    className={
+                      activeTab === tab
+                        ? "bg-background text-primary shadow-sm"
+                        : "text-muted-foreground"
+                    }
+                  >
+                    <Icon className="size-4" />
+                    {t(tab === "feed" ? "tabFeed" : "tabQa")}
+                  </Button>
+                )
+              })}
             </div>
-
             <p className="text-xs text-muted-foreground">
-              {activeTab === "feed" ? t("tabFeedDesc") : t("tabQaDesc")}
+              {t(isQa ? "tabQaDesc" : "tabFeedDesc")}
             </p>
           </div>
 
-          {/* ============================================================= */}
-          {/* TAB 1: COMMUNITY FEED                                         */}
-          {/* ============================================================= */}
-          {activeTab === "feed" && (
-            <div className="w-full space-y-6">
-              {/* Feed Search & Controls Bar using ShadCN Card */}
-              <Card className="w-full p-4 sm:p-5 space-y-3">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-3.5" />
-                    <Input
-                      type="text"
-                      value={postSearch}
-                      onChange={(e) => setPostSearch(e.target.value)}
-                      placeholder={t("searchPostsPlaceholder")}
-                      className="pl-10 pr-9 text-xs sm:text-sm rtl:pl-9 rtl:pr-10"
-                    />
-                    {postSearch && (
-                      <button
-                        onClick={() => setPostSearch("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground rtl:left-3 rtl:right-auto"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Sort Dropdown & View Mode Switcher */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      {t("sortBy")}:
-                    </span>
-                    <Select
-                      value={selectedPostSort}
-                      onValueChange={(val) => {
-                        if (val) {
-                          setSelectedPostSort(val)
-                          setPostPage(1)
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="w-[140px] text-xs">
-                        <SelectValue>
-                          {(val) =>
-                            postSortOptions.find((opt) => opt.id === val)?.label ??
-                            val
-                          }
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {postSortOptions.map((opt) => (
-                            <SelectItem key={opt.id} value={opt.id}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-
-                    {/* View Mode Switcher (Grid / List) */}
-                    <div className="flex items-center rounded-lg border bg-muted/30 p-0.5">
-                      <button
-                        type="button"
-                        onClick={() => setFeedViewMode("grid")}
-                        className={`rounded-md p-1.5 transition-colors ${
-                          feedViewMode === "grid"
-                            ? "bg-background text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                        title={t("gridView")}
-                        aria-label={t("gridView")}
-                      >
-                        <LayoutGrid className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setFeedViewMode("list")}
-                        className={`rounded-md p-1.5 transition-colors ${
-                          feedViewMode === "list"
-                            ? "bg-background text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                        title={t("listView")}
-                        aria-label={t("listView")}
-                      >
-                        <List className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tags Filter Chips using ShadCN Badge */}
-                {availableTags.length > 0 && (
-                  <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t">
-                    <span className="text-xs text-muted-foreground mr-1 flex items-center gap-1">
-                      <Filter className="h-3 w-3" />
-                      {t("filterByTag")}:
-                    </span>
-                    <Badge
-                      variant={selectedTag === "all" ? "default" : "secondary"}
-                      onClick={() => setSelectedTag("all")}
-                      className="cursor-pointer px-2.5 py-1 text-xs font-semibold"
-                    >
-                      {t("allTags")}
-                    </Badge>
-                    {availableTags.map((tag) => (
-                      <Badge
-                        key={tag}
-                        variant={selectedTag === tag ? "default" : "secondary"}
-                        onClick={() => setSelectedTag(tag)}
-                        className="cursor-pointer px-2.5 py-1 text-xs font-medium"
-                      >
-                        #{tag}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </Card>
-
-              {/* Feed Content: Loading, Error, Empty, or List */}
-              {loadingPosts ? (
-                feedViewMode === "grid" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
-                    {[...Array(6)].map((_, i) => (
-                      <Card
-                        key={i}
-                        className="p-5 space-y-3 h-[240px] flex flex-col justify-between"
-                      >
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-3">
-                            <Skeleton className="h-10 w-10 rounded-full" />
-                            <div className="space-y-1.5">
-                              <Skeleton className="h-3.5 w-28" />
-                              <Skeleton className="h-3 w-16" />
-                            </div>
-                          </div>
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-16 w-full" />
-                        </div>
-                        <Skeleton className="h-8 w-1/3" />
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="w-full space-y-4 max-w-4xl mx-auto">
-                    {[...Array(4)].map((_, i) => (
-                      <Card
-                        key={i}
-                        className="w-full p-5 space-y-3"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Skeleton className="h-10 w-10 rounded-full" />
-                          <div className="space-y-1.5">
-                            <Skeleton className="h-3.5 w-32" />
-                            <Skeleton className="h-3 w-20" />
-                          </div>
-                        </div>
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-12 w-full" />
-                      </Card>
-                    ))}
-                  </div>
-                )
-              ) : postError ? (
-                <Card className="w-full border-destructive/30 bg-destructive/5 p-8 text-center">
-                  <p className="text-sm font-semibold text-destructive">{postError}</p>
-                  <Button
-                    onClick={() => setPostPage(1)}
-                    variant="outline"
-                    size="sm"
-                    className="mt-4"
-                  >
-                    <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
-                    {t("retry")}
-                  </Button>
-                </Card>
-              ) : posts.length === 0 ? (
-                <Card className="w-full border-dashed p-12 text-center">
-                  <Sparkles className="mx-auto h-8 w-8 text-muted-foreground opacity-50 mb-3" />
-                  <h3 className="text-base font-bold">
-                    {t("emptyPostsTitle")}
-                  </h3>
-                  <p className="mt-1 text-xs text-muted-foreground max-w-md mx-auto">
-                    {t("emptyPostsDesc")}
-                  </p>
-                  <Button
-                    onClick={() => router.push(`${basePath}/posts/new` as `/${string}`)}
-                    size="sm"
-                    className="mt-5 font-bold"
-                  >
-                    <Plus className="mr-1.5 h-3.5 w-3.5" />
-                    {t("createPost")}
-                  </Button>
-                </Card>
-              ) : (
-                <div
-                  className={
-                    feedViewMode === "grid"
-                      ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 items-stretch"
-                      : "w-full space-y-4 max-w-4xl mx-auto"
-                  }
+          {isQa && isOrganizer && (
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {[
+                {
+                  label: t("totalQuestions"),
+                  value: stats?.totalQuestions,
+                  Icon: HelpCircle,
+                  color: "text-primary",
+                },
+                {
+                  label: t("resolvedQuestions"),
+                  value: stats?.resolvedCount,
+                  Icon: CheckCircle2,
+                  color: "text-emerald-600 dark:text-emerald-400",
+                },
+                {
+                  label: t("unansweredQuestions"),
+                  value: stats?.unansweredCount,
+                  Icon: Clock,
+                  color: "text-amber-600 dark:text-amber-400",
+                },
+                {
+                  label: t("totalAnswers"),
+                  value: stats?.totalAnswers,
+                  Icon: MessageSquare,
+                  color: "text-primary",
+                },
+              ].map(({ label, value, Icon, color }) => (
+                <Card
+                  key={label}
+                  className="flex-row items-center gap-3 p-3 shadow-none"
                 >
-                  {posts.map((post) => (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      href={`${basePath}/posts/${post.id}`}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Feed Pagination using ShadCN Button */}
-              {postTotalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={postPage <= 1}
-                    onClick={() => setPostPage((p) => Math.max(1, p - 1))}
-                  >
-                    {isRtl ? "التالي" : "Previous"}
-                  </Button>
-                  <span className="text-xs text-muted-foreground px-3">
-                    {postPage} / {postTotalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={postPage >= postTotalPages}
-                    onClick={() => setPostPage((p) => p + 1)}
-                  >
-                    {isRtl ? "السابق" : "Next"}
-                  </Button>
-                </div>
-              )}
+                  <Icon className={`size-4 shrink-0 ${color}`} />
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">{label}</p>
+                    <p className="text-lg font-semibold tabular-nums">
+                      {value ?? "--"}
+                    </p>
+                  </div>
+                </Card>
+              ))}
             </div>
           )}
 
-          {/* ============================================================= */}
-          {/* TAB 2: Q&A HUB                                                */}
-          {/* ============================================================= */}
-          {activeTab === "qa" && (
-            <div className="w-full space-y-6">
-              {/* Quick Stats Grid using ShadCN Card (Only visible to organizers) */}
-              {isOrganizer && (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-                  <Card className="p-4">
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span className="text-xs font-medium">{t("totalQuestions")}</span>
-                      <HelpCircle className="h-4 w-4 text-primary" />
-                    </div>
-                    <p className="mt-2 text-2xl font-bold">
-                      {stats?.totalQuestions ?? "--"}
-                    </p>
-                  </Card>
-
-                  <Card className="p-4">
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span className="text-xs font-medium">{t("resolvedQuestions")}</span>
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                    </div>
-                    <p className="mt-2 text-2xl font-bold text-emerald-500">
-                      {stats?.resolvedCount ?? "--"}
-                    </p>
-                  </Card>
-
-                  <Card className="p-4">
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span className="text-xs font-medium">{t("unansweredQuestions")}</span>
-                      <Clock className="h-4 w-4 text-amber-500" />
-                    </div>
-                    <p className="mt-2 text-2xl font-bold text-amber-500">
-                      {stats?.unansweredCount ?? "--"}
-                    </p>
-                  </Card>
-
-                  <Card className="p-4">
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span className="text-xs font-medium">{t("totalAnswers")}</span>
-                      <Sparkles className="h-4 w-4 text-primary" />
-                    </div>
-                    <p className="mt-2 text-2xl font-bold text-primary">
-                      {stats?.totalAnswers ?? "--"}
-                    </p>
-                  </Card>
-                </div>
-              )}
-
-              {/* Filters and Search Bar using ShadCN Card */}
-              <Card className="w-full p-4 sm:p-5">
-                <div className="space-y-4">
-                  {/* Search Bar */}
-                  <div className="relative">
-                    <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-3.5" />
-                    <Input
-                      type="text"
-                      value={questionSearch}
-                      onChange={(e) => setQuestionSearch(e.target.value)}
-                      placeholder={t("searchPlaceholder")}
-                      className="pl-10 pr-9 text-xs sm:text-sm rtl:pl-9 rtl:pr-10"
-                    />
-                    {questionSearch && (
-                      <button
-                        onClick={() => setQuestionSearch("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground rtl:left-3 rtl:right-auto"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Filter Pills and Sort using ShadCN Select */}
-                  <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                    {/* Category Tabs using ShadCN Badge */}
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {categories.map((cat) => (
-                        <Badge
-                          key={cat.id}
-                          variant={selectedCategory === cat.id ? "default" : "secondary"}
-                          onClick={() => {
-                            setSelectedCategory(cat.id)
-                            setQuestionPage(1)
-                          }}
-                          className="cursor-pointer px-3 py-1.5 text-xs font-semibold"
-                        >
-                          {cat.label}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      {/* Status Selector using ShadCN Select */}
-                      <Select
-                        value={selectedStatus}
-                        onValueChange={(val) => {
-                          if (val) {
-                            setSelectedStatus(val)
-                            setQuestionPage(1)
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="w-[130px] text-xs">
-                          <SelectValue>
-                            {(val) =>
-                              statuses.find((st) => st.id === val)?.label ?? val
-                            }
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {statuses.map((st) => (
-                              <SelectItem key={st.id} value={st.id}>
-                                {st.label}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-
-                      {/* Sort Selector using ShadCN Select */}
-                      <Select
-                        value={selectedQuestionSort}
-                        onValueChange={(val) => {
-                          if (val) {
-                            setSelectedQuestionSort(val)
-                            setQuestionPage(1)
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="w-[140px] text-xs">
-                          <SelectValue>
-                            {(val) =>
-                              questionSortOptions.find((opt) => opt.id === val)
-                                ?.label ?? val
-                            }
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {questionSortOptions.map((opt) => (
-                              <SelectItem key={opt.id} value={opt.id}>
-                                {opt.label}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-
-                      {/* View Mode Switcher (Grid / List) */}
-                      <div className="flex items-center rounded-lg border bg-muted/30 p-0.5">
-                        <button
-                          type="button"
-                          onClick={() => setQaViewMode("grid")}
-                          className={`rounded-md p-1.5 transition-colors ${
-                            qaViewMode === "grid"
-                              ? "bg-background text-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground"
-                          }`}
-                          title={t("gridView")}
-                          aria-label={t("gridView")}
-                        >
-                          <LayoutGrid className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setQaViewMode("list")}
-                          className={`rounded-md p-1.5 transition-colors ${
-                            qaViewMode === "list"
-                              ? "bg-background text-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground"
-                          }`}
-                          title={t("listView")}
-                          aria-label={t("listView")}
-                        >
-                          <List className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Questions List */}
-              {loadingQuestions ? (
-                qaViewMode === "grid" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
-                    {[...Array(6)].map((_, i) => (
-                      <Card
-                        key={i}
-                        className="p-5 space-y-3 h-[220px] flex flex-col justify-between"
-                      >
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <Skeleton className="h-5 w-20" />
-                            <Skeleton className="h-3 w-16" />
-                          </div>
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-12 w-full" />
-                        </div>
-                        <div className="flex items-center justify-between pt-2 border-t">
-                          <Skeleton className="h-6 w-24" />
-                          <Skeleton className="h-5 w-16" />
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="w-full space-y-3 max-w-4xl mx-auto">
-                    {[...Array(5)].map((_, i) => (
-                      <Card
-                        key={i}
-                        className="w-full p-5 space-y-3"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Skeleton className="h-8 w-8 rounded-full" />
-                          <Skeleton className="h-4 w-32" />
-                        </div>
-                        <Skeleton className="h-5 w-2/3" />
-                        <Skeleton className="h-10 w-full" />
-                      </Card>
-                    ))}
-                  </div>
-                )
-              ) : questionError ? (
-                <Card className="w-full border-destructive/30 bg-destructive/5 p-8 text-center">
-                  <p className="text-sm font-semibold text-destructive">{questionError}</p>
-                  <Button
-                    onClick={() => setQuestionPage(1)}
-                    variant="outline"
-                    size="sm"
-                    className="mt-4"
-                  >
-                    <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
-                    {t("retry")}
-                  </Button>
-                </Card>
-              ) : questions.length === 0 ? (
-                <Card className="w-full border-dashed p-12 text-center">
-                  <HelpCircle className="mx-auto h-8 w-8 text-muted-foreground opacity-50 mb-3" />
-                  <h3 className="text-base font-bold">
-                    {t("emptyTitle")}
-                  </h3>
-                  <p className="mt-1 text-xs text-muted-foreground max-w-md mx-auto">
-                    {t("emptyDesc")}
-                  </p>
-                  <Button
-                    onClick={() => router.push(`${basePath}/new` as `/${string}`)}
-                    size="sm"
-                    className="mt-5 font-semibold"
-                  >
-                    <Plus className="mr-1.5 h-3.5 w-3.5" />
-                    {t("askQuestion")}
-                  </Button>
-                </Card>
+          <Card className="gap-3 p-3 shadow-none sm:p-4">
+            <div className="flex items-center gap-2">
+              <CommunitySearch
+                value={isQa ? questionSearch : postSearch}
+                onChange={isQa ? setQuestionSearch : setPostSearch}
+                placeholder={t(
+                  isQa ? "searchPlaceholder" : "searchPostsPlaceholder"
+                )}
+              />
+              <CommunityViewToggle
+                value={view}
+                onChange={isQa ? setQaViewMode : setFeedViewMode}
+              />
+            </div>
+            <div
+              className={`grid items-end gap-3 ${isQa ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2"}`}
+            >
+              {isQa ? (
+                <>
+                  <CommunitySelect
+                    label={t("fieldCategory")}
+                    value={selectedCategory}
+                    options={categories}
+                    onChange={(value) => {
+                      setSelectedCategory(value)
+                      setQuestionPage(1)
+                    }}
+                  />
+                  <CommunitySelect
+                    label={t("answerStatus")}
+                    value={selectedStatus}
+                    options={statuses}
+                    onChange={(value) => {
+                      setSelectedStatus(value)
+                      setQuestionPage(1)
+                    }}
+                  />
+                </>
               ) : (
-                <div
-                  className={
-                    qaViewMode === "grid"
-                      ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 items-stretch"
-                      : "w-full space-y-3 max-w-4xl mx-auto"
+                <CommunitySelect
+                  label={t("filterByTag")}
+                  value={selectedTag}
+                  options={[
+                    { id: "all", label: t("allTags") },
+                    ...Array.from(
+                      new Set([
+                        ...knownTags,
+                        ...(selectedTag === "all" ? [] : [selectedTag]),
+                      ])
+                    ).map((tag) => ({ id: tag, label: `#${tag}` })),
+                  ]}
+                  onChange={(value) => {
+                    setSelectedTag(value)
+                    setPostPage(1)
+                  }}
+                />
+              )}
+              <CommunitySelect
+                label={t("sortBy")}
+                value={isQa ? selectedQuestionSort : selectedPostSort}
+                options={isQa ? questionSortOptions : postSortOptions}
+                onChange={(value) => {
+                  if (isQa) {
+                    setSelectedQuestionSort(value)
+                    setQuestionPage(1)
+                  } else {
+                    setSelectedPostSort(value)
+                    setPostPage(1)
+                  }
+                }}
+              />
+            </div>
+            {isQa && (
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {t("statusGuide")}
+              </p>
+            )}
+          </Card>
+
+          <div className="flex min-h-8 flex-wrap items-center justify-between gap-2">
+            <p
+              role="status"
+              aria-live="polite"
+              className="text-xs text-muted-foreground"
+            >
+              {loading
+                ? t("loading")
+                : error
+                  ? t("resultsUnavailable")
+                  : t(isQa ? "questionResults" : "postResults", {
+                      count: total,
+                    })}
+            </p>
+            {hasFilters && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={resetFilters}
+                className="h-8 text-xs"
+              >
+                <X className="size-3.5" />
+                {t("clearFilters")}
+              </Button>
+            )}
+          </div>
+
+          <div aria-busy={loading}>
+            {loading ? (
+              <div className={layout}>
+                {Array.from({ length: 4 }, (_, index) => (
+                  <Card key={index} className="gap-3 p-4">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </Card>
+                ))}
+              </div>
+            ) : error ? (
+              <Card className="items-center gap-3 p-8 text-center">
+                <p role="alert" className="text-sm text-destructive">
+                  {error}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    isQa
+                      ? setQuestionRetry((value) => value + 1)
+                      : setPostRetry((value) => value + 1)
                   }
                 >
-                  {questions.map((q) => (
-                    <QuestionCard
-                      key={q.id}
-                      question={q}
-                      href={`${basePath}/${q.id}`}
-                    />
-                  ))}
-                </div>
-              )}
+                  <RotateCcw className="size-4" />
+                  {t("retry")}
+                </Button>
+              </Card>
+            ) : total === 0 ? (
+              <Card className="items-center gap-2 border border-dashed p-8 text-center shadow-none">
+                <HelpCircle className="mb-1 size-6 text-muted-foreground" />
+                <h2 className="font-semibold">
+                  {t(isQa ? "emptyTitle" : "emptyPostsTitle")}
+                </h2>
+                <p className="max-w-md text-sm text-muted-foreground">
+                  {t(
+                    hasFilters
+                      ? "emptyFiltered"
+                      : isQa
+                        ? "emptyDesc"
+                        : "emptyPostsDesc"
+                  )}
+                </p>
+                <Button
+                  size="sm"
+                  variant={hasFilters ? "outline" : "default"}
+                  onClick={hasFilters ? resetFilters : createContent}
+                  className="mt-2"
+                >
+                  {t(
+                    hasFilters
+                      ? "clearFilters"
+                      : isQa
+                        ? "askQuestion"
+                        : "createPost"
+                  )}
+                </Button>
+              </Card>
+            ) : (
+              <div className={layout}>
+                {isQa
+                  ? questions.map((question) => (
+                      <QuestionCard
+                        key={question.id}
+                        question={question}
+                        href={`${basePath}/${question.id}`}
+                        compact={view === "list"}
+                      />
+                    ))
+                  : posts.map((post) => (
+                      <PostCard
+                        key={post.id}
+                        post={post}
+                        href={`${basePath}/posts/${post.id}`}
+                      />
+                    ))}
+              </div>
+            )}
+          </div>
 
-              {/* Questions Pagination */}
-              {questionTotalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={questionPage <= 1}
-                    onClick={() => setQuestionPage((p) => Math.max(1, p - 1))}
-                  >
-                    {isRtl ? "التالي" : "Previous"}
-                  </Button>
-                  <span className="text-xs text-muted-foreground px-3">
-                    {questionPage} / {questionTotalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={questionPage >= questionTotalPages}
-                    onClick={() => setQuestionPage((p) => p + 1)}
-                  >
-                    {isRtl ? "السابق" : "Next"}
-                  </Button>
-                </div>
-              )}
-            </div>
+          {totalPages > 1 && !error && (
+            <nav
+              aria-label={t("pagination")}
+              className="flex items-center justify-center gap-3 pt-2"
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={loading || page <= 1}
+                onClick={() =>
+                  isQa ? setQuestionPage(page - 1) : setPostPage(page - 1)
+                }
+              >
+                {t("previous")}
+              </Button>
+              <span className="text-xs text-muted-foreground">
+                {t("pageOf", { page, total: totalPages })}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={loading || page >= totalPages}
+                onClick={() =>
+                  isQa ? setQuestionPage(page + 1) : setPostPage(page + 1)
+                }
+              >
+                {t("next")}
+              </Button>
+            </nav>
           )}
         </>
       )}
-
-      {/* Modal: Ask Question */}
-      <AskQuestionModal
-        open={isAskModalOpen}
-        onOpenChange={setIsAskModalOpen}
-        onQuestionCreated={handleQuestionCreated}
-      />
-
-      {/* Modal: Create Post */}
-      <CreatePostModal
-        open={isCreatePostModalOpen}
-        onOpenChange={setIsCreatePostModalOpen}
-        onPostCreated={handlePostCreated}
-        canPin={isOrganizer}
-      />
     </div>
   )
 }

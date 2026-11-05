@@ -18,12 +18,7 @@ import {
   Reply,
   Edit3,
 } from "lucide-react"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -107,7 +102,10 @@ export function QuestionThread({
 
     try {
       setSubmittingAnswer(true)
-      const newAnswer = await createCommunityAnswer(question.id, answerDraft.trim())
+      const newAnswer = await createCommunityAnswer(
+        question.id,
+        answerDraft.trim()
+      )
       setQuestion((prev) => {
         if (!prev) return prev
         const existingAnswers = prev.answers || []
@@ -288,6 +286,14 @@ export function QuestionThread({
     }
   }
 
+  const roleLabel = (role: string) => {
+    if (role === "organizer" || role === "admin") return t("roleOrganizer")
+    if (role === "competition") return t("roleCoordinator")
+    if (role === "mentor") return t("roleMentor")
+    if (role === "judge") return t("roleJudge")
+    return t("roleParticipant")
+  }
+
   const BackIcon = isRtl ? ArrowRight : ArrowLeft
 
   if (loading) {
@@ -307,8 +313,12 @@ export function QuestionThread({
         </p>
         {baseRoute ? (
           <Link
-            href={baseRoute as `/${string}`}
-            className={buttonVariants({ variant: "outline", size: "sm", className: "mt-4" })}
+            href={`${baseRoute}?tab=qa` as `/${string}`}
+            className={buttonVariants({
+              variant: "outline",
+              size: "sm",
+              className: "mt-4",
+            })}
           >
             <BackIcon className="h-4 w-4" />
             <span>{t("backToQuestions")}</span>
@@ -326,12 +336,12 @@ export function QuestionThread({
   const isQuestionAuthor = currentUser?.id === question.authorId
   const isOrganizer = Boolean(
     currentUser &&
-      (currentUser.role === "organizer" ||
-        currentUser.role === "admin" ||
-        currentUser.role === "competition" ||
-        currentUser.roles?.includes("organizer") ||
-        currentUser.roles?.includes("competition") ||
-        currentUser.roles?.includes("admin"))
+    (currentUser.role === "organizer" ||
+      currentUser.role === "admin" ||
+      currentUser.role === "competition" ||
+      currentUser.roles?.includes("organizer") ||
+      currentUser.roles?.includes("competition") ||
+      currentUser.roles?.includes("admin"))
   )
 
   const authorInitials = (question.author?.name || "U")
@@ -341,15 +351,17 @@ export function QuestionThread({
     .slice(0, 2)
     .toUpperCase()
 
-  const answers = question.answers || []
+  const answers = [...(question.answers || [])].sort(
+    (a, b) => Number(b.isAccepted) - Number(a.isAccepted)
+  )
 
   return (
-    <div className="w-full space-y-6">
+    <div className="mx-auto w-full max-w-4xl space-y-4">
       {/* Back button */}
       <div className="flex w-full items-center justify-between">
         {baseRoute ? (
           <Link
-            href={baseRoute as `/${string}`}
+            href={`${baseRoute}?tab=qa` as `/${string}`}
             className={buttonVariants({
               variant: "ghost",
               size: "sm",
@@ -374,8 +386,8 @@ export function QuestionThread({
       </div>
 
       {/* Main Question Card using ShadCN Card */}
-      <Card className="w-full">
-        <CardHeader className="flex flex-col gap-4 pb-2">
+      <Card className="w-full gap-3 [--card-spacing:--spacing(4)]">
+        <CardHeader className="flex flex-col gap-3 pb-0">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary">
@@ -383,17 +395,26 @@ export function QuestionThread({
               </Badge>
 
               {question.status === "resolved" ? (
-                <Badge variant="default" className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Badge
+                  variant="default"
+                  className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700"
+                >
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   <span>{t("statusResolved")}</span>
                 </Badge>
               ) : question.status === "answered" ? (
-                <Badge variant="outline" className="gap-1.5 text-primary border-primary/40">
+                <Badge
+                  variant="outline"
+                  className="gap-1.5 border-primary/40 text-primary"
+                >
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>{t("statusAnswered")}</span>
                 </Badge>
               ) : (
-                <Badge variant="outline" className="gap-1.5 text-amber-500 border-amber-500/40">
+                <Badge
+                  variant="outline"
+                  className="gap-1.5 border-amber-500/40 text-amber-500"
+                >
                   <Clock className="h-3.5 w-3.5" />
                   <span>{t("statusUnanswered")}</span>
                 </Badge>
@@ -423,7 +444,10 @@ export function QuestionThread({
             )}
           </div>
 
-          <CardTitle className="text-xl font-bold leading-snug sm:text-2xl">
+          <CardTitle
+            dir="auto"
+            className="text-xl leading-snug font-bold sm:text-2xl"
+          >
             {question.title}
           </CardTitle>
 
@@ -443,15 +467,16 @@ export function QuestionThread({
                 <span className="text-sm font-semibold">
                   {question.author?.name || t("anonymousUser")}
                 </span>
-                {question.author?.role && question.author.role !== "participant" && (
-                  <Badge variant="outline" className="text-[10px]">
-                    {question.author.role.toUpperCase()}
-                  </Badge>
-                )}
+                {question.author?.role &&
+                  question.author.role !== "participant" && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {roleLabel(question.author.role)}
+                    </Badge>
+                  )}
               </div>
               <p className="text-xs text-muted-foreground">
                 {t("askedBy")} •{" "}
-                {new Date(question.createdAt).toLocaleDateString(undefined, {
+                {new Date(question.createdAt).toLocaleDateString(locale, {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
@@ -463,7 +488,10 @@ export function QuestionThread({
 
         <CardContent className="space-y-4 pt-2">
           <Separator />
-          <div className="rounded-xl border bg-muted/40 p-4 text-xs leading-relaxed whitespace-pre-wrap sm:text-sm">
+          <div
+            dir="auto"
+            className="text-sm leading-7 break-words whitespace-pre-wrap"
+          >
             {question.content}
           </div>
           {/* Question Attached Images */}
@@ -473,12 +501,29 @@ export function QuestionThread({
 
       {/* Answers Section */}
       <div className="w-full space-y-4">
-        <h2 className="text-base sm:text-lg font-bold">
-          {t("answersTitle", { count: answers.length })}
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="text-base font-semibold">
+              {t("answersTitle", { count: answers.length })}
+            </h2>
+            {answers.some((answer) => answer.isAccepted) && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("acceptedFirst")}
+              </p>
+            )}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => document.getElementById("answer-draft")?.focus()}
+          >
+            <MessageSquare className="size-3.5" />
+            {t("jumpToAnswer")}
+          </Button>
+        </div>
 
         {answers.length === 0 ? (
-          <Card className="flex flex-col items-center justify-center border-dashed p-8 text-center text-xs sm:text-sm text-muted-foreground">
+          <Card className="flex flex-col items-center justify-center border-dashed p-8 text-center text-xs text-muted-foreground sm:text-sm">
             <MessageSquare className="mb-2 h-7 w-7 opacity-40" />
             <p>{t("noAnswersYet")}</p>
           </Card>
@@ -499,14 +544,19 @@ export function QuestionThread({
               return (
                 <Card
                   key={answer.id}
-                  className={`relative w-full p-4 sm:p-5 transition-all ${answer.isAccepted
+                  data-community-answer
+                  className={`relative w-full gap-0 p-4 transition-all ${
+                    answer.isAccepted
                       ? "border-emerald-500/50 bg-emerald-500/5 shadow-xs"
                       : ""
-                    }`}
+                  }`}
                 >
                   {/* Accepted Solution Badge */}
                   {answer.isAccepted && (
-                    <Badge variant="default" className="mb-3 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
+                    <Badge
+                      variant="default"
+                      className="mb-3 w-fit gap-1.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                    >
                       <ShieldCheck className="h-4 w-4" />
                       <span>{t("acceptedSolution")}</span>
                     </Badge>
@@ -532,13 +582,13 @@ export function QuestionThread({
                           {answer.author?.role &&
                             answer.author.role !== "participant" && (
                               <Badge variant="outline" className="text-[10px]">
-                                {answer.author.role.toUpperCase()}
+                                {roleLabel(answer.author.role)}
                               </Badge>
                             )}
                         </div>
                         <span className="text-[11px] text-muted-foreground">
                           {new Date(answer.createdAt).toLocaleDateString(
-                            undefined,
+                            locale,
                             {
                               month: "short",
                               day: "numeric",
@@ -558,7 +608,11 @@ export function QuestionThread({
                           variant={answer.isAccepted ? "default" : "outline"}
                           onClick={() => handleAcceptAnswer(answer.id)}
                           disabled={actionInProgress === answer.id}
-                          className={answer.isAccepted ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""}
+                          className={
+                            answer.isAccepted
+                              ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                              : ""
+                          }
                         >
                           {actionInProgress === answer.id ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -580,6 +634,7 @@ export function QuestionThread({
                         <Button
                           size="sm"
                           variant="ghost"
+                          aria-label={t("deleteAnswer")}
                           onClick={() => handleDeleteAnswer(answer.id)}
                           disabled={actionInProgress === answer.id}
                           className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
@@ -591,7 +646,10 @@ export function QuestionThread({
                   </div>
 
                   {/* Answer Text Content */}
-                  <div className="mt-3 text-xs leading-relaxed whitespace-pre-wrap sm:text-sm">
+                  <div
+                    dir="auto"
+                    className="mt-3 text-sm leading-7 break-words whitespace-pre-wrap"
+                  >
                     {answer.content}
                   </div>
 
@@ -610,12 +668,12 @@ export function QuestionThread({
                           setReplyDraft("")
                         }
                       }}
-                      className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1.5"
+                      className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
                     >
                       <Reply className="h-3.5 w-3.5" />
                       <span>{t("reply")}</span>
                       {answer.comments && answer.comments.length > 0 && (
-                        <span className="rounded-full bg-muted px-1.5 py-0.2 text-[10px] font-semibold">
+                        <span className="py-0.2 rounded-full bg-muted px-1.5 text-[10px] font-semibold">
                           {answer.comments.length}
                         </span>
                       )}
@@ -633,7 +691,7 @@ export function QuestionThread({
                         className="resize-none text-xs"
                         autoFocus
                       />
-                      <div className="flex items-center gap-2 justify-end">
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           type="button"
                           variant="ghost"
@@ -651,8 +709,10 @@ export function QuestionThread({
                           type="button"
                           size="sm"
                           onClick={() => handleAddAnswerComment(answer.id)}
-                          disabled={submittingReply || replyDraft.trim().length < 1}
-                          className="h-7 text-xs gap-1.5"
+                          disabled={
+                            submittingReply || replyDraft.trim().length < 1
+                          }
+                          className="h-7 gap-1.5 text-xs"
                         >
                           {submittingReply ? (
                             <Loader2 className="h-3 w-3 animate-spin" />
@@ -667,7 +727,7 @@ export function QuestionThread({
 
                   {/* Nested Comments on Answer */}
                   {answer.comments && answer.comments.length > 0 && (
-                    <div className="mt-3 ms-4 sm:ms-8 space-y-2 border-s-2 border-border ps-3 sm:ps-4">
+                    <div className="ms-4 mt-3 space-y-2 border-s-2 border-border ps-3 sm:ms-8 sm:ps-4">
                       {answer.comments.map((comment) => {
                         const canDeleteComment =
                           currentUser?.id === comment.authorId || isOrganizer
@@ -681,7 +741,7 @@ export function QuestionThread({
                         return (
                           <div
                             key={comment.id}
-                            className="rounded-lg bg-muted/40 p-3 text-xs space-y-1.5"
+                            className="space-y-1.5 rounded-lg bg-muted/40 p-3 text-xs"
                           >
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
@@ -694,28 +754,27 @@ export function QuestionThread({
                                     {commentInitials}
                                   </AvatarFallback>
                                 </Avatar>
-                                <span className="font-bold text-[11px] sm:text-xs">
+                                <span className="text-[11px] font-bold sm:text-xs">
                                   {comment.author?.name || t("anonymousUser")}
                                 </span>
                                 {comment.author?.role &&
                                   comment.author.role !== "participant" && (
                                     <Badge
                                       variant="outline"
-                                      className="text-[9px] px-1 py-0"
+                                      className="px-1 py-0 text-[9px]"
                                     >
                                       {comment.author.role.toUpperCase()}
                                     </Badge>
                                   )}
                                 <span className="text-[10px] text-muted-foreground">
-                                  {new Date(comment.createdAt).toLocaleDateString(
-                                    undefined,
-                                    {
-                                      month: "short",
-                                      day: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    }
-                                  )}
+                                  {new Date(
+                                    comment.createdAt
+                                  ).toLocaleDateString(locale, {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
                                 </span>
                               </div>
 
@@ -739,7 +798,7 @@ export function QuestionThread({
                               )}
                             </div>
 
-                            <p className="leading-relaxed whitespace-pre-line text-foreground/90 pl-8 rtl:pl-0 rtl:pr-8">
+                            <p className="pl-8 leading-relaxed whitespace-pre-line text-foreground/90 rtl:pr-8 rtl:pl-0">
                               {comment.content}
                             </p>
                           </div>
@@ -755,16 +814,18 @@ export function QuestionThread({
       </div>
 
       {/* Post Your Answer Card using ShadCN Card */}
-      <Card className="w-full p-4 sm:p-5">
-        <h3 className="text-sm sm:text-base font-semibold">
+      <Card id="write-answer" className="w-full scroll-mt-6 gap-1 p-4">
+        <h3 id="answer-label" className="text-sm font-semibold sm:text-base">
           {t("postAnswer")}
         </h3>
         <p className="mt-1 text-xs text-muted-foreground">
           {t("activityNotice")}
         </p>
 
-        <form onSubmit={handlePostAnswer} className="mt-4 space-y-3">
+        <form onSubmit={handlePostAnswer} className="mt-3 space-y-3">
           <Textarea
+            id="answer-draft"
+            aria-labelledby="answer-label"
             value={answerDraft}
             onChange={(e) => setAnswerDraft(e.target.value)}
             placeholder={t("answerPlaceholder")}
