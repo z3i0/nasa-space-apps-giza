@@ -8,11 +8,15 @@ import {
   Post,
   Put,
   Query,
+  Sse,
   UseGuards,
+  type MessageEvent,
 } from '@nestjs/common';
+import type { Observable } from 'rxjs';
 import { AuthGuard } from '../auth/guards/auth.guard.js';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/auth-user.interface.js';
+import { EventsService } from '../events/events.service.js';
 import {
   BookSlotDto,
   CreateMentorshipRequestDto,
@@ -27,7 +31,10 @@ import { MentorshipService } from './mentorship.service.js';
 @Controller('mentorship')
 @UseGuards(AuthGuard)
 export class MentorshipController {
-  constructor(private readonly service: MentorshipService) {}
+  constructor(
+    private readonly service: MentorshipService,
+    private readonly eventsService: EventsService,
+  ) {}
   @Get('mentors') mentors() {
     return this.service.mentors();
   }
@@ -59,6 +66,14 @@ export class MentorshipController {
     @Query('before') before?: string,
   ) {
     return this.service.messages(id, user.id, before);
+  }
+  @Sse('requests/:id/stream')
+  async stream(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<Observable<MessageEvent>> {
+    await this.service.authorizedRequest(id, user.id);
+    return this.eventsService.getMentorshipMessageStream(id);
   }
   @Post('requests/:id/messages') send(
     @Param('id') id: string,

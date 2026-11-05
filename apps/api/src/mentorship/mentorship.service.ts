@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { MentorshipStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { EventsService } from '../events/events.service.js';
+import { WebPushService } from '../events/web-push.service.js';
 import { MentorProfileDto } from './dto.js';
 
 const publicMentor = {
@@ -19,7 +21,11 @@ const publicMentor = {
 
 @Injectable()
 export class MentorshipService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventsService?: EventsService,
+    private readonly webPushService?: WebPushService,
+  ) { }
 
   async requireMentor(userId: string) {
     const user = await this.prisma.user.findUnique({
@@ -154,7 +160,7 @@ export class MentorshipService {
     });
   }
 
-  private async authorizedRequest(id: string, userId: string) {
+  async authorizedRequest(id: string, userId: string) {
     const request = await this.prisma.mentorshipRequest.findUnique({
       where: { id },
       include: {
@@ -296,24 +302,106 @@ export class MentorshipService {
     const request = await this.authorizedRequest(id, userId);
     if (!['pending', 'accepted'].includes(request.status))
       throw new ConflictException('Conversation is closed');
-    return this.prisma.$transaction(async (tx) => {
-      const open = await tx.mentorshipRequest.updateMany({
-        where: { id, status: { in: ['pending', 'accepted'] } },
-        data: { updatedAt: new Date() },
+
+    const { sent, createdNotifications } = await this.prisma.$transaction(
+      async (tx) => {
+        const open = await tx.mentorshipRequest.updateMany({
+          where: { id, status: { in: ['pending', 'accepted'] } },
+          data: { updatedAt: new Date() },
+        });
+        if (!open.count) throw new ConflictException('Conversation is closed');
+        const message = await tx.mentorshipMessage.create({
+          data: { requestId: id, senderId: userId, content: content.trim() },
+          select: {
+            id: true,
+            senderId: true,
+            content: true,
+            createdAt: true,
+            sender: { select: { name: true, avatar: true } },
+          },
+        });
+
+        const isMentor = userId === request.mentorId;
+        const senderName =
+          message?.sender?.name || (isMentor ? 'Mentor' : 'Participant');
+        const preview =
+          content.trim().length > 100
+            ? content.trim().slice(0, 97) + '...'
+            : content.trim();
+
+        const notificationsList: any[] = [];
+
+        if (isMentor) {
+          const teamMembers = tx.teamMember
+            ? await tx.teamMember.findMany({
+              where: { teamId: request.teamId },
+              select: { userId: true },
+            })
+            : [];
+
+          if (tx.notification) {
+            for (const member of teamMembers) {
+              if (member.userId === userId) continue;
+              const notif = await tx.notification.create({
+                data: {
+                  userId: member.userId,
+                  title: `New message from mentor ${senderName}`,
+                  titleAr: `رسالة جديدة من المرشد ${senderName}`,
+                  message: preview,
+                  messageAr: preview,
+                  type: 'mentorship_message',
+                  link: '/dashboard/participant/sessions',
+                },
+              });
+              notificationsList.push(notif);
+            }
+          }
+        } else if (tx.notification) {
+          const notif = await tx.notification.create({
+            data: {
+              userId: request.mentorId,
+              title: `New message from ${senderName}`,
+              titleAr: `رسالة جديدة من ${senderName}`,
+              message: preview,
+              messageAr: preview,
+              type: 'mentorship_message',
+              link: '/dashboard/mentor/sessions',
+            },
+          });
+          notificationsList.push(notif);
+        }
+
+        return { sent: message, createdNotifications: notificationsList };
+      },
+    );
+
+    // 1. Emit live chat message event to everyone active in the chat
+    this.eventsService?.emitMentorshipMessage(id, sent);
+
+    // 2. Emit live notifications with unique DB id and timestamp
+    const isMentor = userId === request.mentorId;
+    const senderName =
+      sent?.sender?.name || (isMentor ? 'Mentor' : 'Participant');
+    const senderAvatar = sent?.sender?.avatar || null;
+
+    for (const notif of createdNotifications) {
+      this.eventsService?.emitNotification(notif.userId, {
+        ...notif,
+        requestId: id,
+        senderName,
+        senderAvatar,
       });
-      if (!open.count) throw new ConflictException('Conversation is closed');
-      const sent = await tx.mentorshipMessage.create({
-        data: { requestId: id, senderId: userId, content: content.trim() },
-        select: {
-          id: true,
-          senderId: true,
-          content: true,
-          createdAt: true,
-          sender: { select: { name: true, avatar: true } },
-        },
+
+      // Send OS-level push notification in English if user has tab/browser closed
+      this.webPushService?.sendNotificationToUser(notif.userId, {
+        title: notif.title,
+        body: notif.message,
+        url: notif.link || '/dashboard',
+        tag: `chat-${id}`,
       });
-      return sent;
-    });
+    }
+
+    return sent;
   }
 
   async createSlot(userId: string, startTime: string, endTime: string) {

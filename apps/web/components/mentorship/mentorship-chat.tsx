@@ -13,6 +13,7 @@ import {
   type MentorshipMessage,
   type MentorshipRequest,
 } from "@/lib/mentorship"
+import { registerActiveChat } from "@/lib/active-chat"
 
 function mergeMessages(
   previous: MentorshipMessage[],
@@ -52,6 +53,10 @@ export function MentorshipChat({
   const olderLock = useRef(false)
   const lifetime = useRef<AbortController | null>(null)
 
+  useEffect(() => {
+    return registerActiveChat(requestId)
+  }, [requestId])
+
   const readLatest = useCallback(
     async (signal: AbortSignal) => {
       try {
@@ -79,14 +84,48 @@ export function MentorshipChat({
     const controller = new AbortController()
     lifetime.current = controller
     void Promise.resolve().then(() => readLatest(controller.signal))
-    const timer = window.setInterval(() => {
-      if (!document.hidden) void readLatest(controller.signal)
-    }, 5000)
+
+    // Real-time live stream via Server-Sent Events (SSE)
+    let es: EventSource | null = null
+    try {
+      es = new EventSource(`/api/mentorship/requests/${requestId}/stream`, {
+        withCredentials: true,
+      })
+
+      es.addEventListener("message", (event) => {
+        try {
+          const incoming = JSON.parse(event.data) as MentorshipMessage
+          if (incoming && incoming.id) {
+            setMessages((previous) => mergeMessages(previous, [incoming]))
+          }
+        } catch {
+          // Ignore parse errors or non-message events
+        }
+      })
+
+      es.onerror = () => {
+        // EventSource will automatically attempt to reconnect
+      }
+    } catch {
+      // Fallback if EventSource fails to instantiate
+    }
+
+    // Refresh messages once when tab becomes visible in case connection was idle
+    const onVisibility = () => {
+      if (!document.hidden && !controller.signal.aborted) {
+        void readLatest(controller.signal)
+      }
+    }
+    document.addEventListener("visibilitychange", onVisibility)
+
     return () => {
       controller.abort()
-      window.clearInterval(timer)
+      document.removeEventListener("visibilitychange", onVisibility)
+      if (es) {
+        es.close()
+      }
     }
-  }, [readLatest])
+  }, [readLatest, requestId])
 
   useLayoutEffect(() => {
     const node = scroller.current

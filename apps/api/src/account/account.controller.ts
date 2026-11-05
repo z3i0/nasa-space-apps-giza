@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,8 +8,11 @@ import {
   Patch,
   Post,
   Query,
+  Sse,
   UseGuards,
+  type MessageEvent,
 } from '@nestjs/common';
+import type { Observable } from 'rxjs';
 import {
   IsArray,
   IsBoolean,
@@ -27,6 +31,8 @@ import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { RequireRole } from '../auth/decorators/roles.decorator.js';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/auth-user.interface.js';
+import { EventsService } from '../events/events.service.js';
+import { WebPushService } from '../events/web-push.service.js';
 import { AccountService } from './account.service.js';
 class SelectRoleDto {
   @IsIn(['participant', 'mentor', 'judge', 'organizer', 'competition'])
@@ -98,7 +104,11 @@ class AdminChangeTeamMemberRoleDto {
 @Controller('account')
 @UseGuards(AuthGuard, RolesGuard)
 export class AccountController {
-  constructor(private readonly service: AccountService) {}
+  constructor(
+    private readonly service: AccountService,
+    private readonly eventsService: EventsService,
+    private readonly webPushService: WebPushService,
+  ) {}
   @Get('organizer-summary') @RequireRole('organizer') summary() {
     return this.service.organizerSummary();
   }
@@ -159,6 +169,12 @@ export class AccountController {
   ) {
     return this.service.getNotifications(user.id);
   }
+  @Sse('notifications/stream')
+  notificationsStream(
+    @CurrentUser() user: AuthenticatedUser,
+  ): Observable<MessageEvent> {
+    return this.eventsService.getNotificationStream(user.id);
+  }
   @Post('notifications/mark-read') markNotificationRead(
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: MarkNotificationDto,
@@ -170,6 +186,28 @@ export class AccountController {
     @Param('id') id: string,
   ) {
     return this.service.deleteNotification(user.id, id);
+  }
+  @Get('notifications/vapid-public-key') getVapidPublicKey() {
+    return { publicKey: this.webPushService.getPublicKey() };
+  }
+  @Post('notifications/push-subscribe') async pushSubscribe(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: { endpoint: string; keys: { p256dh: string; auth: string } },
+  ) {
+    if (!dto?.endpoint || !dto?.keys?.p256dh || !dto?.keys?.auth) {
+      throw new BadRequestException('Invalid push subscription payload');
+    }
+    await this.webPushService.saveSubscription(user.id, dto);
+    return { success: true };
+  }
+  @Post('notifications/push-unsubscribe') async pushUnsubscribe(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: { endpoint: string },
+  ) {
+    if (dto?.endpoint) {
+      await this.webPushService.removeSubscription(user.id, dto.endpoint);
+    }
+    return { success: true };
   }
 
   // -------------------------------------------------------------

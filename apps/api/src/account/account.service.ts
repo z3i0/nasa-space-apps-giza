@@ -6,13 +6,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { EventsService } from '../events/events.service.js';
+import { WebPushService } from '../events/web-push.service.js';
 import { officialChallengeWhere } from '../challenges/official-catalogue.js';
 import { Prisma, TeamMemberRole, TeamSubmissionStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AccountService {
-  constructor(private readonly db: PrismaService) {}
+  constructor(
+    private readonly db: PrismaService,
+    private readonly eventsService?: EventsService,
+    private readonly webPushService?: WebPushService,
+  ) {}
   async organizerSummary() {
     const active = { isActive: true, deletedAt: null };
     const roleWhere = (name: string) => ({
@@ -1176,7 +1182,7 @@ export class AccountService {
     tx?: Prisma.TransactionClient,
   ) {
     const client = tx ?? this.db;
-    return client.notification.create({
+    const notification = await client.notification.create({
       data: {
         userId: data.userId,
         title: data.title,
@@ -1187,6 +1193,14 @@ export class AccountService {
         link: data.link,
       },
     });
+    this.eventsService?.emitNotification(data.userId, notification);
+    this.webPushService?.sendNotificationToUser(data.userId, {
+      title: data.titleAr || data.title,
+      body: data.messageAr || data.message,
+      url: data.link || '/dashboard',
+      tag: `notif-${notification.id}`,
+    });
+    return notification;
   }
 
   async getNotifications(userId: string) {

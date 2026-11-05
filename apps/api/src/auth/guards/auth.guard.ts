@@ -55,9 +55,14 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
 
-    // Validate session via Better Auth (supports both cookies and Authorization: Bearer <token>)
+    // Validate session via Better Auth (supports cookies, Authorization: Bearer <token>, and ?token= query)
+    const headers = fromNodeHeaders(request.headers);
+    if (!headers.get('authorization') && typeof request.query?.token === 'string') {
+      headers.set('authorization', `Bearer ${request.query.token}`);
+    }
+
     const session = await auth.api.getSession({
-      headers: fromNodeHeaders(request.headers),
+      headers,
       query: { disableCookieCache: true },
     });
 

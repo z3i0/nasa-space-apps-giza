@@ -61,6 +61,33 @@ export function NotificationsCenter() {
 
   useEffect(() => {
     void loadNotifications()
+
+    let es: EventSource | null = null
+    try {
+      es = new EventSource("/api/account/notifications/stream", {
+        withCredentials: true,
+      })
+      es.addEventListener("notification", (event) => {
+        try {
+          const incoming = JSON.parse(event.data) as NotificationItem
+          if (incoming && incoming.id) {
+            setNotifications((prev) => [
+              incoming,
+              ...prev.filter((n) => n.id !== incoming.id),
+            ])
+            setUnreadCount((c) => c + 1)
+          }
+        } catch {
+          // ignore
+        }
+      })
+    } catch {
+      // ignore
+    }
+
+    return () => {
+      if (es) es.close()
+    }
   }, [loadNotifications])
 
   const handleMarkAllRead = async () => {
@@ -210,7 +237,7 @@ export function NotificationsCenter() {
           </div>
         ) : (
           <div className="divide-y divide-border/60">
-            {filtered.map((item) => {
+            {filtered.map((item, index) => {
               const title =
                 locale === "ar" && item.titleAr ? item.titleAr : item.title
               const message =
@@ -220,7 +247,10 @@ export function NotificationsCenter() {
 
               return (
                 <div
-                  key={item.id}
+                  key={
+                    item.id ||
+                    `notif-center-${index}-${item.createdAt || index}`
+                  }
                   onClick={() => {
                     if (!item.isRead) {
                       void accountApi("/notifications/mark-read", {

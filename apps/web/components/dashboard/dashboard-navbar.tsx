@@ -30,6 +30,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Bell, Languages, LogOut, Search, UserRound } from "lucide-react"
+import { toast } from "sonner"
+import { isChatActive } from "@/lib/active-chat"
+import { playNotificationSound } from "@/lib/sound"
+import {
+  registerServiceWorker,
+  subscribeToPushNotifications,
+} from "@/lib/web-push"
 import { type DashboardRole } from "./dashboard-config"
 import { getShellNavigation } from "./dashboard-navigation"
 import { clearAuth, useAuthUser } from "@/lib/auth"
@@ -62,6 +69,8 @@ export function DashboardNavbar({
     []
   )
   const [unreadCount, setUnreadCount] = React.useState(0)
+  const [notificationPermission, setNotificationPermission] =
+    React.useState<NotificationPermission>("default")
   const notificationsRef = React.useRef<HTMLDivElement>(null)
   const navigation = getShellNavigation(currentRole, user)
   const displayName = user?.name || user?.fullName || t("shell.accountFallback")
@@ -117,14 +126,108 @@ export function DashboardNavbar({
   }, [user])
 
   React.useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setNotificationPermission(Notification.permission)
+      if (Notification.permission === "granted" && user) {
+        void subscribeToPushNotifications()
+      } else if ("serviceWorker" in navigator) {
+        void registerServiceWorker()
+      }
+    }
+  }, [user])
+
+  React.useEffect(() => {
+    if (!user) return
     void loadNotifications()
-    const timer = setInterval(() => {
+
+    let es: EventSource | null = null
+    try {
+      es = new EventSource("/api/account/notifications/stream", {
+        withCredentials: true,
+      })
+
+      es.addEventListener("notification", (event) => {
+        try {
+          const incoming = JSON.parse(event.data) as NotificationItem & {
+            requestId?: string
+          }
+          if (incoming && (incoming.id || incoming.title)) {
+            // If user currently has this exact chat open on their screen, do NOT show toast or alert
+            const isCurrentlyInThisChat =
+              incoming.requestId &&
+              isChatActive(incoming.requestId) &&
+              document.visibilityState === "visible"
+
+            if (isCurrentlyInThisChat) {
+              if (incoming.id) {
+                void accountApi("/notifications/mark-read", {
+                  id: incoming.id,
+                })
+              }
+              return
+            }
+
+            setUnreadCount((c) => c + 1)
+            setNotifications((prev) => [
+              incoming,
+              ...prev.filter((n) => n.id !== incoming.id),
+            ])
+
+            const notifTitle =
+              locale === "ar" && incoming.titleAr
+                ? incoming.titleAr
+                : incoming.title
+            const notifMessage =
+              locale === "ar" && incoming.messageAr
+                ? incoming.messageAr
+                : incoming.message
+
+            // In-app Toast alert with sound
+            playNotificationSound()
+            toast(notifTitle, {
+              description: notifMessage,
+              action: incoming.link
+                ? {
+                  label: locale === "ar" ? "فتح" : "View",
+                  onClick: () => {
+                    if (incoming.id) {
+                      void accountApi("/notifications/mark-read", {
+                        id: incoming.id,
+                      })
+                      setUnreadCount((c) => Math.max(0, c - 1))
+                      setNotifications((prev) =>
+                        prev.map((n) =>
+                          n.id === incoming.id ? { ...n, isRead: true } : n
+                        )
+                      )
+                    }
+                    router.push(incoming.link!)
+                  },
+                }
+                : undefined,
+              duration: 8000,
+            })
+          }
+        } catch {
+          // ignore parsing error
+        }
+      })
+    } catch {
+      // fallback
+    }
+
+    const onVisibility = () => {
       if (document.visibilityState === "visible") {
         void loadNotifications()
       }
-    }, 12000)
-    return () => clearInterval(timer)
-  }, [loadNotifications])
+    }
+    document.addEventListener("visibilitychange", onVisibility)
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility)
+      if (es) es.close()
+    }
+  }, [loadNotifications, locale, router, user])
 
   const handleMarkAllRead = async () => {
     try {
@@ -251,9 +354,43 @@ export function DashboardNavbar({
                     </Button>
                   )}
                 </div>
+                {typeof window !== "undefined" &&
+                  "Notification" in window &&
+                  notificationPermission === "default" && (
+                    <div className="flex items-center justify-between border-b border-border/40 bg-muted/40 px-4 py-2 text-xs">
+                      <span className="text-muted-foreground">
+                        {locale === "ar"
+                          ? "تفعيل إشعارات المتصفح؟"
+                          : "Enable browser notifications?"}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-6 text-[11px]"
+                        onClick={async () => {
+                          try {
+                            const res = await Notification.requestPermission()
+                            setNotificationPermission(res)
+                            if (res === "granted") {
+                              await subscribeToPushNotifications()
+                              toast.success(
+                                locale === "ar"
+                                  ? "تم تفعيل إشعارات المتصفح حتى لو قفلت الموقع بنجاح"
+                                  : "Browser notifications enabled even when closed"
+                              )
+                            }
+                          } catch {
+                            // ignore
+                          }
+                        }}
+                      >
+                        {locale === "ar" ? "تفعيل" : "Enable"}
+                      </Button>
+                    </div>
+                  )}
                 {notifications.length > 0 ? (
                   <div className="max-h-[360px] divide-y divide-border/60 overflow-y-auto">
-                    {notifications.map((item) => {
+                    {notifications.map((item, index) => {
                       const title =
                         locale === "ar" && item.titleAr
                           ? item.titleAr
@@ -265,7 +402,10 @@ export function DashboardNavbar({
 
                       return (
                         <div
-                          key={item.id}
+                          key={
+                            item.id ||
+                            `dashboard-notif-${index}-${item.createdAt || index}`
+                          }
                           onClick={() => void handleNotificationClick(item)}
                           className={cn(
                             "flex cursor-pointer items-start gap-3 p-3.5 transition-colors hover:bg-muted/40",
@@ -278,7 +418,7 @@ export function DashboardNavbar({
                               item.type === "mentorship"
                                 ? "bg-success/15 text-success"
                                 : item.type === "team_join" ||
-                                    item.type === "team_invite"
+                                  item.type === "team_invite"
                                   ? "bg-chart-4/15 text-chart-4"
                                   : item.type === "role_application"
                                     ? "bg-orange/15 text-orange"
