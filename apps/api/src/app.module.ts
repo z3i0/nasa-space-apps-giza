@@ -11,9 +11,11 @@ import { ChallengesModule } from './challenges/challenges.module.js';
 import { JudgingModule } from './judging/judging.module.js';
 import { AccountModule } from './account/account.module.js';
 import { CommunityModule } from './community/community.module.js';
+import { LoggerModule } from './logger/logger.module.js';
 
 @Module({
   imports: [
+    LoggerModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env', '../../.env.local', '../../.env'],

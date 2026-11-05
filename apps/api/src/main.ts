@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module.js';
+import { AppLoggerService } from './logger/app-logger.service.js';
+import { AllExceptionsFilter } from './logger/all-exceptions.filter.js';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from './auth/auth.js';
 import express from 'express';
@@ -79,6 +81,13 @@ async function bootstrap() {
   // Set global prefix for API routes
   app.setGlobalPrefix('api');
 
+  // Configure custom file and console logger
+  const appLogger = app.get(AppLoggerService);
+  app.useLogger(appLogger);
+
+  // Global exception filter for structured file logging
+  app.useGlobalFilters(new AllExceptionsFilter(appLogger));
+
   // Enable validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
@@ -90,6 +99,6 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 4000;
   await app.listen(port);
-  console.log(`NestJS API is running on: http://localhost:${port}/api`);
+  appLogger.log(`NestJS API is running on: http://localhost:${port}/api`, 'Bootstrap');
 }
 await bootstrap();
