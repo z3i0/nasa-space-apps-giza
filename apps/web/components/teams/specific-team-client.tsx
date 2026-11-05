@@ -1,7 +1,9 @@
 "use client"
 
 import * as React from "react"
+import useSWR from "swr"
 import { useTranslations, useLocale } from "next-intl"
+import { useMyTeam, mutateParticipantTeam } from "@/hooks/use-participant-team"
 import { RoleGuard } from "@/components/role-guard"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { Link } from "@/i18n/routing"
@@ -97,14 +99,28 @@ function SpecificTeamContent({
   const currentUser =
     user || (typeof window !== "undefined" ? getAuthUser() : null)
 
-  const [team, setTeam] = React.useState<TeamDetails | null | undefined>(
-    initialTeam
+  const {
+    data: fetchedTeam,
+    error: teamSwrError,
+    isLoading: isTeamLoading,
+    mutate: mutateTeam,
+  } = useSWR<TeamDetails>(
+    teamId ? `/teams/${teamId}` : null,
+    () => fetchTeamById(teamId),
+    {
+      fallbackData: initialTeam || undefined,
+      revalidateOnFocus: true,
+      refreshInterval: 15000,
+    }
   )
-  const [myTeam, setMyTeam] = React.useState<TeamDetails | null | undefined>(
-    initialMyTeam
-  )
-  const [loading, setLoading] = React.useState(team === undefined)
-  const [error, setError] = React.useState("")
+
+  const { team: myTeam } = useMyTeam({
+    fallbackData: initialMyTeam ? { team: initialMyTeam } : undefined,
+  })
+
+  const team = fetchedTeam !== undefined ? fetchedTeam : initialTeam
+
+  const [actionError, setActionError] = React.useState("")
   const [copied, setCopied] = React.useState(false)
   const [editOpen, setEditOpen] = React.useState(false)
 
@@ -125,57 +141,24 @@ function SpecificTeamContent({
   )
   const [confirmLoading, setConfirmLoading] = React.useState(false)
 
+  const loading = isTeamLoading && team === undefined
+  const error = actionError || (teamSwrError && team === undefined ? (teamSwrError instanceof Error ? teamSwrError.message : t("actionFailed")) : "")
+
   const loadData = React.useCallback(
-    async (silent = false) => {
+    async (_silent = false) => {
       if (!teamId) return
-      if (!silent) {
-        setLoading(true)
-      }
-      setError("")
+      setActionError("")
       try {
-        const [teamData, myTeamData] = await Promise.all([
-          fetchTeamById(teamId),
-          fetchMyTeam().catch(() => ({ team: null })),
-        ])
-        setTeam(teamData)
-        setMyTeam(myTeamData.team)
+        await Promise.all([mutateTeam(), mutateParticipantTeam()])
       } catch (err) {
         console.error("Failed to load team by id:", err)
-        if (!silent) {
-          setError(
-            (err instanceof Error ? err.message : "") || "Failed to load team"
-          )
-        }
-      } finally {
-        if (!silent) {
-          setLoading(false)
-        }
+        setActionError(
+          (err instanceof Error ? err.message : "") || "Failed to load team"
+        )
       }
     },
-    [teamId]
+    [teamId, mutateTeam]
   )
-
-  React.useEffect(() => {
-    const controller = new AbortController()
-    Promise.all([
-      fetchTeamById(teamId, controller.signal),
-      fetchMyTeam(controller.signal),
-    ])
-      .then(([detail, mine]) => {
-        if (!controller.signal.aborted) {
-          setTeam(detail)
-          setMyTeam(mine.team)
-        }
-      })
-      .catch((error) => {
-        if (!controller.signal.aborted)
-          setError(error instanceof Error ? error.message : t("actionFailed"))
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false)
-      })
-    return () => controller.abort()
-  }, [teamId, t])
 
   // Identity checks
   const isMember = Boolean(

@@ -1,7 +1,9 @@
 "use client"
 
 import * as React from "react"
+import useSWR from "swr"
 import { useTranslations, useLocale } from "next-intl"
+import { useMyTeam, useMyInvitations, mutateParticipantTeam } from "@/hooks/use-participant-team"
 import { RoleGuard } from "@/components/role-guard"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { Link } from "@/i18n/routing"
@@ -69,13 +71,10 @@ export default function FindTeamPage() {
   const tTracks = useTranslations("Teams.tracks")
   const locale = useLocale()
 
-  const [teams, setTeams] = React.useState<TeamListItem[]>([])
-  const [myTeam, setMyTeam] = React.useState<TeamDetails | null>(null)
-  const [loading, setLoading] = React.useState(true)
   const [search, setSearch] = React.useState("")
+  const [debouncedSearch, setDebouncedSearch] = React.useState("")
   const [track, setTrack] = React.useState("all")
   const [createOpen, setCreateOpen] = React.useState(false)
-  const [invitations, setInvitations] = React.useState<MyTeamInvitation[]>([])
   const [respondingId, setRespondingId] = React.useState<string | null>(null)
 
   // Join dialog state
@@ -83,36 +82,38 @@ export default function FindTeamPage() {
   const [joinMessage, setJoinMessage] = React.useState("")
   const [sendingJoin, setSendingJoin] = React.useState(false)
 
-  const loadData = React.useCallback(async () => {
-    setLoading(true)
-    try {
-      const [teamsData, myTeamData, invitationsData] = await Promise.all([
-        fetchTeams({
-          search: search.trim() || undefined,
-          track: track !== "all" ? track : undefined,
-        }),
-        fetchMyTeam().catch(() => ({ team: null })),
-        fetchMyInvitations().catch(() => ({ invitations: [] })),
-      ])
-      setTeams(teamsData.teams || teamsData.items || [])
-      setMyTeam(myTeamData.team)
-      setInvitations(invitationsData.invitations || [])
-    } catch (err) {
-      console.error("Failed to load teams:", err)
-      toast.error(
-        (err instanceof Error ? err.message : "") || "Failed to load teams"
-      )
-    } finally {
-      setLoading(false)
-    }
-  }, [search, track])
-
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      void loadData()
+      setDebouncedSearch(search.trim())
     }, 300)
     return () => clearTimeout(timer)
-  }, [loadData])
+  }, [search])
+
+  const swrTeamsKey = `/teams/browse?search=${encodeURIComponent(debouncedSearch)}&track=${encodeURIComponent(track)}`
+
+  const {
+    data: teamsData,
+    isLoading: teamsLoading,
+    mutate: mutateTeams,
+  } = useSWR(
+    swrTeamsKey,
+    () =>
+      fetchTeams({
+        search: debouncedSearch || undefined,
+        track: track !== "all" ? track : undefined,
+      }),
+    { keepPreviousData: true }
+  )
+
+  const { team: myTeam } = useMyTeam()
+  const { invitations } = useMyInvitations()
+
+  const teams = teamsData?.teams || teamsData?.items || []
+  const loading = teamsLoading && !teamsData
+
+  const loadData = React.useCallback(async () => {
+    await Promise.all([mutateTeams(), mutateParticipantTeam()])
+  }, [mutateTeams])
 
   const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

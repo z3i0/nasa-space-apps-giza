@@ -8,7 +8,21 @@ export function SWRProvider({ children }: { children: React.ReactNode }) {
   return (
     <SWRConfig
       value={{
-        fetcher: (url: string) => accountApi(url),
+        fetcher: async (url: string) => {
+          if (url.startsWith("/api/")) {
+            const res = await fetch(url, { credentials: "include" })
+            if (!res.ok) {
+              const err = await res
+                .json()
+                .catch(() => ({ message: res.statusText }))
+              throw new Error(
+                err?.message || `Request failed with status ${res.status}`
+              )
+            }
+            return res.json()
+          }
+          return accountApi(url)
+        },
         revalidateOnFocus: false,
         revalidateIfStale: true,
         dedupingInterval: 4000,

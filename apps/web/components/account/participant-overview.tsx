@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import useSWR from "swr"
 import { useTranslations } from "next-intl"
 import {
   Users,
@@ -8,46 +8,47 @@ import {
   CheckCircle2,
   UserRound,
   ArrowUpRight,
+  RefreshCw,
 } from "lucide-react"
 import { Link } from "@/i18n/routing"
 import { Button } from "@/components/ui/button"
-import { accountApi, type AccountOverview } from "@/lib/account"
+import { type AccountOverview } from "@/lib/account"
 import { useAuthUser } from "@/lib/auth"
 
 export function ParticipantOverview() {
   const t = useTranslations("Account"),
     user = useAuthUser()
-  const [data, setData] = useState<AccountOverview | null>(null),
-    [error, setError] = useState(""),
-    [attempt, setAttempt] = useState(0)
-  useEffect(() => {
-    const c = new AbortController()
-    accountApi<AccountOverview>("/overview", undefined, c.signal)
-      .then((value) => {
-        if (!c.signal.aborted) setData(value)
-      })
-      .catch((e) => {
-        if (!c.signal.aborted)
-          setError(e instanceof Error ? e.message : t("error"))
-      })
-    return () => c.abort()
-  }, [attempt, t])
+
+  const {
+    data,
+    error: swrError,
+    isLoading,
+    isValidating,
+    mutate,
+  } = useSWR<AccountOverview>("/overview", {
+    refreshInterval: 15000,
+    revalidateOnFocus: true,
+  })
+
+  const loading = isLoading && !data
+  const error = swrError ? (swrError instanceof Error ? swrError.message : t("error")) : ""
+  const isRefreshing = isValidating && !isLoading
+
   const panel = "rounded-2xl border border-border bg-card p-6"
-  if (error)
+  if (error && !data)
     return (
       <div role="alert" className={panel}>
         {error}{" "}
         <Button
           onClick={() => {
-            setError("")
-            setAttempt((n) => n + 1)
+            void mutate()
           }}
         >
           {t("retry")}
         </Button>
       </div>
     )
-  if (!data)
+  if (loading || !data)
     return (
       <p role="status" className={panel}>
         {t("loading")}

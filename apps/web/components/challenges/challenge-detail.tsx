@@ -1,5 +1,6 @@
 "use client"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
+import useSWR from "swr"
 import { useLocale, useTranslations } from "next-intl"
 import { Bookmark, ExternalLink } from "lucide-react"
 import { Link } from "@/i18n/routing"
@@ -23,42 +24,35 @@ export function ChallengeDetail({
 }) {
   const t = useTranslations("Challenges"),
     locale = useLocale()
-  const [record, setRecord] = useState<Challenge | null>(null),
-    [selection, setSelection] = useState<ChallengeSelection>({ team: null })
-  const [loading, setLoading] = useState(true),
-    [error, setError] = useState(""),
-    [notice, setNotice] = useState(""),
-    [revision, setRevision] = useState(0),
-    [busy, setBusy] = useState(false)
+
+  const swrKey = `/challenges/${encodeURIComponent(challengeKey)}?role=${role}`
+  const {
+    data,
+    error: swrError,
+    isLoading: swrLoading,
+    mutate,
+  } = useSWR(
+    swrKey,
+    () =>
+      Promise.all([
+        challengesApi<Challenge>(`/${encodeURIComponent(challengeKey)}`),
+        role === "participant"
+          ? challengesApi<ChallengeSelection>("/selection")
+          : Promise.resolve({ team: null }),
+      ]),
+    { revalidateOnFocus: true }
+  )
+
+  const record = data?.[0] ?? null
+  const selection = data?.[1] ?? { team: null }
+  const [actionError, setActionError] = useState("")
+  const [notice, setNotice] = useState("")
+  const [busy, setBusy] = useState(false)
   const lock = useRef(false)
-  useEffect(() => {
-    const controller = new AbortController()
-    Promise.all([
-      challengesApi<Challenge>(`/${encodeURIComponent(challengeKey)}`, {
-        signal: controller.signal,
-      }),
-      role === "participant"
-        ? challengesApi<ChallengeSelection>("/selection", {
-            signal: controller.signal,
-          })
-        : Promise.resolve({ team: null }),
-    ])
-      .then(([challenge, choice]) => {
-        if (!controller.signal.aborted) {
-          setRecord(challenge)
-          setSelection(choice)
-          setLoading(false)
-          setError("")
-        }
-      })
-      .catch((cause) => {
-        if (!controller.signal.aborted) {
-          setError(challengeError(cause))
-          setLoading(false)
-        }
-      })
-    return () => controller.abort()
-  }, [challengeKey, role, revision])
+
+  const loading = swrLoading && !record
+  const error = actionError || (swrError && !record ? challengeError(swrError) : "")
+
   async function favorite() {
     if (!record || lock.current) return
     lock.current = true
@@ -68,10 +62,13 @@ export function ChallengeDetail({
         method: "PUT",
         body: { saved: !record.saved },
       })
-      setRecord({ ...record, saved: !record.saved })
-      setError("")
+      await mutate([
+        { ...record, saved: !record.saved },
+        selection,
+      ], false)
+      setActionError("")
     } catch (cause) {
-      setError(challengeError(cause))
+      setActionError(challengeError(cause))
     } finally {
       lock.current = false
       setBusy(false)
@@ -84,9 +81,9 @@ export function ChallengeDetail({
     try {
       await challengesApi(`/${record.id}/select`, { method: "POST" })
       setNotice(t("selectionSaved"))
-      setRevision((value) => value + 1)
+      await mutate()
     } catch (cause) {
-      setError(challengeError(cause))
+      setActionError(challengeError(cause))
     } finally {
       lock.current = false
       setBusy(false)
@@ -109,7 +106,7 @@ export function ChallengeDetail({
           {t(error)}{" "}
           <Button
             variant="secondary"
-            onClick={() => setRevision((value) => value + 1)}
+            onClick={() => void mutate()}
           >
             {t("retry")}
           </Button>

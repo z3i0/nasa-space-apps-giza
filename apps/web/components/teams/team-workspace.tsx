@@ -1,6 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
+import useSWR from "swr"
+import { SWR_KEYS, mutateParticipantTeam } from "@/hooks/use-participant-team"
 import { useTranslations } from "next-intl"
 import { Users, Search, Orbit, UserPlus } from "lucide-react"
 import { Link } from "@/i18n/routing"
@@ -33,29 +35,17 @@ export function TeamWorkspace({ discover = false }: { discover?: boolean }) {
     invitations: [],
     joinRequests: [],
   })
-  const [loading, setLoading] = useState(true)
   const [ready, setReady] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState("")
+  const [actionError, setActionError] = useState("")
   const [notice, setNotice] = useState("")
   const [editing, setEditing] = useState(false)
   const [inviteEmail, setInviteEmail] = useState("")
-  const [revision, setRevision] = useState(0)
   const [search, setSearch] = useState("")
   const [query, setQuery] = useState({ search: "", page: 1 })
-  const [searchState, setSearchState] = useState<{
-    key: string
-    results: TeamSearch | null
-    error: string
-  } | null>(null)
-  const searchKey = JSON.stringify([query, revision])
-  const searchLoading = searchState?.key !== searchKey
-  const results = searchLoading ? null : searchState?.results
-  const searchError = searchLoading ? "" : searchState?.error
   const [selected, setSelected] = useState<string | null>(null)
   const [message, setMessage] = useState("")
   const actionLock = useRef(false)
-  const activeRequest = useRef<AbortController | null>(null)
   const workspaceSnapshot = useRef("")
 
   const applyWorkspace = useCallback(
@@ -68,108 +58,53 @@ export function TeamWorkspace({ discover = false }: { discover?: boolean }) {
     []
   )
 
-  useEffect(() => {
-    const controller = new AbortController()
-    activeRequest.current = controller
-    fetchWorkspace(controller.signal)
-      .then((data) => {
-        if (!controller.signal.aborted) applyWorkspace(data)
-      })
-      .catch((e) => {
-        if (!controller.signal.aborted) setError(teamErrorKey(e))
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false)
-      })
-    return () => {
-      controller.abort()
-      activeRequest.current?.abort()
+  const {
+    data: workspaceData,
+    error: workspaceSwrError,
+    isLoading: workspaceLoading,
+    mutate: mutateWorkspace,
+  } = useSWR(
+    SWR_KEYS.WORKSPACE,
+    () => fetchWorkspace(),
+    {
+      refreshInterval: 15000,
+      revalidateOnFocus: true,
     }
-  }, [applyWorkspace])
-
-  // Refresh quietly while idle; never interrupt a form or overlap a mutation.
-  useEffect(() => {
-    if (!ready || loading || busy || editing || selected || inviteEmail) return
-    let controller: AbortController | null = null
-    const update = async () => {
-      if (
-        document.visibilityState !== "visible" ||
-        actionLock.current ||
-        controller
-      )
-        return
-      controller = new AbortController()
-      const signal = controller.signal
-      try {
-        const data = await fetchWorkspace(signal)
-        if (
-          !signal.aborted &&
-          !actionLock.current &&
-          JSON.stringify(data) !== workspaceSnapshot.current
-        ) {
-          applyWorkspace(data)
-          setNotice("workspaceUpdated")
-          setRevision((value) => value + 1)
-        }
-      } catch {
-        // Keep the current workspace on a background failure; the next tick retries.
-      } finally {
-        controller = null
-      }
-    }
-    const timer = window.setInterval(() => void update(), 30_000)
-    const onVisible = () => {
-      if (document.visibilityState === "visible") void update()
-    }
-    document.addEventListener("visibilitychange", onVisible)
-    return () => {
-      window.clearInterval(timer)
-      document.removeEventListener("visibilitychange", onVisible)
-      controller?.abort()
-    }
-  }, [ready, loading, busy, editing, selected, inviteEmail, applyWorkspace])
+  )
 
   useEffect(() => {
-    if (!discover) return
-    const controller = new AbortController()
-    const params = new URLSearchParams({
-      search: query.search,
-      page: String(query.page),
-      limit: "9",
-    })
-    requestTeams<TeamSearch>(`?${params}`, { signal: controller.signal })
-      .then((data) => {
-        if (!controller.signal.aborted)
-          setSearchState({ key: searchKey, results: data, error: "" })
-      })
-      .catch((e) => {
-        if (!controller.signal.aborted)
-          setSearchState({
-            key: searchKey,
-            results: null,
-            error: teamErrorKey(e),
-          })
-      })
-    return () => controller.abort()
-  }, [discover, query, searchKey])
+    if (workspaceData) {
+      applyWorkspace(workspaceData)
+    }
+  }, [workspaceData, applyWorkspace])
+
+  const searchParams = new URLSearchParams({
+    search: query.search,
+    page: String(query.page),
+    limit: "9",
+  }).toString()
+
+  const {
+    data: searchResults,
+    error: searchSwrError,
+    isLoading: searchLoading,
+    mutate: mutateSearch,
+  } = useSWR(
+    discover ? `/teams/search?${searchParams}` : null,
+    () => requestTeams<TeamSearch>(`?${searchParams}`),
+    { keepPreviousData: true }
+  )
+
+  const loading = workspaceLoading && !ready
+  const error = actionError || (workspaceSwrError && !ready ? teamErrorKey(workspaceSwrError) : "")
+  const results = searchResults || null
+  const searchError = searchSwrError ? teamErrorKey(searchSwrError) : ""
 
   async function reload() {
     if (actionLock.current) return
-    const controller = new AbortController()
-    activeRequest.current?.abort()
-    activeRequest.current = controller
-    setLoading(true)
-    setError("")
-    try {
-      const data = await fetchWorkspace(controller.signal)
-      if (controller.signal.aborted) return
-      applyWorkspace(data)
-      setRevision((v) => v + 1)
-    } catch (e) {
-      if (!controller.signal.aborted) setError(teamErrorKey(e))
-    } finally {
-      if (!controller.signal.aborted) setLoading(false)
-    }
+    setActionError("")
+    const data = await mutateWorkspace()
+    if (data) applyWorkspace(data)
   }
 
   async function mutate(
@@ -181,24 +116,21 @@ export function TeamWorkspace({ discover = false }: { discover?: boolean }) {
     if (actionLock.current) return false
     actionLock.current = true
     setBusy(true)
-    setError("")
+    setActionError("")
     setNotice("")
-    const controller = new AbortController()
-    activeRequest.current = controller
     try {
-      await requestTeams(path, { method, body, signal: controller.signal })
-      const data = await fetchWorkspace(controller.signal)
-      if (controller.signal.aborted) return false
-      applyWorkspace(data)
+      await requestTeams(path, { method, body })
+      const data = await mutateWorkspace()
+      if (data) applyWorkspace(data)
+      void mutateParticipantTeam()
       setNotice(success)
-      setRevision((v) => v + 1)
       return true
     } catch (e) {
-      if (!controller.signal.aborted) setError(teamErrorKey(e))
+      setActionError(teamErrorKey(e))
       return false
     } finally {
       actionLock.current = false
-      if (!controller.signal.aborted) setBusy(false)
+      setBusy(false)
     }
   }
 
@@ -680,7 +612,7 @@ export function TeamWorkspace({ discover = false }: { discover?: boolean }) {
                 ) : searchError ? (
                   <div role="alert" className={styles.error}>
                     <p>{t(searchError)}</p>
-                    <Button onClick={() => setRevision((v) => v + 1)}>
+                    <Button onClick={() => void mutateSearch()}>
                       {t("refresh")}
                     </Button>
                   </div>

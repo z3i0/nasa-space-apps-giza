@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
+import useSWR from "swr"
 import { useLocale, useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import {
@@ -36,9 +37,8 @@ function SubmissionEditor({ teamId }: { teamId: string }) {
   const locale = useLocale()
   const [state, setState] = useState<SubmissionState | null>(null)
   const [draft, setDraft] = useState<SubmissionDraft>(emptyDraft)
-  const [error, setError] = useState("")
+  const [actionError, setActionError] = useState("")
   const [busy, setBusy] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [dirty, setDirty] = useState(false)
   const [notice, setNotice] = useState("")
   const [now, setNow] = useState(() => Date.now())
@@ -54,45 +54,31 @@ function SubmissionEditor({ teamId }: { teamId: string }) {
     )
     setDirty(false)
   }, [])
-  const load = useCallback(
-    async (signal?: AbortSignal) => {
-      try {
-        const data = await requestTeams<SubmissionState>(
-          `/${teamId}/submission`,
-          { signal }
-        )
-        if (!signal?.aborted) {
-          apply(data)
-          setError("")
-        }
-      } catch {
-        if (!signal?.aborted) setError("loadError")
-      } finally {
-        if (!signal?.aborted) setLoading(false)
-      }
-    },
-    [teamId, apply]
+
+  const {
+    data: remoteSubmission,
+    error: swrError,
+    isLoading: submissionLoading,
+    mutate: mutateSubmission,
+  } = useSWR<SubmissionState>(
+    teamId ? `/teams/${teamId}/submission` : null,
+    () => requestTeams<SubmissionState>(`/${teamId}/submission`),
+    { revalidateOnFocus: true }
   )
+
   useEffect(() => {
-    const controller = new AbortController()
-    requestTeams<SubmissionState>(`/${teamId}/submission`, {
-      signal: controller.signal,
-    })
-      .then((data) => {
-        if (!controller.signal.aborted) apply(data)
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setError("loadError")
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false)
-      })
-    const timer = window.setInterval(() => setNow(Date.now()), 1000)
-    return () => {
-      controller.abort()
-      window.clearInterval(timer)
+    if (remoteSubmission && !dirty) {
+      apply(remoteSubmission)
     }
-  }, [teamId, apply])
+  }, [remoteSubmission, dirty, apply])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const loading = submissionLoading && !state
+  const error = actionError || (swrError && !state ? "loadError" : "")
   useEffect(() => {
     if (!dirty) return
     const warn = (event: BeforeUnloadEvent) => {
@@ -121,7 +107,7 @@ function SubmissionEditor({ teamId }: { teamId: string }) {
       return
     lock.current = true
     setBusy(true)
-    setError("")
+    setActionError("")
     setNotice("")
     try {
       const data = await requestTeams<SubmissionState>(
@@ -132,6 +118,7 @@ function SubmissionEditor({ teamId }: { teamId: string }) {
         }
       )
       apply(data)
+      void mutateSubmission(data, false)
       setNotice(
         data.submission?.status === "submitted"
           ? "submissionSaved"
@@ -144,7 +131,7 @@ function SubmissionEditor({ teamId }: { teamId: string }) {
         SUBMISSION_INCOMPLETE: "incomplete",
         SUBMISSION_CONFLICT: "submissionConflict",
       }
-      setError(
+      setActionError(
         e instanceof TeamRequestError
           ? codes[e.code || ""] ||
               (e.status === 403 ? "permissionChanged" : "saveError")
@@ -173,7 +160,7 @@ function SubmissionEditor({ teamId }: { teamId: string }) {
             onClick={() => {
               if (!dirty || window.confirm(t("reloadConfirm"))) {
                 setNotice("")
-                void load()
+                void mutateSubmission()
               }
             }}
           >

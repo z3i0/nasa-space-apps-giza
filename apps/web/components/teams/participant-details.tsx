@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import useSWR from "swr"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { requestTeams, teamErrorKey, type TeamContact } from "@/lib/teams"
@@ -24,25 +24,16 @@ export function ContactNumber({ phone }: { phone?: string | null }) {
 
 export function LeaderContact({ teamId }: { teamId: string }) {
   const t = useTranslations("Teams")
-  const [contact, setContact] = useState<TeamContact | null>(null)
-  const [error, setError] = useState("")
-  const [attempt, setAttempt] = useState(0)
-  useEffect(() => {
-    const controller = new AbortController()
-    requestTeams<TeamContact>(`/${teamId}/leader`, {
-      signal: controller.signal,
-    })
-      .then((result) => {
-        if (!controller.signal.aborted) {
-          setContact(result)
-          setError("")
-        }
-      })
-      .catch((e) => {
-        if (!controller.signal.aborted) setError(teamErrorKey(e))
-      })
-    return () => controller.abort()
-  }, [teamId, attempt])
+  const {
+    data: contact = null,
+    error: swrError,
+    mutate,
+  } = useSWR<TeamContact>(
+    teamId ? `/teams/${teamId}/leader` : null,
+    () => requestTeams<TeamContact>(`/${teamId}/leader`),
+    { revalidateOnFocus: true }
+  )
+  const error = swrError ? teamErrorKey(swrError) : ""
   return (
     <div className={styles.contactPanel}>
       <h3>{t("leaderContact")}</h3>
@@ -52,7 +43,7 @@ export function LeaderContact({ teamId }: { teamId: string }) {
           <Button
             type="button"
             variant="secondary"
-            onClick={() => setAttempt((n) => n + 1)}
+            onClick={() => void mutate()}
           >
             {t("refresh")}
           </Button>

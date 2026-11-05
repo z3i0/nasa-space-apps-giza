@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useTranslations, useLocale } from "next-intl"
+import { useMyTeam, mutateParticipantTeam } from "@/hooks/use-participant-team"
 import { RoleGuard } from "@/components/role-guard"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { Link } from "@/i18n/routing"
@@ -79,11 +80,16 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
   const currentUser =
     user || (typeof window !== "undefined" ? getAuthUser() : null)
 
-  const [team, setTeam] = React.useState<TeamDetails | null | undefined>(
-    initialTeam
-  )
-  const [loading, setLoading] = React.useState<boolean>(team === undefined)
-  const [error, setError] = React.useState("")
+  const {
+    team,
+    error: swrError,
+    isLoading: isSwrLoading,
+    mutate: mutateTeam,
+  } = useMyTeam({
+    fallbackData: initialTeam !== undefined ? { team: initialTeam } : undefined,
+  })
+
+  const [actionError, setActionError] = React.useState("")
   const [createOpen, setCreateOpen] = React.useState(false)
   const [editOpen, setEditOpen] = React.useState(false)
   const [inviteUsername, setInviteUsername] = React.useState("")
@@ -98,43 +104,20 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
   )
   const [confirmLoading, setConfirmLoading] = React.useState(false)
 
-  const loadTeam = React.useCallback(async (silent = false) => {
-    if (!silent) {
-      setLoading(true)
-    }
-    setError("")
+  const loading = isSwrLoading && team === undefined
+  const error = actionError || (swrError && team === undefined ? (swrError instanceof Error ? swrError.message : t("actionFailed")) : "")
+
+  const loadTeam = React.useCallback(async (_silent = false) => {
+    setActionError("")
     try {
-      const data = await fetchMyTeam()
-      setTeam(data.team)
+      await mutateParticipantTeam()
     } catch (err) {
       console.error("Failed to load team:", err)
-      if (!silent) {
-        setError(
-          (err instanceof Error ? err.message : "") || "Failed to load team"
-        )
-      }
-    } finally {
-      if (!silent) {
-        setLoading(false)
-      }
+      setActionError(
+        (err instanceof Error ? err.message : "") || "Failed to load team"
+      )
     }
   }, [])
-
-  React.useEffect(() => {
-    const controller = new AbortController()
-    fetchMyTeam(controller.signal)
-      .then((data) => {
-        if (!controller.signal.aborted) setTeam(data.team)
-      })
-      .catch((error) => {
-        if (!controller.signal.aborted)
-          setError(error instanceof Error ? error.message : t("actionFailed"))
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false)
-      })
-    return () => controller.abort()
-  }, [t])
 
   const isLeader = Boolean(
     team &&
@@ -174,7 +157,7 @@ function MyTeamContent({ initialTeam }: MyTeamClientProps) {
       if (confirmType === "leave") {
         if (!currentUser?.id) return
         await leaveTeam(team.id, currentUser.id)
-        setTeam(null)
+        await mutateTeam({ team: null }, false)
         toast.success(t("leaveSuccess"))
         setConfirmType(null)
         void loadTeam(false)

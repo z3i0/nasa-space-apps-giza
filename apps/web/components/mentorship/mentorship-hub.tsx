@@ -1,5 +1,6 @@
 "use client"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
+import useSWR from "swr"
 import { useLocale, useTranslations } from "next-intl"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { useAuthUser } from "@/lib/auth"
@@ -19,49 +20,46 @@ export function MentorshipHub() {
   const locale = useLocale()
   const user = useAuthUser()
   const userId = user?.id
-  const [mentors, setMentors] = useState<Mentor[]>([])
-  const [requests, setRequests] = useState<MentorshipRequest[]>([])
-  const [loading, setLoading] = useState(true)
+
+  const {
+    data,
+    error: swrError,
+    isLoading: swrLoading,
+    mutate,
+  } = useSWR(
+    "/mentorship/hub",
+    () =>
+      Promise.all([
+        mentorshipApi<Mentor[]>("/mentors"),
+        mentorshipApi<MentorshipRequest[]>("/requests"),
+      ]),
+    {
+      refreshInterval: 15000,
+      revalidateOnFocus: true,
+    }
+  )
+
+  const mentors = data?.[0] ?? []
+  const requests = data?.[1] ?? []
   const [busy, setBusy] = useState(false)
   const mutationLock = useRef(false)
-  const [error, setError] = useState("")
+  const [actionError, setActionError] = useState("")
   const [openRequest, setOpenRequest] = useState<string | null>(null)
-  const refresh = useCallback(
-    async (signal?: AbortSignal) => {
-      try {
-        const [mentorList, requestList] = await Promise.all([
-          mentorshipApi<Mentor[]>("/mentors", { signal }),
-          mentorshipApi<MentorshipRequest[]>("/requests", { signal }),
-        ])
-        if (!signal?.aborted) {
-          setMentors(mentorList)
-          setRequests(requestList)
-          setError("")
-        }
-      } catch {
-        if (!signal?.aborted) setError(t("error"))
-      } finally {
-        if (!signal?.aborted) setLoading(false)
-      }
-    },
-    [t]
-  )
-  useEffect(() => {
-    const controller = new AbortController()
-    void Promise.resolve().then(() => refresh(controller.signal))
-    return () => controller.abort()
-  }, [refresh])
+
+  const loading = swrLoading && !data
+  const error = actionError || (swrError && !data ? t("error") : "")
+
   async function act(action: () => Promise<unknown>, teamRequest = false) {
     if (mutationLock.current) return false
     mutationLock.current = true
     setBusy(true)
-    setError("")
+    setActionError("")
     try {
       await action()
-      await refresh()
+      await mutate()
       return true
     } catch (cause) {
-      setError(
+      setActionError(
         teamRequest &&
           cause instanceof MentorshipApiError &&
           cause.status === 400
@@ -92,7 +90,7 @@ export function MentorshipHub() {
           className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm"
         >
           {error}{" "}
-          <button className="ms-3 underline" onClick={() => void refresh()}>
+          <button className="ms-3 underline" onClick={() => void mutate()}>
             {t("retry")}
           </button>
         </div>

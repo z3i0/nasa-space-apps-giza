@@ -1,59 +1,56 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
+import useSWR from "swr"
 import { requestTeams, teamErrorKey, type Team } from "@/lib/teams"
+import { SWR_KEYS, mutateParticipantTeam } from "@/hooks/use-participant-team"
 
 export function useTeamWork() {
-  const [team, setTeam] = useState<Team | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const {
+    data,
+    error: swrError,
+    isLoading,
+    mutate: swrMutate,
+  } = useSWR<Team | { team: null }>(
+    SWR_KEYS.TEAM_WORK,
+    () => requestTeams<Team | { team: null }>("/me"),
+    {
+      revalidateOnFocus: true,
+      dedupingInterval: 4000,
+    }
+  )
+
+  const team = data && "id" in data ? data : null
+  const [actionError, setActionError] = useState("")
   const [busy, setBusy] = useState(false)
   const lock = useRef(false)
-  const load = useCallback(async (signal?: AbortSignal) => {
-    const result = await requestTeams<Team | { team: null }>("/me", { signal })
-    if (!signal?.aborted) setTeam("id" in result ? result : null)
-  }, [])
+
   const refresh = useCallback(async () => {
-    setError("")
-    setLoading(true)
-    try {
-      await load()
-    } catch (e) {
-      setError(teamErrorKey(e))
-    } finally {
-      setLoading(false)
-    }
-  }, [load])
-  useEffect(() => {
-    const controller = new AbortController()
-    requestTeams<Team | { team: null }>("/me", { signal: controller.signal })
-      .then((result) => {
-        if (!controller.signal.aborted) setTeam("id" in result ? result : null)
-      })
-      .catch((e) => {
-        if (!controller.signal.aborted) setError(teamErrorKey(e))
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false)
-      })
-    return () => controller.abort()
-  }, [])
+    setActionError("")
+    await swrMutate()
+  }, [swrMutate])
+
   async function mutate(path: string, method: string, body?: unknown) {
     if (lock.current) return false
     lock.current = true
     setBusy(true)
-    setError("")
+    setActionError("")
     try {
       await requestTeams(path, { method, body })
-      await load()
+      await swrMutate()
+      void mutateParticipantTeam()
       return true
     } catch (e) {
-      setError(teamErrorKey(e))
+      setActionError(teamErrorKey(e))
       return false
     } finally {
       lock.current = false
       setBusy(false)
     }
   }
+
+  const error = actionError || (swrError ? teamErrorKey(swrError) : "")
+  const loading = isLoading && !data
+
   return { team, loading, error, busy, refresh, mutate }
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import useSWR from "swr"
 import { useLocale, useTranslations } from "next-intl"
 import { accountApi } from "@/lib/account"
 import { Button } from "@/components/ui/button"
@@ -29,24 +29,15 @@ export function ChallengeSelect({
 }) {
   const t = useTranslations("Account")
   const locale = useLocale()
-  const [options, setOptions] = useState<Option[] | null>(null)
-  const [error, setError] = useState(false)
-  const [attempt, setAttempt] = useState(0)
-
-  useEffect(() => {
-    const c = new AbortController()
-    accountApi<Option[]>("/challenge-options", undefined, c.signal)
-      .then((data) => {
-        if (!c.signal.aborted) {
-          setOptions(data)
-          setError(false)
-        }
-      })
-      .catch(() => {
-        if (!c.signal.aborted) setError(true)
-      })
-    return () => c.abort()
-  }, [attempt])
+  const {
+    data: options = null,
+    error: isSwrError,
+    mutate,
+  } = useSWR<Option[]>("/challenge-options", {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+  })
+  const error = Boolean(isSwrError)
 
   const selectedValue =
     options?.some((option) => option.title === value) || (value && value !== "__none__")
@@ -126,7 +117,7 @@ export function ChallengeSelect({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => setAttempt((n) => n + 1)}
+            onClick={() => void mutate()}
             className="h-8 rounded-lg text-xs"
           >
             {t("retry")}
