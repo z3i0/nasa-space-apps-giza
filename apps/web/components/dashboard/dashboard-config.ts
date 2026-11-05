@@ -369,6 +369,11 @@ export const DASHBOARD_ROLES_CONFIG: Record<DashboardRole, RoleConfig> = {
             badgeVariant: "default",
           },
           {
+            titleKey: "nav.community",
+            url: "/dashboard/mentor/community",
+            icon: MessagesSquare,
+          },
+          {
             titleKey: "nav.mentorOfficeHours",
             url: "/dashboard/mentor/office-hours",
             icon: Clock,
