@@ -56,7 +56,9 @@ import { getAuthUser, setAuth } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 import {
   interestOptions,
+  normalizePhone,
   participationOptions,
+  phonePattern,
   profileDraft,
   ProfileRequestError,
   requestProfile,
@@ -91,7 +93,9 @@ export function ParticipantProfilePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
+  const [errorDetails, setErrorDetails] = useState<string[]>([])
   const [nameError, setNameError] = useState(false)
+  const [phoneError, setPhoneError] = useState("")
   const [saved, setSaved] = useState(false)
   const [preview, setPreview] = useState(false)
   const [customSkillInput, setCustomSkillInput] = useState("")
@@ -138,6 +142,9 @@ export function ParticipantProfilePage() {
   function reload() {
     setLoading(true)
     setError("")
+    setErrorDetails([])
+    setNameError(false)
+    setPhoneError("")
     void load()
   }
 
@@ -179,6 +186,7 @@ export function ParticipantProfilePage() {
     setDraft((current) => (current ? { ...current, [key]: value } : current))
     setSaved(false)
     if (key === "name") setNameError(false)
+    if (key === "phone") setPhoneError("")
   }
 
   function handleAddCustomSkill() {
@@ -219,12 +227,26 @@ export function ParticipantProfilePage() {
     if (!draft || !profile || busy.current) return
     if (!draft.name.trim()) {
       setNameError(true)
+      toast.error(t("nameRequired"))
       document.getElementById("profile-name")?.focus()
       return
     }
+
+    if (draft.phone && draft.phone.trim()) {
+      const normalized = normalizePhone(draft.phone)
+      if (!phonePattern.test(normalized)) {
+        setPhoneError(t("invalidPhone"))
+        toast.error(t("invalidPhone"))
+        document.getElementById("profile-phone")?.focus()
+        return
+      }
+    }
+
     busy.current = true
     setSaving(true)
     setError("")
+    setErrorDetails([])
+    setPhoneError("")
     const controller = new AbortController()
     request.current = controller
     try {
@@ -249,8 +271,28 @@ export function ParticipantProfilePage() {
             phone: result.user.phone,
           }
         )
-    } catch (error) {
-      if (!controller.signal.aborted) setError(errorKey(error))
+    } catch (err) {
+      if (!controller.signal.aborted) {
+        console.error("[ParticipantProfile] Save failed:", err)
+        setError(errorKey(err))
+        if (err instanceof ProfileRequestError && err.details) {
+          const detailsArray = Array.isArray(err.details)
+            ? err.details
+            : [err.details]
+          setErrorDetails(detailsArray)
+
+          const phoneMatch = detailsArray.some((d) =>
+            d.toLowerCase().includes("contact number") || d.toLowerCase().includes("phone")
+          )
+          if (phoneMatch) {
+            setPhoneError(t("invalidPhone"))
+          }
+
+          toast.error(detailsArray[0])
+        } else {
+          toast.error(t(errorKey(err)))
+        }
+      }
     } finally {
       busy.current = false
       if (!controller.signal.aborted) setSaving(false)
@@ -260,27 +302,40 @@ export function ParticipantProfilePage() {
   const errorMessage = error && (
     <div
       role="alert"
-      className="flex w-full items-center justify-between gap-3 rounded-xl border border-destructive/20 bg-destructive/10 p-3.5 text-xs text-destructive"
+      className="flex w-full flex-col gap-2.5 rounded-xl border border-destructive/20 bg-destructive/10 p-3.5 text-xs text-destructive"
     >
-      <p className="font-medium">{t(error)}</p>
-      {error === "sessionExpired" ? (
-        <Link href="/login" className="shrink-0 font-semibold underline">
-          {t("signIn")}
-        </Link>
-      ) : (
-        error === "conflict" && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (window.confirm(t("discardConfirm"))) reload()
-            }}
-            className="h-7 shrink-0 cursor-pointer rounded-lg text-xs"
-          >
-            {t("reload")}
-          </Button>
-        )
+      <div className="flex items-center justify-between gap-3">
+        <p className="font-semibold">{t(error)}</p>
+        {error === "sessionExpired" ? (
+          <Link href="/login" className="shrink-0 font-semibold underline">
+            {t("signIn")}
+          </Link>
+        ) : (
+          error === "conflict" && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (window.confirm(t("discardConfirm"))) reload()
+              }}
+              className="h-7 shrink-0 cursor-pointer rounded-lg text-xs"
+            >
+              {t("reload")}
+            </Button>
+          )
+        )}
+      </div>
+
+      {errorDetails.length > 0 && (
+        <div className="space-y-1 border-t border-destructive/20 pt-2 text-[11px] text-destructive/90">
+          <p className="font-semibold">{t("errorDetails")}</p>
+          <ul className="list-inside list-disc space-y-0.5">
+            {errorDetails.map((detail, index) => (
+              <li key={index}>{detail}</li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   )
@@ -624,15 +679,32 @@ export function ParticipantProfilePage() {
                         value={draft.phone}
                         onChange={(e) => change("phone", e.target.value)}
                         placeholder="+20 123 456 7890"
-                        className="h-10 rounded-xl text-sm"
-                        aria-describedby="profile-phone-help"
+                        aria-invalid={!!phoneError}
+                        aria-describedby={
+                          phoneError ? "profile-phone-error" : "profile-phone-help"
+                        }
+                        className={cn(
+                          "h-10 rounded-xl text-sm",
+                          phoneError &&
+                            "border-destructive focus-visible:ring-destructive/30"
+                        )}
                       />
-                      <p
-                        id="profile-phone-help"
-                        className="text-[11px] text-muted-foreground"
-                      >
-                        {contact("contactHelp")}
-                      </p>
+                      {phoneError ? (
+                        <p
+                          id="profile-phone-error"
+                          role="alert"
+                          className="text-xs text-destructive"
+                        >
+                          {phoneError}
+                        </p>
+                      ) : (
+                        <p
+                          id="profile-phone-help"
+                          className="text-[11px] text-muted-foreground"
+                        >
+                          {contact("contactHelp")}
+                        </p>
+                      )}
                     </div>
                   </div>
 

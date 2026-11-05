@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   ConflictException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { officialChallengeWhere } from '../challenges/official-catalogue.js';
@@ -40,6 +41,7 @@ const profileUserSelect = {
 
 @Injectable()
 export class ProfileService {
+  private readonly logger = new Logger(ProfileService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   // -------------------------------------------------------------
@@ -127,16 +129,23 @@ export class ProfileService {
   }
 
   async updateMyProfile(userId: string, dto: UpdateProfileDto) {
+    this.logger.log(`Updating profile for user ${userId}`);
     const { name, phone, avatar, expectedUpdatedAt, ...fields } = dto;
     return this.prisma.$transaction(async (tx) => {
       const user = await tx.user.findUnique({
         where: { id: userId },
         select: { id: true },
       });
-      if (!user) throw new NotFoundException('User not found');
+      if (!user) {
+        this.logger.warn(`User ${userId} not found during profile update`);
+        throw new NotFoundException('User not found');
+      }
       if (fields.preferredChallenge?.trim()) {
         const choice = await tx.challenge.findFirst({ where: { ...officialChallengeWhere, title: fields.preferredChallenge.trim() }, select: { id: true } });
-        if (!choice) throw new BadRequestException('Choose a published NASA challenge from the catalogue.');
+        if (!choice) {
+          this.logger.warn(`Invalid challenge choice "${fields.preferredChallenge}" for user ${userId}`);
+          throw new BadRequestException('Choose a published NASA challenge from the catalogue.');
+        }
       }
       const data = Object.fromEntries(
         Object.entries(fields).map(([key, value]) => [
@@ -151,10 +160,12 @@ export class ProfileService {
           where: { userId, updatedAt: new Date(expectedUpdatedAt) },
           data: { ...data, updatedAt: new Date(Math.max(Date.now(), new Date(expectedUpdatedAt).getTime() + 1)) },
         });
-        if (result.count !== 1)
+        if (result.count !== 1) {
+          this.logger.warn(`Profile concurrency conflict for user ${userId} (expected: ${expectedUpdatedAt})`);
           throw new ConflictException(
             'Profile changed since it was loaded. Reload before saving.',
           );
+        }
       } else {
         await tx.profile.upsert({
           where: { userId },
@@ -172,6 +183,7 @@ export class ProfileService {
           },
         });
       }
+      this.logger.log(`Profile successfully updated for user ${userId}`);
       return this.formatProfile(
         await tx.profile.findUniqueOrThrow({
           where: { userId },

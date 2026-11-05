@@ -652,6 +652,8 @@
       "signIn": "Sign in",
       "conflict": "This profile was updated in another tab. Your edits have been kept here. Reload the latest profile before saving.",
       "validationError": "Some profile details are invalid. Check your entries and try again.",
+      "invalidPhone": "Invalid phone number. Must contain 7 to 15 digits with an optional + country code.",
+      "errorDetails": "Error details:",
       "reload": "Reload latest profile",
       "nameRequired": "Enter a display name.",
       "namePlaceholder": "Your name",

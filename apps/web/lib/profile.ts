@@ -86,9 +86,34 @@ export function profileDraft(profile: ParticipantProfile): ProfileDraft {
   }
 }
 
+export function normalizePhone(value: string): string {
+  return value
+    .trim()
+    .replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x660))
+    .replace(/[۰-۹]/g, (digit) => String(digit.charCodeAt(0) - 0x6f0))
+    .replace(/[\s()-]/g, "")
+}
+
+export const phonePattern = /^\+?[0-9]{7,15}$/
+
 export class ProfileRequestError extends Error {
-  constructor(public status: number) {
-    super(`Profile request failed (${status})`)
+  public details?: string[] | string
+  public raw?: unknown
+
+  constructor(
+    public status: number,
+    details?: string[] | string,
+    raw?: unknown
+  ) {
+    const message = Array.isArray(details)
+      ? details.join(". ")
+      : typeof details === "string"
+        ? details
+        : `Profile request failed (${status})`
+    super(message)
+    this.name = "ProfileRequestError"
+    this.details = details
+    this.raw = raw
   }
 }
 
@@ -99,18 +124,50 @@ export async function requestProfile(
   draft?: ProfileDraft,
   version?: string
 ): Promise<ParticipantProfile> {
+  const payload = draft
+    ? {
+        ...draft,
+        phone:
+          draft.phone && draft.phone.trim()
+            ? normalizePhone(draft.phone)
+            : undefined,
+        expectedUpdatedAt: version,
+      }
+    : undefined
+
   const response = await fetch(`/api/profiles/me`, {
     method: draft ? "PATCH" : "GET",
     credentials: "include",
     cache: "no-store",
     signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]),
-    ...(draft
+    ...(payload
       ? {
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...draft, expectedUpdatedAt: version }),
+          body: JSON.stringify(payload),
         }
       : {}),
   })
-  if (!response.ok) throw new ProfileRequestError(response.status)
+
+  if (!response.ok) {
+    let errorData: any = null
+    try {
+      errorData = await response.json()
+    } catch {
+      // response might be empty or non-JSON
+    }
+
+    const message = errorData?.message || errorData?.error
+    console.error("[Profile Request Error]", {
+      url: "/api/profiles/me",
+      method: draft ? "PATCH" : "GET",
+      status: response.status,
+      statusText: response.statusText,
+      errorData,
+      payload,
+    })
+
+    throw new ProfileRequestError(response.status, message, errorData)
+  }
+
   return response.json()
 }

@@ -143,6 +143,7 @@ export function EditUserModal({
       onSuccess()
       onClose()
     } catch (err) {
+      console.error("[EditUserModal] Failed to update user:", err)
       toast.error(err instanceof Error ? err.message : t("error" as any))
     } finally {
       setLoading(false)
@@ -293,6 +294,7 @@ export function ChangeRoleModal({
       onSuccess()
       onClose()
     } catch (err) {
+      console.error("[EditUserModal] Failed to update user:", err)
       toast.error(err instanceof Error ? err.message : t("error" as any))
     } finally {
       setLoading(false)
@@ -430,6 +432,7 @@ export function ResetPasswordModal({
       onSuccess()
       onClose()
     } catch (err) {
+      console.error("[EditUserModal] Failed to update user:", err)
       toast.error(err instanceof Error ? err.message : t("error" as any))
     } finally {
       setLoading(false)
@@ -548,6 +551,7 @@ export function ToggleStatusModal({
       onSuccess()
       onClose()
     } catch (err) {
+      console.error("[EditUserModal] Failed to update user:", err)
       toast.error(err instanceof Error ? err.message : t("error" as any))
     } finally {
       setLoading(false)
@@ -622,6 +626,7 @@ export function DeleteUserModal({
       onSuccess()
       onClose()
     } catch (err) {
+      console.error("[EditUserModal] Failed to update user:", err)
       toast.error(err instanceof Error ? err.message : t("error" as any))
     } finally {
       setLoading(false)
@@ -718,6 +723,7 @@ export function EditTeamModal({
       onSuccess()
       onClose()
     } catch (err) {
+      console.error("[EditUserModal] Failed to update user:", err)
       toast.error(err instanceof Error ? err.message : t("error" as any))
     } finally {
       setLoading(false)
@@ -840,6 +846,7 @@ export function ManageTeamMembersModal({
       invalidateAdminCaches()
       onSuccess()
     } catch (err) {
+      console.error("[EditUserModal] Failed to update user:", err)
       toast.error(err instanceof Error ? err.message : t("error" as any))
     } finally {
       setLoadingId(null)
@@ -857,6 +864,7 @@ export function ManageTeamMembersModal({
       invalidateAdminCaches()
       onSuccess()
     } catch (err) {
+      console.error("[EditUserModal] Failed to update user:", err)
       toast.error(err instanceof Error ? err.message : t("error" as any))
     } finally {
       setLoadingId(null)
@@ -986,6 +994,7 @@ export function DeleteTeamModal({
       onSuccess()
       onClose()
     } catch (err) {
+      console.error("[EditUserModal] Failed to update user:", err)
       toast.error(err instanceof Error ? err.message : t("error" as any))
     } finally {
       setLoading(false)
