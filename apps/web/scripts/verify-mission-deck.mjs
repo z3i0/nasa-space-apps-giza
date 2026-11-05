@@ -117,7 +117,7 @@ const output = process.env.MISSION_SCREENSHOTS
             const link = slide.getByRole("link")
             assert.match(
               await link.getAttribute("href"),
-              /^https:\/\/www\.spaceappschallenge\.org\/2026\/challenges\/.+\/\/\?tab=teams$/
+              /^https:\/\/www\.spaceappschallenge\.org\/2026\/challenges\/.+\/$/
             )
             assert.equal(await link.getAttribute("target"), "_blank")
           }

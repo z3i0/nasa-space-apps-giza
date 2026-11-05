@@ -10,7 +10,12 @@ import {
 import Image from "next/image"
 import { useLocale, useTranslations } from "next-intl"
 import { ArrowLeft, ArrowRight, ArrowUpRight, Radio } from "lucide-react"
-import { missions, type Mission } from "./mission-data"
+import {
+  missions,
+  difficultyTranslations,
+  subjectTranslations,
+  type Mission,
+} from "./mission-data"
 import { MissionOrbitals } from "./mission-orbitals"
 import landing from "./landing.module.css"
 import styles from "./mission-deck.module.css"
@@ -22,13 +27,16 @@ function DeckCard({
   index,
   briefing,
   explore,
+  locale,
 }: {
   mission: Mission
   index: number
   briefing: ReactNode
   explore: () => void
+  locale: string
 }) {
   const t = useTranslations("Home.deck")
+  const isAr = locale === "ar"
 
   if (mission.kind === "briefing") {
     return (
@@ -41,33 +49,60 @@ function DeckCard({
     )
   }
 
+  const title = isAr && mission.titleAr ? mission.titleAr : mission.title
+  const summary =
+    isAr && mission.summaryAr ? mission.summaryAr : mission.summary
+  const label = isAr && mission.labelAr ? mission.labelAr : mission.label
+  const difficulty = isAr
+    ? mission.difficulty.map((level) => difficultyTranslations[level] || level)
+    : mission.difficulty
+  const subjects = isAr
+    ? mission.subjects.map((subject) => subjectTranslations[subject] || subject)
+    : mission.subjects
+
+  const missionHeaderTitle = isAr
+    ? `المهمة ${number(index + 1)} · ${label}`
+    : `MISSION ${number(index + 1)} · ${label}`
+
+  const footerArchiveStamp = isAr
+    ? `الجيزة / ${number(index + 1)}`
+    : `GZA / ${number(index + 1)}`
+
+  const footerArchiveLabel = isAr ? "— أرشيف المهمة" : "— MISSION ARCHIVE"
+
   return (
     <div className={styles.challenge}>
       <div className={styles.corners} aria-hidden="true" />
       <header className={styles.fileHeader}>
-        <span lang="en" dir="ltr">
-          MISSION {number(index + 1)} · {mission.label}
+        <span lang={isAr ? "ar" : "en"} dir={isAr ? "rtl" : "ltr"}>
+          {missionHeaderTitle}
         </span>
         <span className={styles.fileStatus}>
           <i />
           {t("status")}
         </span>
       </header>
-      <div className={styles.fileBody} lang="en" dir="ltr">
+      <div
+        className={styles.fileBody}
+        lang={isAr ? "ar" : "en"}
+        dir={isAr ? "rtl" : "ltr"}
+      >
         <div className={styles.fileIndex} aria-hidden="true">
           <span>{number(index + 1)}</span>
           <div>
-            <span>NASA SPACE APPS</span>
-            <span>CHALLENGE ARCHIVE / 2026</span>
+            <span>{isAr ? "ناسا سبيس آبس" : "NASA SPACE APPS"}</span>
+            <span>
+              {isAr ? "أرشيف التحديات / ٢٠٢٦" : "CHALLENGE ARCHIVE / 2026"}
+            </span>
           </div>
         </div>
-        <h3 id={`mission-${mission.id}`}>{mission.title}</h3>
-        <p className={styles.summary}>{mission.summary}</p>
+        <h3 id={`mission-${mission.id}`}>{title}</h3>
+        <p className={styles.summary}>{summary}</p>
         <div className={styles.metadata}>
           <div>
             <p className={styles.metaLabel}>{t("difficulty")}</p>
             <ul className={styles.badges}>
-              {mission.difficulty.map((level) => (
+              {difficulty.map((level) => (
                 <li key={level}>{level}</li>
               ))}
             </ul>
@@ -75,7 +110,7 @@ function DeckCard({
           <div>
             <p className={styles.metaLabel}>{t("subjects")}</p>
             <ul className={styles.subjects}>
-              {mission.subjects.map((subject) => (
+              {subjects.map((subject) => (
                 <li key={subject}>{subject}</li>
               ))}
             </ul>
@@ -83,14 +118,14 @@ function DeckCard({
         </div>
       </div>
       <footer className={styles.fileFooter}>
-        <span dir="ltr" aria-hidden="true">
-          GZA / {number(index + 1)} <span>— MISSION ARCHIVE</span>
+        <span dir={isAr ? "rtl" : "ltr"} aria-hidden="true">
+          {footerArchiveStamp} <span>{footerArchiveLabel}</span>
         </span>
         <a
           href={mission.url}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`${t("view")}: ${mission.title} (${t("external")})`}
+          aria-label={`${t("view")}: ${title} (${t("external")})`}
         >
           {t("view")} <ArrowUpRight size={18} aria-hidden="true" />
         </a>
@@ -317,7 +352,7 @@ export function MissionDeck({ briefing }: { briefing: ReactNode }) {
             aria-label={t("slide", {
               current: index + 1,
               total: missions.length,
-              title: mission.title,
+              title: rtl && mission.titleAr ? mission.titleAr : mission.title,
             })}
             aria-hidden={index !== active}
             inert={index !== active}
@@ -329,6 +364,7 @@ export function MissionDeck({ briefing }: { briefing: ReactNode }) {
               index={index}
               briefing={briefing}
               explore={() => navigate(1)}
+              locale={locale}
             />
           </article>
         ))}
@@ -339,7 +375,7 @@ export function MissionDeck({ briefing }: { briefing: ReactNode }) {
             key={mission.id}
             aria-label={t("select", {
               number: index + 1,
-              title: mission.title,
+              title: rtl && mission.titleAr ? mission.titleAr : mission.title,
             })}
             aria-current={index === active ? "step" : undefined}
             onClick={() => navigate(index)}
@@ -357,7 +393,10 @@ export function MissionDeck({ briefing }: { briefing: ReactNode }) {
         {t("slide", {
           current: active + 1,
           total: missions.length,
-          title: activeMission.title,
+          title:
+            rtl && activeMission.titleAr
+              ? activeMission.titleAr
+              : activeMission.title,
         })}
       </p>
       <p className={landing.missionCaption}>

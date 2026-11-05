@@ -37,6 +37,7 @@ export function SmoothScroll() {
       smoothWheel: true,
       touchMultiplier: 1.5,
       allowNestedScroll: true,
+      anchors: true,
       prevent: (node) => {
         return (
           node.hasAttribute?.("data-lenis-prevent") ||
@@ -49,6 +50,7 @@ export function SmoothScroll() {
     })
 
     lenisRef.current = lenis
+    ;(window as unknown as { __lenis?: Lenis }).__lenis = lenis
 
     let animId: number
     function raf(time: number) {
@@ -65,6 +67,7 @@ export function SmoothScroll() {
       cancelAnimationFrame(animId)
       lenis.destroy()
       lenisRef.current = null
+      ;(window as unknown as { __lenis?: Lenis }).__lenis = undefined
       document.documentElement.style.scrollBehavior = ""
     }
   }, [pathname])

@@ -49,7 +49,6 @@
   justify-content: space-between;
   gap: 20px;
   padding-inline: clamp(24px, 4.2vw, 80px);
-  border-bottom: 1px solid #ffffff0e;
   background: linear-gradient(#0d0c1366, transparent);
 }
 .brand {

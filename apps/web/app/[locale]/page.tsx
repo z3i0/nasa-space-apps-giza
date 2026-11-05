@@ -3,7 +3,7 @@ import localFont from "next/font/local"
 import saturnImage from "@/public/space/saturn.png"
 import meteorImage from "@/public/space/meteor.webp"
 import { getTranslations, setRequestLocale } from "next-intl/server"
-import { ArrowDown, ArrowUpLeft, ArrowUpRight } from "lucide-react"
+import { ArrowDown, ArrowUpLeft } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { Logo } from "@/components/logo"
@@ -11,6 +11,7 @@ import { MissionCard } from "@/components/landing/mission-card"
 import { MissionTimeline } from "@/components/landing/mission-timeline"
 import { MoonLanding } from "@/components/landing/moon-landing"
 import { SpaceScene } from "@/components/landing/space-scene"
+import { BackToTop } from "@/components/landing/back-to-top"
 import { HomeAuthNav } from "@/components/landing/home-auth-nav"
 import { AuthProvider } from "@/components/auth-provider"
 import { getServerAuthUser } from "@/lib/auth-server"
@@ -53,6 +54,7 @@ export default async function Page({
   return (
     <AuthProvider initialUser={user}>
       <div
+        id="top"
         className={cn(styles.landing, pinnacle.variable, spaceRabbit.variable)}
       >
         <a className={styles.skipLink} href="#mission">
@@ -187,10 +189,7 @@ export default async function Page({
           NASA SPACE APPS <b>GIZA</b>
         </span>
         <p>{t("footer")}</p>
-        <a href="#landing-title">
-          {t("backToTop")}
-          <ArrowUpRight size={14} aria-hidden="true" />
-        </a>
+        <BackToTop label={t("backToTop")} />
       </footer>
     </div>
   </AuthProvider>

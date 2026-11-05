@@ -2,9 +2,12 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  height: 100svh;
-  min-height: 0;
-  padding: clamp(24px, 6svh, 64px) 5vw;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: clamp(32px, 8svh, 72px) 5vw clamp(40px, 8svh, 64px);
   box-sizing: border-box;
   background: #030305;
   text-align: center;
@@ -47,13 +50,9 @@
 .content {
   position: relative;
   z-index: 2;
-  width: 76%;
-  max-width: 980px;
-  max-height: calc(100% - 100px);
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  scrollbar-width: thin;
-  margin-inline: 0 auto;
+  width: 100%;
+  max-width: 840px;
+  margin-inline: auto;
 }
 .eyebrow {
   display: flex;
@@ -67,9 +66,9 @@
   text-transform: uppercase;
 }
 .content h2 {
-  margin-top: 22px;
+  margin-top: 18px;
   font-family: var(--font-space-rabbit), var(--font-latin), sans-serif;
-  font-size: clamp(32px, 4.3vw, 62px);
+  font-size: clamp(28px, 4vw, 56px);
   font-weight: 400;
   line-height: 1.18;
   letter-spacing: 0;
@@ -78,15 +77,15 @@
 }
 .content h2 span {
   display: block;
-  margin-top: 8px;
+  margin-top: 6px;
   color: #b8a5ff;
 }
 .description {
-  max-width: 470px;
-  margin: 22px auto;
+  max-width: 480px;
+  margin: 18px auto;
   color: #b8b3c9;
   font-size: 14px;
-  line-height: 1.8;
+  line-height: 1.7;
   text-wrap: pretty;
 }
 .status {
@@ -126,11 +125,10 @@
 }
 .landingZone {
   position: absolute;
-  left: 85%;
-  bottom: 7svh;
-  width: min(19vw, 27svh, 220px);
+  inset-inline-end: clamp(20px, 6vw, 100px);
+  bottom: clamp(20px, 6svh, 50px);
+  width: min(18vw, 24svh, 200px);
   aspect-ratio: 160 / 248;
-  transform: translateX(-50%);
   pointer-events: none;
 }
 .ship {
@@ -188,11 +186,15 @@
 .scene[data-running="false"] .dust {
   animation-play-state: paused;
 }
-.scene:dir(rtl) .content h2,
+.scene:dir(rtl) .content h2 {
+  font-family: var(--font-arabic), sans-serif;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
 .scene:dir(rtl) .eyebrow {
   font-family: var(--font-arabic), sans-serif;
   letter-spacing: 0;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 @keyframes landing {
   0%, 100% { transform: translate(12px, -70px) rotate(-12deg); }
@@ -217,14 +219,34 @@
 }
 @media (max-width: 700px) {
   .scene {
-    padding: clamp(18px, 4svh, 36px) 20px;
+    padding: clamp(28px, 5svh, 44px) 16px clamp(130px, 22svh, 170px);
+    justify-content: center;
   }
-  .content { width: 100%; max-height: calc(100% - 215px); }
-  .content h2 { font-size: clamp(25px, 6.8vw, 38px); margin-top: 12px; }
-  .description { font-size: 13px; margin-block: 14px; line-height: 1.6; }
-  .eyebrow { font-size: 9px; }
-  .status { font-size: 11px; margin-bottom: 12px; }
-  .landingZone { left: 72%; bottom: 20px; width: 120px; }
+  .content {
+    width: 100%;
+  }
+  .content h2 {
+    font-size: clamp(24px, 6.8vw, 34px);
+    margin-top: 12px;
+  }
+  .description {
+    font-size: 13px;
+    margin-block: 12px;
+    line-height: 1.6;
+    max-width: 340px;
+  }
+  .eyebrow {
+    font-size: 9px;
+  }
+  .status {
+    font-size: 11px;
+    margin-bottom: 16px;
+  }
+  .landingZone {
+    inset-inline-end: clamp(12px, 4vw, 28px);
+    bottom: 14px;
+    width: clamp(88px, 20vw, 110px);
+  }
   
   .ship { animation-name: landingMobile; }
 }
@@ -241,7 +263,19 @@
 }
 
 @media (max-width: 700px) and (orientation: landscape) {
-  .content { width: 72%; max-height: 100%; }
-  .landingZone { left: 86%; width: min(120px, 30svh); bottom: 6svh; }
-  .terrain { height: 65svh; }
+  .scene {
+    padding: 24px 20px 32px;
+  }
+  .content {
+    width: 68%;
+    margin-inline: 0 auto;
+  }
+  .landingZone {
+    inset-inline-end: 20px;
+    width: min(90px, 28svh);
+    bottom: 4svh;
+  }
+  .terrain {
+    height: 65svh;
+  }
 }

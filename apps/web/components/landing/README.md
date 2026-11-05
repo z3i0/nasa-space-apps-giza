@@ -43,7 +43,7 @@ Run `node scripts/verify-timeline.mjs` with the Playwright environment options b
 
 ### Mission deck
 
-`mission-data.ts` holds the briefing entry followed by the 14 supplied 2026 challenges. Official titles, summaries, difficulty levels, subject lists, and destination URLs are preserved. The supplied double-slash URLs and `?tab=teams` query strings are intentional. Challenge copy stays in its supplied English; controls and briefing use the existing English/Arabic messages.
+`mission-data.ts` holds the briefing entry followed by the 14 supplied 2026 challenges. Official titles, summaries, difficulty levels, subject lists, and destination URLs are verified against `https://www.spaceappschallenge.org/2026/challenges/`. Challenge copy and metadata support both English and Arabic.
 
 The briefing uses a compact two-column layout on laptops, with benefits expanded alongside the introduction. On phones, benefits collapse into accessible tap-to-expand rows. Card spacing, repeated labels, and minimum heights are reduced so the whole card fits typical phone and laptop screens.
 

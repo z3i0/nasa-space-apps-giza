@@ -64,7 +64,8 @@
   font-size: clamp(32px, 4.5vw, 68px);
   font-weight: 800;
   letter-spacing: -0.02em;
-  line-height: 1.05;
+  line-height: 1.2;
+  padding-block: 0.05em 0.15em;
   text-transform: uppercase;
   background: linear-gradient(135deg, #ffffff 30%, #c9b8ff 65%, #9370ff);
   -webkit-background-clip: text;
@@ -242,8 +243,8 @@
 .fileIndex > div {
   display: grid;
   gap: 7px;
-  padding-left: 18px;
-  border-left: 1px solid #ffffff25;
+  padding-inline-start: 18px;
+  border-inline-start: 1px solid #ffffff25;
   font:
     9px var(--font-mono),
     monospace;
@@ -604,4 +605,34 @@
     display: none;
   }
 }
+
+.challenge:dir(rtl) .fileBody,
+:global(.landing:dir(rtl)) .fileBody {
+  font-family: var(--font-arabic), sans-serif;
+}
+.challenge:dir(rtl) .fileBody h3,
+:global(.landing:dir(rtl)) .fileBody h3 {
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+.challenge:dir(rtl) .summary,
+:global(.landing:dir(rtl)) .summary {
+  line-height: 1.75;
+}
+.challenge:dir(rtl) .fileHeader,
+.challenge:dir(rtl) .fileFooter,
+.challenge:dir(rtl) .metaLabel,
+.challenge:dir(rtl) .badges li,
+.challenge:dir(rtl) .subjects li,
+.challenge:dir(rtl) .fileIndex > div {
+  letter-spacing: 0;
+}
+
+:global(.landing:dir(rtl)) .intro h2 {
+  font-family: var(--font-arabic), sans-serif;
+  letter-spacing: 0;
+  line-height: 1.35;
+  padding-block: 0.08em 0.25em;
+}
+
 
