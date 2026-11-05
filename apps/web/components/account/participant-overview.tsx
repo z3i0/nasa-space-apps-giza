@@ -1,6 +1,6 @@
 "use client"
 import useSWR from "swr"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import {
   Users,
   Target,
@@ -16,8 +16,9 @@ import { type AccountOverview } from "@/lib/account"
 import { useAuthUser } from "@/lib/auth"
 
 export function ParticipantOverview() {
-  const t = useTranslations("Account"),
-    user = useAuthUser()
+  const t = useTranslations("Account")
+  const locale = useLocale()
+  const user = useAuthUser()
 
   const {
     data,
@@ -28,6 +29,13 @@ export function ParticipantOverview() {
   } = useSWR<AccountOverview>("/overview", {
     refreshInterval: 15000,
     revalidateOnFocus: true,
+  })
+
+  const { data: challengeOptions } = useSWR<
+    { id: string; title: string; titleAr: string | null }[]
+  >("/challenge-options", {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
   })
 
   const loading = isLoading && !data
@@ -60,6 +68,21 @@ export function ParticipantOverview() {
     { key: "teamStep", done: !!data.team, path: "team" },
     { key: "submissionStep", done: data.submitted, path: "submit" },
   ]
+
+  const isAr = locale === "ar"
+  const matchedOption = challengeOptions?.find(
+    (opt) =>
+      opt.title === data.challenge ||
+      opt.id === data.challenge ||
+      (opt.titleAr && opt.titleAr === data.challenge)
+  )
+
+  const challengeDisplay = !data.challenge
+    ? t("notSelected")
+    : isAr
+      ? data.challengeAr || matchedOption?.titleAr || data.challenge
+      : matchedOption?.title || data.challenge
+
   return (
     <div className="mx-auto grid w-full max-w-7xl gap-6">
       <header
@@ -103,32 +126,55 @@ export function ParticipantOverview() {
             value: data.team
               ? `${data.team.members.length} / ${data.team.maxMembers}`
               : "0",
+            isText: false,
           },
           {
             icon: Target,
             label: "challenge",
             tone: "border-orange/30 bg-orange/8 text-orange",
-            value: data.challenge || t("notSelected"),
+            value: challengeDisplay,
+            tooltip: challengeDisplay,
+            isText: true,
           },
           {
             icon: Compass,
             label: "mentorRequests",
             tone: "border-chart-5/30 bg-chart-5/8 text-chart-5",
             value: String(data.mentorshipCount),
+            isText: false,
           },
           {
             icon: CheckCircle2,
             label: "completedSteps",
             tone: "border-success/30 bg-success/8 text-success",
             value: `${steps.filter((s) => s.done).length} / 4`,
+            isText: false,
           },
         ].map((item) => (
-          <section className={`${panel} ${item.tone}`} key={item.label}>
-            <item.icon size={22} className="mb-4" />
-            <p className="text-sm text-muted-foreground">{t(item.label)}</p>
-            <strong className="mt-2 block text-xl break-words">
-              {item.value}
-            </strong>
+          <section
+            className={`${panel} ${item.tone} flex flex-col justify-between`}
+            key={item.label}
+          >
+            <div>
+              <item.icon size={22} className="mb-3" />
+              <p className="text-sm font-medium text-muted-foreground">
+                {t(item.label)}
+              </p>
+            </div>
+            <div className="mt-2 min-h-[48px] flex items-end">
+              {item.isText ? (
+                <strong
+                  className="block text-sm font-semibold leading-snug line-clamp-2"
+                  title={item.tooltip}
+                >
+                  {item.value}
+                </strong>
+              ) : (
+                <strong className="block text-2xl font-bold tracking-tight">
+                  {item.value}
+                </strong>
+              )}
+            </div>
           </section>
         ))}
       </div>

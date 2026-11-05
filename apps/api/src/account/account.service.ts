@@ -980,9 +980,29 @@ export class AccountService {
       }),
     ]);
     const team = membership?.team;
+    const challengeTitle =
+      team?.challenge || profile?.preferredChallenge || null;
+    let challengeAr: string | null = null;
+    if (challengeTitle) {
+      const ch = await this.db.challenge.findFirst({
+        where: {
+          OR: [
+            { title: challengeTitle },
+            { id: challengeTitle },
+            { titleAr: challengeTitle },
+          ],
+        },
+        select: { title: true, titleAr: true },
+      });
+      if (ch?.titleAr) {
+        challengeAr = ch.titleAr;
+      }
+    }
+
     return {
       skills: profile?.skills || [],
-      challenge: team?.challenge || profile?.preferredChallenge || null,
+      challenge: challengeTitle,
+      challengeAr,
       profileComplete: !!profile?.skills.length && !!profile?.bio,
       team: team
         ? {

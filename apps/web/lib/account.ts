@@ -125,6 +125,7 @@ export interface DirectoryResponse<T> {
 export interface AccountOverview {
   skills: string[]
   challenge: string | null
+  challengeAr?: string | null
   profileComplete: boolean
   mentorshipCount: number
   submitted: boolean
